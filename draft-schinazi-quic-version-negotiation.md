@@ -170,7 +170,8 @@ the supported parameters, so negotiation between compatible versions
 will have the security of the weakest common version.
 
 The requirement that versions not be assumed compatible mitigates the
-possibility of cross-protocol attacks.
+possibility of cross-protocol attacks, but more analysis is still
+needed here.
 
 # IANA Considerations
 
