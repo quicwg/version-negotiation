@@ -1,6 +1,6 @@
 ---
 title: Compatible Version Negotiation for QUIC
-abbrev: QUIC VN
+abbrev: QUIC Compatible VN
 docname: draft-schinazi-quic-version-negotiation-latest
 category: info
 
@@ -13,12 +13,15 @@ stand_alone: yes
 pi: [toc, sortrefs, symrefs]
 
 author:
- -
-    ins: D. Schinazi
-    name: David Schinazi
-    organization: Google
-    email: dschinazi@google.com
-
+  -
+    ins: "D. Schinazi"
+    name: "David Schinazi"
+    organization: "Google LLC"
+    street: "1600 Amphitheatre Parkway"
+    city: "Mountain View, California 94043"
+    country: "United States of America"
+    email: dschinazi.ietf@gmail.com
+  -
     ins: E. Rescorla
     name: Eric Rescorla
     organization: Mozilla
@@ -27,6 +30,8 @@ author:
 
 normative:
   RFC2119:
+  RFC8174:
+  I-D.ietf-quic-transport:
 
 
 
@@ -35,7 +40,7 @@ normative:
 QUIC does not provide a complete version negotiation mechanism but
 instead only provides a way for the server to indicate that the
 version the client offered is unacceptable. This document describes
-a version negotiation mechanisnm that allows a client and server
+a version negotiation mechanism that allows a client and server
 to select from a set of QUIC versions which share a compatible
 Initial format without incurring an extra round trip.
 
@@ -45,8 +50,8 @@ Initial format without incurring an extra round trip.
 
 # Introduction
 
-QUIC {{!I-D.ietf-quic-transport}} does not provide a complete
-version negotiation mechanism; the VN packet only allows the
+QUIC {{I-D.ietf-quic-transport}} does not provide a complete
+version negotiation (VN) mechanism; the VN packet only allows the
 server to indicate that the version the client offered is
 unacceptable, but doesn't allow the client to safely make
 use of that information. In principle the VN packet could be
@@ -74,20 +79,23 @@ necessary --  is left as a topic for future work.
 
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD",
 "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and "OPTIONAL" in this
-document are to be interpreted as described in BCP 14 {{RFC2119}} {{!RFC8174}}
+document are to be interpreted as described in BCP 14 {{RFC2119}} {{RFC8174}}
 when, and only when, they appear in all capitals, as shown here.
 
 
 # Version Negotiation Mechanism
 
-The mechanism defined in this document is straightforward: the client supports a
-set of ordered versions V_0 ... V_N. Its Initial packet is sent using the oldest
-version that the client supports (V_0) and then lists all of the compatible
-{{compatible-versions}} versions that the client supports in the
-supported_versions field of its transport parameters {{supported-versions}}. The
-server then selects its preferred version and responds with that version in all
-of its future packets (except for Retry, as below). It also inserts the selected
-version in the version field of its transport parameters.
+The mechanism defined in this document is straightforward: the client maintains
+a list of QUIC versions it supports, ordered by preference. Its Initial packet
+is sent using the version that the server is most likely to support (in
+practice, this will generally be the oldest version the client supports);
+that Initial packet then lists all of the other compatible versions
+({{compatible-versions}}) that the client supports in the
+supported_compatible_versions field of its transport parameters
+({{compat-vers-tp}}). The server then selects its preferred version and
+responds with that version in all of its future packets (except for Retry, as
+below). It also inserts the selected version in the
+negotiated_compatible_version field of its transport parameters.
 
 The server MUST NOT select a version not offered by the client.  The client MUST
 validate that the version in the server's packets is one of the versions that it
@@ -106,30 +114,35 @@ similar.
 
 If the server receives an Initial packet with a version it does not understand
 this will cause a connection failure and the server SHOULD send a Version
-Negotiation packet as defined in {{I-D.ietf-quic-transport}}
+Negotiation packet as defined in {{I-D.ietf-quic-transport}}.
 
-# Supported Versions Transport Parameter {#supported-versions}
+# Compatible Versions Transport Parameter {#compat-vers-tp}
 
-This document adds a new transport parameter, SupportedVersions:
+This document adds a new transport parameter, CompatibleVersions:
 
 ~~~~
 struct {
       select (Handshake.msg_type) {
          case client_hello:
-            QuicVersion supported_versions<4..2^8-4>;
+            QuicVersion supported_compatible_versions<4..2^8-4>;
 
-         case server_hello:
-            QuicVersion version;
+         case encrypted_extensions:
+            QuicVersion negotiated_compatible_version;
       }
-} SupportedVersions;
+} CompatibleVersions;
 ~~~~
 
-The client's "supported_versions" parameter lists the versions it
+The client's "supported_compatible_versions" parameter lists the versions it
 supports in decreasing order of preference. The server's
-parameter lists the version it has selected. If the client
-does not send this transport parameter, the server MUST assume
+"negotiated_compatible_version" parameter lists the version it has selected.
+If the client does not send this transport parameter, the server MUST assume
 that the client only supports the version it used for the
 Initial packet and MUST NOT send its own parameter.
+
+Clients MAY include versions following the pattern 0x?a?a?a?a in their
+supported_compatible_versions. Those versions are reserved to exercise
+version negotiation (see the Versions section of {{I-D.ietf-quic-transport}}),
+and MUST be ignored by the server when parsing supported_compatible_versions.
 
 
 # Compatible Versions
@@ -140,9 +153,14 @@ scenario is a sequence of versions 1, 2, 3, etc. in which all the
 Initial packets have the same basic structure but might include
 specific extensions (especially inside the crypto handshake)
 that are only meaningful in some subset of versions and are ignored
-in others. Note that it is not possible to add new frame types
-because QUIC requires that unrecognized frame types be treated
-as an error. [[TODO: Citation needed]]
+in others. Note that it is not possible to add new frame types in
+Initial packets because QUIC frames do not use a self-describing
+encoding, so unrecognized frame types cannot be parsed or ignored (see the
+Extension Frames section of {{I-D.ietf-quic-transport}}).
+
+When a new version of QUIC is defined, it is assumed to not be compatible
+with any other version unless otherwise specified. Implementations MUST NOT
+assume compatibility between version unless explicitly specified.
 
 
 # Security Considerations
@@ -151,13 +169,13 @@ The crypto handshake is already required to guarantee agreement on
 the supported parameters, so negotiation between compatible versions
 will have the security of the weakest common version.
 
-[[TODO: Write something about cross-protocol attacks if there
-is confusion about which versions are compatible.]]
+The requirement that versions not be assumed compatible mitigates the
+possibility of cross-protocol attacks.
 
 # IANA Considerations
 
-IANA [SHALL assign/has assigned] the identifier TBD for the "supported_versions"
-transport parameter.
+If this document is approved, IANA shall assign the identifier TBD for the
+"compatible_versions" transport parameter.
 
 
 --- back
