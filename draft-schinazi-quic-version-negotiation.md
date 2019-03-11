@@ -147,7 +147,12 @@ as an error. [[TODO: Citation needed]]
 
 # Security Considerations
 
+The crypto handshake is already required to guarantee agreement on
+the supported parameters, so negotiation between compatible versions
+will have the security of the weakest common version.
 
+[[TODO: Write something about cross-protocol attacks if there
+is confusion about which versions are compatible.]]
 
 # IANA Considerations
 
@@ -157,7 +162,5 @@ transport parameter.
 
 --- back
 
-# Acknowledgments
-{:numbered="false"}
 
-TODO acknowledge.
+
