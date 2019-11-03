@@ -1,0 +1,497 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" 
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head profile="http://www.w3.org/2006/03/hcard http://dublincore.org/documents/2008/08/04/dc-html/">
+  <meta http-equiv="Content-Type" content="text/html; charset=us-ascii" />
+
+  <title>Compatible Version Negotiation for QUIC</title>
+
+  
+<style type="text/css">/*<![CDATA[*/
+
+body {
+  font: 16px "Helvetica Neue","Open Sans",Helvetica,Calibri,sans-serif;
+  color: #333;
+  font-size-adjust: 0.5;
+  line-height: 24px;
+  margin: 75px auto;
+  max-width: 624px;
+  padding: 0 5px;
+}
+
+.title, .filename, h1, h2, h3, h4, h5 {
+  font: 16px "Roboto Condensed","Helvetica Neue","Open Sans",Helvetica,Calibri,sans-serif;
+  font-size-adjust: 0.5;
+  font-weight: bold;
+  color: #333;
+  line-height: 100%;
+  margin: 1.2em 0 0.3em;
+}
+.title, #rfc\.title h1 { font-size: 32px; }
+h1, section h1, h2, section h2, section h3, nav h2 { font-size: 20px; }
+h3, section h4, h4, section h5 { font-size: 16px; }
+h1 a[href], h2 a[href], h3 a[href], h4 a[href] {
+  color: #333;
+}
+
+table {
+  margin-left: 0em;
+  border-collapse: collapse;
+}
+th {
+  text-align: left;
+  border-bottom: 2px solid #ddd;
+}
+td {
+  border-top: 1px solid #ddd;
+  vertical-align: top;
+}
+tr:nth-child(2n+1) > td,
+tr:nth-child(2n+1) > th {
+  background-color: #f9f9f9;
+}
+td.reference {
+  max-width: 200px;
+  border-top: none;
+  padding-right: 1em;
+}
+.right {
+  text-align: right;
+}
+
+
+table.header, table#rfc\.headerblock {
+  width: 100%;
+}
+table.header td, table#rfc\.headerblock td {
+  border: none;
+  background-color: transparent;
+  color: black;
+  padding: 0;
+}
+.filename {
+  display: block;
+  color: rgb(119, 119, 119);
+  font-size: 20px;
+  font-weight: normal;
+  line-height: 100%;
+  margin: 10px 0 32px;
+}
+#rfc\.abstract+p, #rfc\.abstract p {
+  font-size: 20px;
+  line-height: 28px;
+}
+
+samp, tt, code, pre, span.tt {
+  font: 13.5px Consolas, monospace;
+  font-size-adjust: none;
+}
+pre {
+  background-color: #eee;
+  border: 1px solid #ddd;
+  overflow-x: auto;
+  padding: 5px;
+  margin: 5px;
+}
+.figure, caption {
+  font-style: italic;
+  margin: 0 1.5em;
+  text-align: left;
+}
+
+address {
+  margin: 16px 2px;
+  line-height: 20px;
+}
+.vcard {
+  font-style: normal;
+}
+.vcardline {
+  display: block;
+}
+.vcardline .fn, address b {
+  font-weight: normal;
+}
+.vcardline .hidden {
+  display: none;
+}
+
+dl {
+  margin-left: 1em;
+}
+dl.dl-horizontal: {
+  margin-left: 0;
+}
+dl > dt {
+  float: left;
+  margin-right: 1em;
+}
+dl.nohang > dt {
+  float: none;
+}
+dl > dd {
+  margin-bottom: .5em;
+}
+dl.compact > dd {
+  margin-bottom: 0em;
+}
+dl > dd > dl {
+  margin-top: 0.5em;
+  margin-bottom: 0em;
+}
+ul.empty {
+  list-style-type: none;
+}
+ul.empty li {
+  margin-top: .5em;
+}
+
+hr {
+  border: 0;
+  border-top: 1px solid #eee;
+}
+hr.noprint {
+  display: none;
+}
+
+a {
+  text-decoration: none;
+}
+a[href] {
+  color: #2a6496;
+}
+a[href]:hover {
+  background-color: #eee;
+}
+
+p, ol, ul, li {
+  padding: 0;
+}
+p {
+  margin: 0.5em 0;
+}
+ol, ul {
+  margin: 0.2em 0 0.2em 2em;
+}
+li {
+  margin: 0.2em 0;
+}
+address {
+  font-style: normal;
+}
+
+ul.toc ul {
+  margin: 0 0 0 2em;
+}
+ul.toc li {
+  list-style: none;
+  margin: 0;
+}
+
+@media screen and (min-width: 924px) {
+  body {
+    padding-right: 350px;
+  }
+  body>ul.toc, body>#rfc\.toc {
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    right: calc(50vw - 500px);
+    width: 300px;
+    z-index: 1;
+    overflow: auto;
+    overscroll-behavior: contain;
+  }
+  body>#rfc\.toc {
+    top: 55px;
+  }
+  body>ul.toc {
+    top: 100px;
+  }
+
+  ul.toc {
+    margin: 0 0 0 4px;
+    font-size: 12px;
+    line-height: 20px;
+  }
+  ul.toc ul {
+    margin-left: 1.2em;
+  }
+}
+
+.github-fork-ribbon-wrapper {
+  display: none;
+}
+@media screen and (min-width: 800px) {
+  /* "Fork me on GitHub" CSS ribbon based on
+   * https://github.com/simonwhitaker/github-fork-ribbon-css
+   */
+  .github-fork-ribbon {
+    position: absolute;
+    padding: 2px 0;
+    background-color: #a00;
+    background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.15));
+    box-shadow: 0 2px 3px 0 rgba(0, 0, 0, 0.5);
+    font: 700 12px "Helvetica Neue", Helvetica, Arial, sans-serif;
+
+    pointer-events: auto;
+
+    top: 38px;
+    right: -45px;
+
+    transform: rotate(45deg);
+  }
+
+  .github-fork-ribbon a[href],
+  .github-fork-ribbon a[href]:hover {
+    color: #fff;
+    background-color: transparent;
+    text-decoration: none;
+    text-shadow: 0 -1px rgba(0, 0, 0, 0.5);
+    text-align: center;
+
+    width: 190px;
+    line-height: 18px;
+
+    display: inline-block;
+    padding: 2px 0;
+
+    border: 1.5px dotted #fff;
+    border-color: rgba(255, 255, 255, 0.6);
+  }
+
+  .github-fork-ribbon-wrapper {
+    display: block;
+    width: 130px;
+    height: 130px;
+    position: absolute;
+    overflow: hidden;
+    top: 0; right: 0;
+    z-index: 2;
+    pointer-events: none;
+  }
+}
+@media screen and (min-width: 1000px) {
+  .github-fork-ribbon-wrapper {
+    position: fixed;
+  }
+/*]]>*/</style>
+<meta name="viewport" content="initial-scale=1.0">
+
+
+  <link href="#rfc.toc" rel="Contents">
+<link href="#rfc.section.1" rel="Chapter" title="1 Introduction">
+<link href="#rfc.section.2" rel="Chapter" title="2 Conventions and Definitions">
+<link href="#rfc.section.3" rel="Chapter" title="3 Version Negotiation Mechanism">
+<link href="#rfc.section.4" rel="Chapter" title="4 Compatible Versions Transport Parameter">
+<link href="#rfc.section.5" rel="Chapter" title="5 Compatible Versions">
+<link href="#rfc.section.6" rel="Chapter" title="6 Security Considerations">
+<link href="#rfc.section.7" rel="Chapter" title="7 IANA Considerations">
+<link href="#rfc.references" rel="Chapter" title="8 Normative References">
+<link href="#rfc.authors" rel="Chapter">
+
+
+  <meta name="generator" content="xml2rfc version 2.19.0 - https://tools.ietf.org/tools/xml2rfc" />
+  <link rel="schema.dct" href="http://purl.org/dc/terms/" />
+
+  <meta name="dct.creator" content="Schinazi, D. and E. Rescorla" />
+  <meta name="dct.identifier" content="urn:ietf:id:draft-schinazi-quic-version-negotiation-latest" />
+  <meta name="dct.issued" scheme="ISO8601" content="2019-03-11" />
+  <meta name="dct.abstract" content="QUIC does not provide a complete version negotiation mechanism but instead only provides a way for the server to indicate that the version the client offered is unacceptable. This document describes a version negotiation mechanism that allows a client and server to select from a set of QUIC versions which share a compatible Initial format without incurring an extra round trip." />
+  <meta name="description" content="QUIC does not provide a complete version negotiation mechanism but instead only provides a way for the server to indicate that the version the client offered is unacceptable. This document describes a version negotiation mechanism that allows a client and server to select from a set of QUIC versions which share a compatible Initial format without incurring an extra round trip." />
+
+</head>
+
+<body>
+
+  <table class="header">
+    <tbody>
+    
+    	<tr>
+<td class="left">QUIC Working Group</td>
+<td class="right">D. Schinazi</td>
+</tr>
+<tr>
+<td class="left">Internet-Draft</td>
+<td class="right">Google LLC</td>
+</tr>
+<tr>
+<td class="left">Intended status: Informational</td>
+<td class="right">E. Rescorla</td>
+</tr>
+<tr>
+<td class="left">Expires: September 12, 2019</td>
+<td class="right">Mozilla</td>
+</tr>
+<tr>
+<td class="left"></td>
+<td class="right">March 11, 2019</td>
+</tr>
+
+    	
+    </tbody>
+  </table>
+
+  <p class="title">Compatible Version Negotiation for QUIC<br />
+  <span class="filename">draft-schinazi-quic-version-negotiation-latest</span></p>
+  
+  <h1 id="rfc.abstract"><a href="#rfc.abstract">Abstract</a></h1>
+<p>QUIC does not provide a complete version negotiation mechanism but instead only provides a way for the server to indicate that the version the client offered is unacceptable. This document describes a version negotiation mechanism that allows a client and server to select from a set of QUIC versions which share a compatible Initial format without incurring an extra round trip.</p>
+<h1 id="rfc.status"><a href="#rfc.status">Status of This Memo</a></h1>
+<p>This Internet-Draft is submitted in full conformance with the provisions of BCP 78 and BCP 79.</p>
+<p>Internet-Drafts are working documents of the Internet Engineering Task Force (IETF).  Note that other groups may also distribute working documents as Internet-Drafts.  The list of current Internet-Drafts is at https://datatracker.ietf.org/drafts/current/.</p>
+<p>Internet-Drafts are draft documents valid for a maximum of six months and may be updated, replaced, or obsoleted by other documents at any time.  It is inappropriate to use Internet-Drafts as reference material or to cite them other than as "work in progress."</p>
+<p>This Internet-Draft will expire on September 12, 2019.</p>
+<h1 id="rfc.copyrightnotice"><a href="#rfc.copyrightnotice">Copyright Notice</a></h1>
+<p>Copyright (c) 2019 IETF Trust and the persons identified as the document authors.  All rights reserved.</p>
+<p>This document is subject to BCP 78 and the IETF Trust's Legal Provisions Relating to IETF Documents (https://trustee.ietf.org/license-info) in effect on the date of publication of this document.  Please review these documents carefully, as they describe your rights and restrictions with respect to this document.  Code Components extracted from this document must include Simplified BSD License text as described in Section 4.e of the Trust Legal Provisions and are provided without warranty as described in the Simplified BSD License.</p>
+
+  
+  <hr class="noprint" />
+  <h1 class="np" id="rfc.toc"><a href="#rfc.toc">Table of Contents</a></h1>
+  <ul class="toc">
+
+  	<li>1.   <a href="#rfc.section.1">Introduction</a>
+</li>
+<li>2.   <a href="#rfc.section.2">Conventions and Definitions</a>
+</li>
+<li>3.   <a href="#rfc.section.3">Version Negotiation Mechanism</a>
+</li>
+<li>4.   <a href="#rfc.section.4">Compatible Versions Transport Parameter</a>
+</li>
+<li>5.   <a href="#rfc.section.5">Compatible Versions</a>
+</li>
+<li>6.   <a href="#rfc.section.6">Security Considerations</a>
+</li>
+<li>7.   <a href="#rfc.section.7">IANA Considerations</a>
+</li>
+<li>8.   <a href="#rfc.references">Normative References</a>
+</li>
+<li><a href="#rfc.authors">Authors' Addresses</a>
+</li>
+
+
+  </ul>
+
+  <h1 id="rfc.section.1">
+<a href="#rfc.section.1">1.</a> <a href="#introduction" id="introduction">Introduction</a>
+</h1>
+<p id="rfc.section.1.p.1">QUIC <a href="#I-D.ietf-quic-transport" class="xref">[I-D.ietf-quic-transport]</a> does not provide a complete version negotiation (VN) mechanism; the VN packet only allows the server to indicate that the version the client offered is unacceptable, but doesn&#8217;t allow the client to safely make use of that information. In principle the VN packet could be part of a mechanism to allow two QUIC implementations to negotiate between two totally disjoint versions of QUIC (at the cost of an extra round trip). However, experience with negotiation of previous IETF protocols indicates that this is probably not the most common scenario:</p>
+<p></p>
+
+<ol>
+<li>Implementations do not generally want to incur an extra round trip to negotiate versions.</li>
+<li>Most incremental versions are broadly similar to the the previous version, and so the version negotiation mechanism can be built on the assumption that the version advertisement and selection is common to the versions to be negotiated.</li>
+</ol>
+<p id="rfc.section.1.p.3">This specification describes a simple version negotiation mechanism which exploits property (2) and can negotiate between the set of &#8220;compatible&#8221; versions in a single round trip. Negotiation between totally disjoint versions &#8211; if it ever proves to be necessary &#8211;  is left as a topic for future work.</p>
+<h1 id="rfc.section.2">
+<a href="#rfc.section.2">2.</a> <a href="#conventions-and-definitions" id="conventions-and-definitions">Conventions and Definitions</a>
+</h1>
+<p id="rfc.section.2.p.1">The key words &#8220;MUST&#8221;, &#8220;MUST NOT&#8221;, &#8220;REQUIRED&#8221;, &#8220;SHALL&#8221;, &#8220;SHALL NOT&#8221;, &#8220;SHOULD&#8221;, &#8220;SHOULD NOT&#8221;, &#8220;RECOMMENDED&#8221;, &#8220;NOT RECOMMENDED&#8221;, &#8220;MAY&#8221;, and &#8220;OPTIONAL&#8221; in this document are to be interpreted as described in BCP 14 <a href="#RFC2119" class="xref">[RFC2119]</a> <a href="#RFC8174" class="xref">[RFC8174]</a> when, and only when, they appear in all capitals, as shown here.</p>
+<h1 id="rfc.section.3">
+<a href="#rfc.section.3">3.</a> <a href="#version-negotiation-mechanism" id="version-negotiation-mechanism">Version Negotiation Mechanism</a>
+</h1>
+<p id="rfc.section.3.p.1">The mechanism defined in this document is straightforward: the client maintains a list of QUIC versions it supports, ordered by preference. Its Initial packet is sent using the version that the server is most likely to support (in practice, this will generally be the oldest version the client supports); that Initial packet then lists all of the other compatible versions (<a href="#compatible-versions" class="xref">Section 5</a>) that the client supports in the supported_compatible_versions field of its transport parameters (<a href="#compat-vers-tp" class="xref">Section 4</a>). The server then selects its preferred version and responds with that version in all of its future packets (except for Retry, as below). It also inserts the selected version in the negotiated_compatible_version field of its transport parameters.</p>
+<p id="rfc.section.3.p.2">The server MUST NOT select a version not offered by the client.  The client MUST validate that the version in the server&#8217;s packets is one of the versions that it offered and that it matches the value in the server&#8217;s transport parameters.</p>
+<p id="rfc.section.3.p.3">If the server sends a Retry, it MUST use the same version that the client provided in its Initial. Version negotiation takes place after the retry cycle is over.</p>
+<p id="rfc.section.3.p.4">In order for negotiation to complete successfully, the client&#8217;s Initial packet (and initial CRYPTO frames) MUST be interpretable by the server. This implies that servers must retain the ability to process the Initial packet from older versions as long as they are reasonably popular.  This is not generally an issue in practice as long as the the overall structure of the protocol remains similar.</p>
+<p id="rfc.section.3.p.5">If the server receives an Initial packet with a version it does not understand this will cause a connection failure and the server SHOULD send a Version Negotiation packet as defined in <a href="#I-D.ietf-quic-transport" class="xref">[I-D.ietf-quic-transport]</a>.</p>
+<h1 id="rfc.section.4">
+<a href="#rfc.section.4">4.</a> <a href="#compat-vers-tp" id="compat-vers-tp">Compatible Versions Transport Parameter</a>
+</h1>
+<p id="rfc.section.4.p.1">This document adds a new transport parameter, CompatibleVersions:</p>
+<pre>
+struct {
+      select (Handshake.msg_type) {
+         case client_hello:
+            QuicVersion supported_compatible_versions&lt;4..2^8-4&gt;;
+
+         case encrypted_extensions:
+            QuicVersion negotiated_compatible_version;
+      }
+} CompatibleVersions;
+</pre>
+<p id="rfc.section.4.p.2">The client&#8217;s &#8220;supported_compatible_versions&#8221; parameter lists the versions it supports in decreasing order of preference. The server&#8217;s &#8220;negotiated_compatible_version&#8221; parameter lists the version it has selected.  If the client does not send this transport parameter, the server MUST assume that the client only supports the version it used for the Initial packet and MUST NOT send its own parameter.</p>
+<p id="rfc.section.4.p.3">Clients MAY include versions following the pattern 0x?a?a?a?a in their supported_compatible_versions. Those versions are reserved to exercise version negotiation (see the Versions section of <a href="#I-D.ietf-quic-transport" class="xref">[I-D.ietf-quic-transport]</a>), and MUST be ignored by the server when parsing supported_compatible_versions.</p>
+<h1 id="rfc.section.5">
+<a href="#rfc.section.5">5.</a> <a href="#compatible-versions" id="compatible-versions">Compatible Versions</a>
+</h1>
+<p id="rfc.section.5.p.1">Two versions of QUIC A and B are &#8220;compatible&#8221; if a version A Initial can be used to negotiate version B and vice versa. The most common scenario is a sequence of versions 1, 2, 3, etc. in which all the Initial packets have the same basic structure but might include specific extensions (especially inside the crypto handshake) that are only meaningful in some subset of versions and are ignored in others. Note that it is not possible to add new frame types in Initial packets because QUIC frames do not use a self-describing encoding, so unrecognized frame types cannot be parsed or ignored (see the Extension Frames section of <a href="#I-D.ietf-quic-transport" class="xref">[I-D.ietf-quic-transport]</a>).</p>
+<p id="rfc.section.5.p.2">When a new version of QUIC is defined, it is assumed to not be compatible with any other version unless otherwise specified. Implementations MUST NOT assume compatibility between version unless explicitly specified.</p>
+<h1 id="rfc.section.6">
+<a href="#rfc.section.6">6.</a> <a href="#security-considerations" id="security-considerations">Security Considerations</a>
+</h1>
+<p id="rfc.section.6.p.1">The crypto handshake is already required to guarantee agreement on the supported parameters, so negotiation between compatible versions will have the security of the weakest common version.</p>
+<p id="rfc.section.6.p.2">The requirement that versions not be assumed compatible mitigates the possibility of cross-protocol attacks.</p>
+<h1 id="rfc.section.7">
+<a href="#rfc.section.7">7.</a> <a href="#iana-considerations" id="iana-considerations">IANA Considerations</a>
+</h1>
+<p id="rfc.section.7.p.1">If this document is approved, IANA shall assign the identifier TBD for the &#8220;compatible_versions&#8221; transport parameter.</p>
+<h1 id="rfc.references">
+<a href="#rfc.references">8.</a> Normative References</h1>
+<table><tbody>
+<tr>
+<td class="reference"><b id="I-D.ietf-quic-transport">[I-D.ietf-quic-transport]</b></td>
+<td class="top">
+<a>Iyengar, J.</a> and <a>M. Thomson</a>, "<a href="https://tools.ietf.org/html/draft-ietf-quic-transport-18">QUIC: A UDP-Based Multiplexed and Secure Transport</a>", Internet-Draft draft-ietf-quic-transport-18, January 2019.</td>
+</tr>
+<tr>
+<td class="reference"><b id="RFC2119">[RFC2119]</b></td>
+<td class="top">
+<a>Bradner, S.</a>, "<a href="https://tools.ietf.org/html/rfc2119">Key words for use in RFCs to Indicate Requirement Levels</a>", BCP 14, RFC 2119, DOI 10.17487/RFC2119, March 1997.</td>
+</tr>
+<tr>
+<td class="reference"><b id="RFC8174">[RFC8174]</b></td>
+<td class="top">
+<a>Leiba, B.</a>, "<a href="https://tools.ietf.org/html/rfc8174">Ambiguity of Uppercase vs Lowercase in RFC 2119 Key Words</a>", BCP 14, RFC 8174, DOI 10.17487/RFC8174, May 2017.</td>
+</tr>
+</tbody></table>
+<h1 id="rfc.authors"><a href="#rfc.authors">Authors' Addresses</a></h1>
+<div class="avoidbreak">
+  <address class="vcard">
+	<span class="vcardline">
+	  <span class="fn">David Schinazi</span> 
+	  <span class="n hidden">
+		<span class="family-name">Schinazi</span>
+	  </span>
+	</span>
+	<span class="org vcardline">Google LLC</span>
+	<span class="adr">
+	  <span class="vcardline">1600 Amphitheatre Parkway</span>
+
+	  <span class="vcardline">
+		<span class="locality">Mountain View, California 94043</span>,  
+		<span class="region"></span>
+		<span class="code"></span>
+	  </span>
+	  <span class="country-name vcardline">United States of America</span>
+	</span>
+	<span class="vcardline">EMail: <a href="mailto:dschinazi.ietf@gmail.com">dschinazi.ietf@gmail.com</a></span>
+
+  </address>
+</div><div class="avoidbreak">
+  <address class="vcard">
+	<span class="vcardline">
+	  <span class="fn">Eric Rescorla</span> 
+	  <span class="n hidden">
+		<span class="family-name">Rescorla</span>
+	  </span>
+	</span>
+	<span class="org vcardline">Mozilla</span>
+	<span class="adr">
+	  
+	  <span class="vcardline">
+		<span class="locality"></span> 
+		<span class="region"></span>
+		<span class="code"></span>
+	  </span>
+	  <span class="country-name vcardline"></span>
+	</span>
+	<span class="vcardline">EMail: <a href="mailto:ekr@rtfm.com">ekr@rtfm.com</a></span>
+
+  </address>
+</div>
+
+</body>
+</html>
