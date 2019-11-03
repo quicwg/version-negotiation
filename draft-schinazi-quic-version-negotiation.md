@@ -81,28 +81,24 @@ The mechanism defined in this document is straightforward: the client maintains
 a list of QUIC versions it supports, ordered by preference. Its Initial packet
 is sent using the version that the server is most likely to support (in the
 absence of other information, this will often be the oldest version the client
-supports); that Initial packet then lists all of the other compatible versions
+supports); that Initial packet then lists all compatible versions
 ({{compatible-versions}}) that the client supports in the Compatible Version
-fields of its transport parameters ({{fig-client-tp}}).
+fields of its transport parameters ({{fig-client-tp}}). Note that the client's
+compatible version list always contains its attempted version.
 
-1. If the server supports the client's attempted version, and supports one of
-   the client's compatible versions, it selects the first version it supports
-   from the client's compatible version list. It then responds responds with
-   that version in all of its future packets (except for Retry, as below).
+* If the server supports one of the client's compatible versions, it selects a
+  version it supports from the client's compatible version list. It then
+  responds with that version in all of its future packets (except for Retry,
+  as below).
 
-1. If the server supports the client's attempted version but does not support
-   any of the client's compatible versions, it proceeds with the clients
-   attempted version.
-
-1. If the server does not support the client's attempted version, it sends a
-   Version Negotiation packet listing all the versions it supports.
+* If the server does not support any of the client's compatible versions, it
+  sends a Version Negotiation packet listing all the versions it supports.
 
 If the server leverages compatible versions and responds with a different
 version from the client's attempted version, it MUST NOT select a version not
 offered by the client.  The client MUST validate that the version in the
-server's packets is either its attempted version, or one of the compatible
-versions that it offered and that it matches the negotaited version in the
-server's transport parameters.
+server's packets is one of the compatible versions that it offered and that it
+matches the negotiated version in the server's transport parameters.
 
 If the server sends a Retry, it MUST use the same version that the client
 provided in its Initial. Version negotiation takes place after the retry cycle
@@ -173,6 +169,9 @@ Compatible Version Count:
 : A variable-length integer specifying the number of Compatible Version fields
   following it. The client lists all versions compatible with Attempted Version
   in the subsequent Compatible Version fields, ordered by descending preference.
+  Note that the version in the Attempted Version field MUST be included in the
+  Compatible Version list to allow the client to communicate the attempted
+  version's preference.
 
 ~~~
  0                   1                   2                   3
@@ -211,29 +210,31 @@ Supported Version Count:
 Clients MAY include versions following the pattern `0x?a?a?a?a` in their
 Compatible Version list, and the server in their Supported Version list.
 Those versions are reserved to exercise version negotiation (see the Versions
-section of {{QUIC}}), and MUST be ignored when parsing these fields. Clients
-MUST NOT add reserved versions that it did not oberve in the Version
-Negotiation packet to the Received Negotiation Version list, and clients MUST
-include any reserved versions seen in the Version Negotiation packet to the
-Received Negotiation Version list.
+section of {{QUIC}}), and MUST be ignored when parsing these fields. On the
+other hand, the Received Negotiation Version list MUST be identical to the
+received Version Negotiation packet, so clients MUST NOT add or remove reserved
+version from that list.
 
 
 # Version Downgrade Prevention
+
+Clients MUST ignore any received Version Negotiation packets that contain the
+version that they initially attempted.
 
 When a server parses the client's `version_negotiation` transport parameter, if
 the `Received Negotiation Version Count` is not zero, the server MUST validate
 that it could have sent the Version Negotation packet described by the client.
 In particular, the server MUST ensure that there are no versions that it
-supports that are absent from the Received Negotiation Versions. This mitigates
-an attacker's ability to forge Version Negotiation packets to force a version
-downgrade.
+supports that are absent from the Received Negotiation Versions, and that the
+ordering matches the server's preference. This mitigates an attacker's ability
+to forge Version Negotiation packets to force a version downgrade.
 
 If a server operator is progressively deploying a new QUIC version throughout
 its fleet, it MAY perform a two-step process where it first progressively adds
 support for the new version, but without enforcing its presence in Received
 Negotiation Versions. Once all servers have been upgraded, the second step is
 to start enforcing that the new version is present in Received Negotiation
-Versions. This opens connections to downgrade attackss during the upgrade
+Versions. This opens connections to downgrade attacks during the upgrade
 window, which may be due to clients communicating with both upgraded and
 non-upgraded servers.
 
