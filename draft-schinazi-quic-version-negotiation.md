@@ -84,7 +84,7 @@ absence of other information, this will often be the oldest version the client
 supports); that Initial packet then lists all compatible versions
 ({{compatible-versions}}) that the client supports in the Compatible Version
 fields of its transport parameters ({{fig-client-tp}}). Note that the client's
-compatible version list always contains its attempted version.
+compatible version list always contains its currently attempted version.
 
 * If the server supports one of the client's compatible versions, it selects a
   version it supports from the client's compatible version list. It then
@@ -95,10 +95,10 @@ compatible version list always contains its attempted version.
   sends a Version Negotiation packet listing all the versions it supports.
 
 If the server leverages compatible versions and responds with a different
-version from the client's attempted version, it MUST NOT select a version not
-offered by the client.  The client MUST validate that the version in the
-server's packets is one of the compatible versions that it offered and that it
-matches the negotiated version in the server's transport parameters.
+version from the client's currently attempted version, it MUST NOT select a
+version not offered by the client.  The client MUST validate that the version in
+the server's packets is one of the compatible versions that it offered and that
+it matches the negotiated version in the server's transport parameters.
 
 If the server sends a Retry, it MUST use the same version that the client
 provided in its Initial. Version negotiation takes place after the retry cycle
@@ -121,7 +121,9 @@ sending it, and are shown below:
  0                   1                   2                   3
  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|                    Attempted Version (32)                     |
+|               Currently Attempted Version (32)                |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|               Previously Attempted Version (32)               |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |            Received Negotiation Version Count (i)           ...
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -148,11 +150,18 @@ sending it, and are shown below:
 
 The content of each field is described below:
 
-Attempted Version:
+Currently Attempted Version:
 
 : The version that the client is using in this Initial. This field MUST be
   equal to the value of the Version field in the long header that carries
   this transport parameter.
+
+Previously Attempted Version:
+
+: If the client is sending this Initial in response to a Version Negotiation
+  packet, this field contains the version that the client used in the previous
+  Initial packet that triggered the version negotiation packet. If the client
+  did not receive a Version Negotiation packet, this field SHALL be all-zeroes.
 
 Received Negotiation Version Count:
 
@@ -167,11 +176,11 @@ Received Negotiation Version Count:
 Compatible Version Count:
 
 : A variable-length integer specifying the number of Compatible Version fields
-  following it. The client lists all versions compatible with Attempted Version
-  in the subsequent Compatible Version fields, ordered by descending preference.
-  Note that the version in the Attempted Version field MUST be included in the
-  Compatible Version list to allow the client to communicate the attempted
-  version's preference.
+  following it. The client lists all versions compatible with Currently
+  Attempted Version in the subsequent Compatible Version fields, ordered by
+  descending preference. Note that the version in the Currently Attempted
+  Version field MUST be included in the Compatible Version list to allow the
+  client to communicate the currently attempted version's preference.
 
 ~~~
  0                   1                   2                   3
@@ -221,13 +230,22 @@ version from that list.
 Clients MUST ignore any received Version Negotiation packets that contain the
 version that they initially attempted.
 
+Servers MUST validate that the client's `Currently Attempted Version` matches
+the version in the long header that carried the transport parameter. Similarly,
+clients MUST validate that the server's `Negotiated Version` matches the long
+header version. If an endpoint's validation fails, it MUST close the connection
+with an error of type VERSION_NEGOTIATION_ERROR.
+
 When a server parses the client's `version_negotiation` transport parameter, if
 the `Received Negotiation Version Count` is not zero, the server MUST validate
-that it could have sent the Version Negotation packet described by the client.
+that it could have sent the Version Negotation packet described by the client
+in response to an Initial of version `Previously Attempted Version`.
 In particular, the server MUST ensure that there are no versions that it
 supports that are absent from the Received Negotiation Versions, and that the
-ordering matches the server's preference. This mitigates an attacker's ability
-to forge Version Negotiation packets to force a version downgrade.
+ordering matches the server's preference. If this validation fails, the server
+MUST close the connection with an error of type VERSION_NEGOTIATION_ERROR. This
+mitigates an attacker's ability to forge Version Negotiation packets to force a
+version downgrade.
 
 If a server operator is progressively deploying a new QUIC version throughout
 its fleet, it MAY perform a two-step process where it first progressively adds
@@ -246,7 +264,7 @@ versions it supports to the client. In the case where clients initially attempt
 connections with the oldest version they support, this allows them to be
 notified of more recent versions the server supports. If the client notices
 that the server supports a version that is more preferable that the one
-initially attempted by default, the client SHOULD cache that information an
+initially attempted by default, the client SHOULD cache that information and
 attempt the preferred version in subsequent connections.
 
 
@@ -284,7 +302,9 @@ an attacker's ability to forge packets by altering the version.
 # IANA Considerations
 
 If this document is approved, IANA shall assign the identifier 0x73DB for the
-`version_negotiation` transport parameter.
+`version_negotiation` transport parameter from the QUIC Transport Parameter
+Registry and the identifier 0x53F8 for `VERSION_NEGOTIATION_ERROR` from the
+QUIC Transport Error Codes registry.
 
 
 --- back
