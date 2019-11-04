@@ -78,7 +78,7 @@ Table of Contents
    6.  Supported Versions  . . . . . . . . . . . . . . . . . . . . .   7
    7.  Compatible Versions . . . . . . . . . . . . . . . . . . . . .   7
    8.  Security Considerations . . . . . . . . . . . . . . . . . . .   7
-   9.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .   7
+   9.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .   8
    10. References  . . . . . . . . . . . . . . . . . . . . . . . . .   8
      10.1.  Normative References . . . . . . . . . . . . . . . . . .   8
      10.2.  URIs . . . . . . . . . . . . . . . . . . . . . . . . . .   8
@@ -300,7 +300,9 @@ Internet-Draft             QUIC Compatible VN              November 2019
 5.  Version Downgrade Prevention
 
    Clients MUST ignore any received Version Negotiation packets that
-   contain the version that they initially attempted.
+   contain the version that they initially attempted.  Once a client has
+   reacted to a Version Negotiation packet, it MUST drop all subsequent
+   Version Negotiation packets.
 
    Servers MUST validate that the client's "Currently Attempted Version"
    matches the version in the long header that carried the transport
@@ -328,8 +330,6 @@ Internet-Draft             QUIC Compatible VN              November 2019
    servers have been upgraded, the second step is to start enforcing
    that the new version is present in Received Negotiation Versions.
    This opens connections to version downgrades during the upgrade
-   window, since those could be due to clients communicating with both
-   upgraded and non-upgraded servers.
 
 
 
@@ -337,6 +337,9 @@ Schinazi & Rescorla        Expires May 7, 2020                  [Page 6]
 
 Internet-Draft             QUIC Compatible VN              November 2019
 
+
+   window, since those could be due to clients communicating with both
+   upgraded and non-upgraded servers.
 
 6.  Supported Versions
 
@@ -381,11 +384,8 @@ Internet-Draft             QUIC Compatible VN              November 2019
    mitigates an attacker's ability to forge packets by altering the
    version.
 
-9.  IANA Considerations
 
-   If this document is approved, IANA shall assign the identifier 0x73DB
-   for the "version_negotiation" transport parameter from the QUIC
-   Transport Parameter Registry and the identifier 0x53F8 for
+
 
 
 
@@ -394,6 +394,11 @@ Schinazi & Rescorla        Expires May 7, 2020                  [Page 7]
 Internet-Draft             QUIC Compatible VN              November 2019
 
 
+9.  IANA Considerations
+
+   If this document is approved, IANA shall assign the identifier 0x73DB
+   for the "version_negotiation" transport parameter from the QUIC
+   Transport Parameter Registry and the identifier 0x53F8 for
    "VERSION_NEGOTIATION_ERROR" from the QUIC Transport Error Codes
    registry.
 
@@ -435,6 +440,16 @@ Authors' Addresses
    Email: dschinazi.ietf@gmail.com
 
 
+
+
+
+
+
+Schinazi & Rescorla        Expires May 7, 2020                  [Page 8]
+
+Internet-Draft             QUIC Compatible VN              November 2019
+
+
    Eric Rescorla
    Mozilla
 
@@ -445,4 +460,45 @@ Authors' Addresses
 
 
 
-Schinazi & Rescorla        Expires May 7, 2020                  [Page 8]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Schinazi & Rescorla        Expires May 7, 2020                  [Page 9]
