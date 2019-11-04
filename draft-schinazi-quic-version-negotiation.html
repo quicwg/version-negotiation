@@ -414,13 +414,13 @@ ul.toc li {
  0                   1                   2                   3
  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|               Currently Attempted Version (32)                |
+|                Currently Attempted Version (32)               |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |               Previously Attempted Version (32)               |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |            Received Negotiation Version Count (i)           ...
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|              Received Negotiation Version 1 (32)              |
+|             [Received Negotiation Version 1 (32)]             |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |             [Received Negotiation Version 2 (32)]             |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -480,7 +480,7 @@ ul.toc li {
 <dt>Negotiated Version:</dt>
 <dd style="margin-left: 8">The version that the server chose to use for the connection. This field SHALL be equal to the value of the Version field in the long header that carries this transport parameter.</dd>
 <dt>Supported Version Count:</dt>
-<dd style="margin-left: 8">A variable-length integer specifying the number of Supported Version fields following it. The server encodes all versions it supports in the subsequent list, ordered by descending preference.</dd>
+<dd style="margin-left: 8">A variable-length integer specifying the number of Supported Version fields following it. The server encodes all versions it supports in the subsequent list, ordered by descending preference. Note that the version in the Negotiated Version field MUST be included in the Supported Version list.</dd>
 </dl>
 <p id="rfc.section.4.p.6">Clients MAY include versions following the pattern <samp>0x?a?a?a?a</samp> in their Compatible Version list, and the server in their Supported Version list.  Those versions are reserved to exercise version negotiation (see the Versions section of <a href="#QUIC" class="xref">[QUIC]</a>), and MUST be ignored when parsing these fields. On the other hand, the Received Negotiation Version list MUST be identical to the received Version Negotiation packet, so clients MUST NOT add or remove reserved version from that list.</p>
 <h1 id="rfc.section.5">
@@ -489,7 +489,7 @@ ul.toc li {
 <p id="rfc.section.5.p.1">Clients MUST ignore any received Version Negotiation packets that contain the version that they initially attempted.</p>
 <p id="rfc.section.5.p.2">Servers MUST validate that the client&#8217;s <samp>Currently Attempted Version</samp> matches the version in the long header that carried the transport parameter. Similarly, clients MUST validate that the server&#8217;s <samp>Negotiated Version</samp> matches the long header version. If an endpoint&#8217;s validation fails, it MUST close the connection with an error of type VERSION_NEGOTIATION_ERROR.</p>
 <p id="rfc.section.5.p.3">When a server parses the client&#8217;s <samp>version_negotiation</samp> transport parameter, if the <samp>Received Negotiation Version Count</samp> is not zero, the server MUST validate that it could have sent the Version Negotation packet described by the client in response to an Initial of version <samp>Previously Attempted Version</samp>.  In particular, the server MUST ensure that there are no versions that it supports that are absent from the Received Negotiation Versions, and that the ordering matches the server&#8217;s preference. If this validation fails, the server MUST close the connection with an error of type VERSION_NEGOTIATION_ERROR. This mitigates an attacker&#8217;s ability to forge Version Negotiation packets to force a version downgrade.</p>
-<p id="rfc.section.5.p.4">If a server operator is progressively deploying a new QUIC version throughout its fleet, it MAY perform a two-step process where it first progressively adds support for the new version, but without enforcing its presence in Received Negotiation Versions. Once all servers have been upgraded, the second step is to start enforcing that the new version is present in Received Negotiation Versions. This opens connections to downgrade attacks during the upgrade window, which may be due to clients communicating with both upgraded and non-upgraded servers.</p>
+<p id="rfc.section.5.p.4">If a server operator is progressively deploying a new QUIC version throughout its fleet, it MAY perform a two-step process where it first progressively adds support for the new version, but without enforcing its presence in Received Negotiation Versions. Once all servers have been upgraded, the second step is to start enforcing that the new version is present in Received Negotiation Versions. This opens connections to version downgrades during the upgrade window, since those could be due to clients communicating with both upgraded and non-upgraded servers.</p>
 <h1 id="rfc.section.6">
 <a href="#rfc.section.6">6.</a> <a href="#supported-versions" id="supported-versions">Supported Versions</a>
 </h1>
