@@ -121,13 +121,13 @@ sending it, and are shown below:
  0                   1                   2                   3
  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|               Currently Attempted Version (32)                |
+|                Currently Attempted Version (32)               |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |               Previously Attempted Version (32)               |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |            Received Negotiation Version Count (i)           ...
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|              Received Negotiation Version 1 (32)              |
+|             [Received Negotiation Version 1 (32)]             |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |             [Received Negotiation Version 2 (32)]             |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -213,7 +213,8 @@ Supported Version Count:
 
 : A variable-length integer specifying the number of Supported Version fields
   following it. The server encodes all versions it supports in the subsequent
-  list, ordered by descending preference.
+  list, ordered by descending preference. Note that the version in the
+  Negotiated Version field MUST be included in the Supported Version list.
 
 
 Clients MAY include versions following the pattern `0x?a?a?a?a` in their
@@ -252,8 +253,8 @@ its fleet, it MAY perform a two-step process where it first progressively adds
 support for the new version, but without enforcing its presence in Received
 Negotiation Versions. Once all servers have been upgraded, the second step is
 to start enforcing that the new version is present in Received Negotiation
-Versions. This opens connections to downgrade attacks during the upgrade
-window, which may be due to clients communicating with both upgraded and
+Versions. This opens connections to version downgrades during the upgrade
+window, since those could be due to clients communicating with both upgraded and
 non-upgraded servers.
 
 
