@@ -1,6 +1,6 @@
 # Compatible Version Negotiation for QUIC
 
-This is the working area for the individual Internet-Draft, "Compatible Version Negotiation for QUIC".
+This is the working area for the IETF QUIC WG Internet-Draft, "Compatible Version Negotiation for QUIC".
 
 * [Editor's Copy](https://quicwg.org/version-negotiation/draft-ietf-quic-version-negotiation.html)
 * [Individual Draft](https://tools.ietf.org/html/draft-ietf-quic-version-negotiation)
