@@ -1,7 +1,7 @@
 ---
 title: Compatible Version Negotiation for QUIC
 abbrev: QUIC Compatible VN
-docname: draft-ietf-quic-version-negotiation
+docname: draft-ietf-quic-version-negotiation-latest
 category: info
 
 ipr: trust200902
