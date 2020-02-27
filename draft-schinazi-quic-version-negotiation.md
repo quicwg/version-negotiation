@@ -229,8 +229,7 @@ version from that list.
 # Version Downgrade Prevention
 
 Clients MUST ignore any received Version Negotiation packets that contain the
-version that they initially attempted. Once a client has reacted to a Version
-Negotiation packet, it MUST drop all subsequent Version Negotiation packets.
+version that they initially attempted.
 
 Servers MUST validate that the client's `Currently Attempted Version` matches
 the version in the long header that carried the transport parameter. Similarly,
