@@ -1,7 +1,7 @@
 ---
 title: Compatible Version Negotiation for QUIC
 abbrev: QUIC Compatible VN
-docname: draft-schinazi-quic-version-negotiation-latest
+docname: draft-ietf-quic-version-negotiation
 category: info
 
 ipr: trust200902
@@ -40,7 +40,7 @@ place without incurring an extra round trip.
 
 Discussion of this work is encouraged to happen on the QUIC IETF mailing list
 <quic@ietf.org> or on the GitHub repository which contains the draft:
-<http://github.com/ekr/draft-schinazi-quic-version-negotiation>.
+<https://github.com/quicwg/version-negotiation/>.
 
 
 --- middle
@@ -64,7 +64,7 @@ the set of "compatible" versions in a single round trip.
 
 Discussion of this work is encouraged to happen on the QUIC IETF mailing list
 <quic@ietf.org> or on the GitHub repository which contains the draft:
-<http://github.com/ekr/draft-schinazi-quic-version-negotiation>.
+<https://github.com/quicwg/version-negotiation/>.
 
 
 # Conventions and Definitions
