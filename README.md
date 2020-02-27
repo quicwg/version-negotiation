@@ -2,9 +2,9 @@
 
 This is the working area for the individual Internet-Draft, "Compatible Version Negotiation for QUIC".
 
-* [Editor's Copy](https://ekr.github.io/draft-schinazi-quic-version-negotiation/#go.draft-schinazi-quic-version-negotiation.html)
-* [Individual Draft](https://tools.ietf.org/html/draft-schinazi-quic-version-negotiation)
-* [Compare Editor's Copy to Individual Draft](https://ekr.github.io/draft-schinazi-quic-version-negotiation/#go.draft-schinazi-quic-version-negotiation.diff)
+* [Editor's Copy](https://quicwg.org/version-negotiation/draft-ietf-quic-version-negotiation.html)
+* [Individual Draft](https://tools.ietf.org/html/draft-ietf-quic-version-negotiation)
+* [Compare Editor's Copy to Individual Draft](https://quicwg.org/version-negotiation/#go.draft-ietf-quic-version-negotiation.diff)
 
 ## Building the Draft
 
@@ -21,4 +21,4 @@ This requires that you have the necessary software installed.  See
 ## Contributing
 
 See the
-[guidelines for contributions](https://github.com/ekr/draft-schinazi-quic-version-negotiation/blob/master/CONTRIBUTING.md).
+[guidelines for contributions](https://github.com/quicwg/version-negotiation/blob/master/CONTRIBUTING.md).
