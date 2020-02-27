@@ -4,7 +4,7 @@ This is the working area for the IETF QUIC WG Internet-Draft, "Compatible Versio
 
 * [Editor's Copy](https://quicwg.org/version-negotiation/draft-ietf-quic-version-negotiation.html)
 * [Working Group Draft](https://tools.ietf.org/html/draft-ietf-quic-version-negotiation)
-* [Compare Editor's Copy to Individual Draft](https://quicwg.org/version-negotiation/#go.draft-ietf-quic-version-negotiation.diff)
+* [Compare Editor's Copy to Working Group Draft](https://quicwg.org/version-negotiation/#go.draft-ietf-quic-version-negotiation.diff)
 
 ## Building the Draft
 
