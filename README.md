@@ -3,7 +3,7 @@
 This is the working area for the IETF QUIC WG Internet-Draft, "Compatible Version Negotiation for QUIC".
 
 * [Editor's Copy](https://quicwg.org/version-negotiation/draft-ietf-quic-version-negotiation.html)
-* [Individual Draft](https://tools.ietf.org/html/draft-ietf-quic-version-negotiation)
+* [Working Group Draft](https://tools.ietf.org/html/draft-ietf-quic-version-negotiation)
 * [Compare Editor's Copy to Individual Draft](https://quicwg.org/version-negotiation/#go.draft-ietf-quic-version-negotiation.diff)
 
 ## Building the Draft
