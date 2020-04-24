@@ -108,8 +108,7 @@ In order for negotiation to complete successfully, the client's Initial packet
 (and initial CRYPTO frames) MUST be interpretable by the server. This implies
 that servers must retain the ability to process the Initial packet from older
 versions as long as they are reasonably popular.  This is not generally an issue
-in practice as long as the the overall structure of the protocol remains
-similar.
+in practice as long as the overall structure of the protocol remains similar.
 
 # Version Negotiation Transport Parameter
 
