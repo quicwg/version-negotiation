@@ -1,10 +1,10 @@
 # Compatible Version Negotiation for QUIC
 
-This is the working area for the IETF QUIC WG Internet-Draft, "Compatible Version Negotiation for QUIC".
+This is the working area for the IETF [QUIC Working Group](https://datatracker.ietf.org/wg/quic/documents/) Internet-Draft, "Compatible Version Negotiation for QUIC".
 
-* [Editor's Copy](https://quicwg.org/version-negotiation/draft-ietf-quic-version-negotiation.html)
+* [Editor's Copy](https://quicwg.github.io/version-negotiation/#go.draft-ietf-quic-version-negotiation.html)
 * [Working Group Draft](https://tools.ietf.org/html/draft-ietf-quic-version-negotiation)
-* [Compare Editor's Copy to Working Group Draft](https://quicwg.org/version-negotiation/#go.draft-ietf-quic-version-negotiation.diff)
+* [Compare Editor's Copy to Working Group Draft](https://quicwg.github.io/version-negotiation/#go.draft-ietf-quic-version-negotiation.diff)
 
 ## Building the Draft
 
