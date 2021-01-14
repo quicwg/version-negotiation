@@ -416,4 +416,9 @@ Transport Error Codes Registry:
 
 --- back
 
+# Acknowledgments {#acknowledgments}
+{:numbered="false"}
+
+The authors would like to thank Martin Thomson, Mike Bishop, Nick Banks, Ryan
+Hamilton, and Roberto Peon for their input and contributions.
 
