@@ -181,7 +181,8 @@ to as the "negotiated version". The server MUST NOT reply with a version that
 is not present in the client's compatible versions, unless it is the original
 version.
 
-If any of these operations fail, the server uses incompatible version
+If any of these operations fail, the server will use the original version if it
+supports it, and if it doesn't then the server will perform incompatible version
 negotiation instead, see {{incompat-vn}}.
 
 
