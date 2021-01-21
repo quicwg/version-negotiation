@@ -82,13 +82,6 @@ mechanism defined in this document operates inside of a QUIC connection; i.e.,
 the packets with the original version are part of the same connection as the VN
 packet and the packets with the negotiated version.
 
-For the duration of the version negotiation process, clients MUST use the same
-5-tuple (source and destination IP addresses and UDP port numbers). During that
-time, clients MUST also use the same Destination Connection ID, except if the
-server explicitly instructs the client to use a different Destination
-Connection ID. This allows load balancers to ensure that packets for a given
-connection are routed to the same server.
-
 
 # Compatible Versions
 
@@ -158,11 +151,16 @@ connection attempt. Otherwise, it selects a mutually supported version and
 sends a new first flight with that version - we refer to this version as the
 "negotiated version".
 
-This will allow the endpoints to establish a connection using the negotiated
-version. The handshake of the negotiated version will exchange handshake
-version information (see {{hs-vers-info}}) required to ensure that VN was
-genuine, i.e. that no attacker injected packets in order to influence the VN
-process, see {{downgrade}}.
+When the client sends its new first flight, it SHOULD use the same 5-tuple
+(source and destination IP addresses and UDP port numbers) and the same
+Destination Connection ID as its original first flight. This will increase the
+likelihood of both first flights reaching the same server.
+
+The new first flight will allow the endpoints to establish a connection using
+the negotiated version. The handshake of the negotiated version will exchange
+handshake version information (see {{hs-vers-info}}) required to ensure that VN
+was genuine, i.e. that no attacker injected packets in order to influence the
+VN process, see {{downgrade}}.
 
 
 ## Compatible Version Negotiation {#compat-vn}
@@ -184,6 +182,13 @@ version.
 If any of these operations fail, the server will use the original version if it
 supports it, and if it doesn't then the server will perform incompatible version
 negotiation instead, see {{incompat-vn}}.
+
+For the duration of the compatible version negotiation process, clients MUST
+use the same 5-tuple (source and destination IP addresses and UDP port
+numbers). During that time, clients MUST also use the same Destination
+Connection ID, except if the server explicitly instructs the client to use a
+different Destination Connection ID. This allows load balancers to ensure that
+packets for a given connection are routed to the same server.
 
 
 # Handshake Version Information {#hs-vers-info}
