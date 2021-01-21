@@ -315,6 +315,11 @@ Versions`. This opens connections to version downgrades during the upgrade
 window, since those could be due to clients communicating with both upgraded
 and non-upgraded servers.
 
+If an endpoint receives its peer's Handshake Version Information and fails to
+parse it (for example, if it is too short), then the endpoint MUST close the
+connection. If the connection was using QUIC version 1, it MUST be closed with
+a transport error of type `VERSION_NEGOTIATION_ERROR`.
+
 
 # Supported Versions
 
