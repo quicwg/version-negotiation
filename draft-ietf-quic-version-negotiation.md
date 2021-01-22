@@ -179,9 +179,10 @@ to as the "negotiated version". The server MUST NOT reply with a version that
 is not present in the client's compatible versions, unless it is the original
 version.
 
-If any of these operations fail, the server will use the original version if it
-supports it, and if it doesn't then the server will perform incompatible version
-negotiation instead, see {{incompat-vn}}.
+If any of these operations fail (except parsing and validation failures which
+are discussed in {{downgrade}}), the server will use the original version if it
+supports it, and if it doesn't then the server will perform incompatible
+version negotiation instead, see {{incompat-vn}}.
 
 For the duration of the compatible version negotiation process, clients MUST
 use the same 5-tuple (source and destination IP addresses and UDP port
@@ -318,7 +319,7 @@ and non-upgraded servers.
 If an endpoint receives its peer's Handshake Version Information and fails to
 parse it (for example, if it is too short), then the endpoint MUST close the
 connection. If the connection was using QUIC version 1, it MUST be closed with
-a transport error of type `VERSION_NEGOTIATION_ERROR`.
+a transport error of type `TRANSPORT_PARAMETER_ERROR`.
 
 
 # Supported Versions
