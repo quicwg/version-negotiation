@@ -1,0 +1,269 @@
+{
+  "magic": "E!vIA5L86J2I",
+  "timestamp": "2020-09-01T00:52:33.784695+00:00",
+  "repo": "quicwg/version-negotiation",
+  "labels": [
+    {
+      "name": "bug",
+      "description": "Something isn't working",
+      "color": "d73a4a"
+    },
+    {
+      "name": "documentation",
+      "description": "Improvements or additions to documentation",
+      "color": "0075ca"
+    },
+    {
+      "name": "duplicate",
+      "description": "This issue or pull request already exists",
+      "color": "cfd3d7"
+    },
+    {
+      "name": "enhancement",
+      "description": "New feature or request",
+      "color": "a2eeef"
+    },
+    {
+      "name": "good first issue",
+      "description": "Good for newcomers",
+      "color": "7057ff"
+    },
+    {
+      "name": "help wanted",
+      "description": "Extra attention is needed",
+      "color": "008672"
+    },
+    {
+      "name": "invalid",
+      "description": "This doesn't seem right",
+      "color": "e4e669"
+    },
+    {
+      "name": "question",
+      "description": "Further information is requested",
+      "color": "d876e3"
+    },
+    {
+      "name": "wontfix",
+      "description": "This will not be worked on",
+      "color": "ffffff"
+    }
+  ],
+  "issues": [
+    {
+      "number": 1,
+      "id": "MDU6SXNzdWU1NzIyNDQ4NDY=",
+      "title": "In-line or routing promises vs compatibility",
+      "url": "https://github.com/quicwg/version-negotiation/issues/1",
+      "state": "OPEN",
+      "author": "DavidSchinazi",
+      "authorAssociation": "CONTRIBUTOR",
+      "assignees": [],
+      "labels": [],
+      "body": "In the common scenario where one has not deployed a new version to 100% of all potential endpoints all the time, the probability of a successful upgrade is p^n, where:\r\np = probability of landing on server with a proposed version being accepted\r\nn = number of \"nonsticky\" round trips\r\n\r\nIf the routing of the packets for an attempted session initiation/connection are routed to the same place, it becomes far more predictable.\r\n\r\nAll of the above is a long way of saying that compatible is not the same as in-line / routed to the same place.\r\n\r\nProviding an in-line upgrade capability allows a reasonably understandable site deployment to do an upgrade without surprising weirdness. Without this, even with \"compatible\" upgrades, there will be some \"fun\" deployment issues in practice.\r\n\r\n(Issue copied from [individual draft repo](https://github.com/ekr/draft-schinazi-quic-version-negotiation/issues/7), by @grmocg on 2019-11-19)",
+      "createdAt": "2020-02-27T17:39:58Z",
+      "updatedAt": "2020-02-27T17:39:58Z",
+      "closedAt": null,
+      "comments": []
+    },
+    {
+      "number": 2,
+      "id": "MDU6SXNzdWU1NzIyNDY5NzQ=",
+      "title": "Do servers need to understand compatibility?",
+      "url": "https://github.com/quicwg/version-negotiation/issues/2",
+      "state": "OPEN",
+      "author": "DavidSchinazi",
+      "authorAssociation": "CONTRIBUTOR",
+      "assignees": [],
+      "labels": [],
+      "body": "If there is a definition for a mapping from vM to vN, can a client assume that the server will understand that mapping? Or does the client have to accept an incompatible version negotiation from servers?\r\n\r\nIt would be nice if compatible mappings could be developed separately from QUIC versions, which suggests that the server can decide whether to apply the mapping.\r\n\r\n(Issue copied from [individual draft repo](https://github.com/ekr/draft-schinazi-quic-version-negotiation/issues/6), by @martinthomson on 2019-11-12)",
+      "createdAt": "2020-02-27T17:44:03Z",
+      "updatedAt": "2020-02-27T20:19:05Z",
+      "closedAt": null,
+      "comments": [
+        {
+          "author": "DavidSchinazi",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "Copy of the conversation from the original issue:\r\n\r\n@ekr \r\n>Can you say more about \"mapping\"? I don't believe that appears in this document, so I'd like to make sure we are on the same page.\r\n\r\n@martinthomson \r\n>Sorry, I was using my own model. If you can use an initial flight from A to negotiate B (i.e., there is a mapping from that flight in A to the equivalent in B), then can the client expect that the server will understand that the two are compatible?\r\n>\r\n>I think that the inclusion of a list of compatible versions in the transport parameter implies that there is a need for a shared understanding of what is compatible. However, I don't think that is necessary.\r\n\r\n@ekr \r\n> So, say hypothetically we have version A and B, which are the same except that B uses a different code point for the CRYPTO frame. And so in principle, the client could send an Initial with version=A, compat_versions=[A, B] and the server could respond with B, but for some reason the server vendor doesn't realize this and instead sends VN = B?\r\n\r\n@martinthomson \r\n> Right. I don't know if this has implications for design, but it came up in our discussion of what ALPN applies to this morning.\r\n\r\n@DavidSchinazi \r\n> Perhaps we should state that for two versions to be compatible, there MUST be a document defining this mapping? But we need to handle the case where client believes A maps to B but the server doesn't know about this happing and sends a VN packet - the client needs to be OK with that?\r\n\r\n@martinthomson \r\n> Right. I think that clients need to be willing to accept version negotiation always. A server might not implement mappings or might only support trivial mappings.\r\n\r\n@ekr \r\n> Hmm.... I'm not sure I buy this. In other protocols (e.g., TLS), we don't have VN at all and just expect servers to properly implement the version negotiation mechanism, and there just isn't confusion about what's compatible. I agree we've had intolerance problems, but given that TLS negotiation is simpler than QUIC negotiation, it's not clear that falling back to VN will reduce those.\r\n\r\n@martinthomson \r\n> I see. You are concerned that clients being willing to accept VN will result in downgrades, even if they are only performance downgrades (you get the same end result, but with worse performance). Can't we address that with post-hoc validation of the version parameters?\r\n>\r\n> You can make part of the definition of B a requirement to understand a mapping from A, but if the mapping is defined separately, then you can't insist on the mapping being understood.\r\n\r\n@ekr \r\n> That's not my primary point. Rather, it just seems like this is creating a\r\nbunch of unnecessary confusion",
+          "createdAt": "2020-02-27T17:47:00Z",
+          "updatedAt": "2020-02-27T17:47:00Z"
+        },
+        {
+          "author": "MikeBishop",
+          "authorAssociation": "NONE",
+          "body": "I believe clients always have to accept the incompatible-version path.  If the client offers A and knows that a mapping from A to B exists, that doesn't mean the server possesses that mapping.  From the server's point of view, if it only implements B, it's receiving a packet offering an unknown version.  It will send a VN packet, and expect the client to retry with B.\r\n\r\nThe only way around that is if the client also knows that the spec for B *requires* supporting a mapping from A.  I don't think we can assume that's the general case, though it might happen in some cases.",
+          "createdAt": "2020-02-27T20:19:05Z",
+          "updatedAt": "2020-02-27T20:19:05Z"
+        }
+      ]
+    },
+    {
+      "number": 3,
+      "id": "MDU6SXNzdWU1NzIyNDk1MTU=",
+      "title": "Comments from Mike Bishop",
+      "url": "https://github.com/quicwg/version-negotiation/issues/3",
+      "state": "OPEN",
+      "author": "DavidSchinazi",
+      "authorAssociation": "CONTRIBUTOR",
+      "assignees": [],
+      "labels": [],
+      "body": "Comment from @MikeBishop [on the QUIC list](https://mailarchive.ietf.org/arch/msg/quic/0iAgoaoDaKyY_hsSYyyODe8o6HI) on 2019-11-06 :\r\n\r\n> Some notes:\r\n>\r\n>  *   Section 3:  \u201cVersion negotiation takes place after the retry cycle is over.\u201d  This is only possible for compatible versions; if the server does not support the version the client attempted, it obviously cannot send a Retry packet in that version, because Retry packets are version-specific.\r\n>  *   Section 3:  \u201cServers must retain the ability to process the Initial packet from older versions\u2026.\u201d  No, it means that if the server wants to avoid a VN packet, it needs to be able to process the Initial packet from the version the client tried.\r\n>  *   Section 4:  Rather than putting a count-prefixed list of versions, perhaps consider just embedding the VN packet payload?  It\u2019s equivalent, but easier to explain.\r\n>  *   Section 7:  Clearly it is possible to possible to add new frame types to Initial packets in a future version, I think what you mean to say is that this is a change that would break compatibility between versions.\r\n>\r\n> As a general statement on the document, you assume throughout that all versions have packet types, contain packet types called Initial and Retry, and that Initial packets contain frames.  The odds of those things being true across QUIC versions is likely high, but they\u2019re not invariants, so you can\u2019t assume them here.  You need to state general principles, and then use concepts from QUICv1 as examples of the principle.\r\n>\r\n> For example, rather than discussing version compatibility in terms of Initial packets, you might want to say that versions A and B are \u201ccompatible\u201d if the first flight of packets sent by the client in version A carries enough information for the server to generate the corresponding flight in version B, the server speaks version B, and is able to parse at least the first flight of version A.\r\n>\r\n> Also not discussed is the case where the server speaks version(s) which are compatible with what the client offered, but doesn\u2019t speak the version the client offered, even enough to generate the response.  With the right definition of \u201ccompatible,\u201d this just falls into the \u201cincompatible\u201d path and works for the server, but you need to call out the fact that the client shouldn\u2019t consider it an error if the server uses the incompatible path between versions that the client thinks are compatible.",
+      "createdAt": "2020-02-27T17:48:44Z",
+      "updatedAt": "2020-02-27T17:49:22Z",
+      "closedAt": null,
+      "comments": []
+    },
+    {
+      "number": 4,
+      "id": "MDU6SXNzdWU1NzIyNTAzNzQ=",
+      "title": "Change framing to improve clarity",
+      "url": "https://github.com/quicwg/version-negotiation/issues/4",
+      "state": "OPEN",
+      "author": "DavidSchinazi",
+      "authorAssociation": "CONTRIBUTOR",
+      "assignees": [],
+      "labels": [],
+      "body": "Comment from @martinthomson [on the QUIC list](https://mailarchive.ietf.org/arch/msg/quic/x-P5DpFQovPTHi_pkaLVsiC8j10) on 2019-11-04:\r\n\r\n> Hi David,\r\n>\r\n> I think that this is broadly the right mechanism.  It would be good to validate it more thoroughly.  \r\n>\r\n> The model and framing could use a little work.\r\n>\r\n> I struggled a little with the framing here because the split between incompatible and compatible versions is very important, but also unclear.  The definition of \"compatible\" is left for Section 7, but it seems like it should be right up front.\r\n>\r\n> The framing I would choose puts the model up front.  The model that you have have two layers that are applied progressively:\r\n>\r\n> 1. incompatible version negotiation, where the server sends a Version Negotiation packet in response to a version it does not understand.\r\n>\r\n> 2. compatible version negotiation, where the server can generate interpret a version X Initial packet and continue with version Y.\r\n>\r\n> Regarding the model, the definition of \"compatible\" needs work.\r\n>\r\n> I observe that you only need a mapping from \"Initial\"-equivalent packets in X to the same in Y - and maybe the ability to generate a Retry in version X (more below) - in order for this to work.  That's where there is a clear functional mapping from a version X packets that initiate the connection to something that fills the same purpose in version Y.  \r\n>\r\n> But the definition you have for \"compatible\" implies that the mapping is bijective, which I don't think is necessary.  As the draft says, version Y might define (and allow) new frame types in its Initial-equivalent packet(s), but as long as those are either optional or can be synthesized from X, that's OK.  It isn't necessary that every Y have a functional representation in X.  We might not want to define a way to negotiate an older version from a newer one (or at least not for every case).\r\n>\r\n> The ability to generate a Retry stretches this definition a little.  Can you explain why you can't generate a version Y Retry?  I have an inkling, but it's not fully formed.  It complicates the model more than I'd like to have it this way around.",
+      "createdAt": "2020-02-27T17:50:25Z",
+      "updatedAt": "2020-02-27T17:50:25Z",
+      "closedAt": null,
+      "comments": []
+    },
+    {
+      "number": 5,
+      "id": "MDU6SXNzdWU1NzIyNTEyNzY=",
+      "title": "The client is unable to detect downgrade attacks",
+      "url": "https://github.com/quicwg/version-negotiation/issues/5",
+      "state": "OPEN",
+      "author": "DavidSchinazi",
+      "authorAssociation": "CONTRIBUTOR",
+      "assignees": [],
+      "labels": [],
+      "body": "While I recognize that it is an explicit design choice of this extension to move all the downgrade detection to the server, it seems unfortunate to prevent the client from detecting the downgrade and instead relying on the server to do so. (I could imagine that some server implementations are lazy/broken and might not perform this detection)?\r\n\r\nAlternatively, if the server delivered to the client a set of lists of versions that the server (or the server's peers) might have sent in VN packets, then the client could compare the actual VN packet it received with the elements in the set and detect the case where none of them match. Commonly the server would send one such list, but if it were participating in a staggered rollout, it could send both the \"old\" and \"new\" lists?\r\n\r\n(Issue copied from [individual draft repo](https://github.com/ekr/draft-schinazi-quic-version-negotiation/issues/3), by @RyanTheOptimist on 2019-11-04)",
+      "createdAt": "2020-02-27T17:52:03Z",
+      "updatedAt": "2020-02-27T17:52:03Z",
+      "closedAt": null,
+      "comments": []
+    },
+    {
+      "number": 6,
+      "id": "MDU6SXNzdWU1NzIyNTIwMzE=",
+      "title": "Should \"Compatible Version\" mention 0-RTT?",
+      "url": "https://github.com/quicwg/version-negotiation/issues/6",
+      "state": "OPEN",
+      "author": "DavidSchinazi",
+      "authorAssociation": "CONTRIBUTOR",
+      "assignees": [],
+      "labels": [],
+      "body": "Consider the case of two difference QUIC versions which are roughly identical in terms of the crypto/handshake/packet layer. But imagine that these two versions, say, renumber streams or some other change which makes 0-RTT data look different. I would assume that such versions would not be \"compatible\" for the purposes of section 7?\r\n\r\nOr alternatively, they could be considered compatible, but the server MUST not process 0-RTT packets, and the client must \"unwind\" the 0-RTT state (un-open streams, etc)?\r\n\r\n(Issue copied from [individual draft repo](https://github.com/ekr/draft-schinazi-quic-version-negotiation/issues/2), by @RyanTheOptimist on 2019-11-04)",
+      "createdAt": "2020-02-27T17:53:30Z",
+      "updatedAt": "2020-02-27T17:55:10Z",
+      "closedAt": null,
+      "comments": [
+        {
+          "author": "DavidSchinazi",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "[Comment](https://github.com/ekr/draft-schinazi-quic-version-negotiation/issues/2#issuecomment-549562670) from @DavidSchinazi on 2019-11-04:\r\n\r\nI agree, we should add text to discuss this, perhaps in a section of recommendations for writers of new versions. When deciding whether two versions are compatible, the cost of rewriting 0-RTT data from one version to the next should be taken into account.",
+          "createdAt": "2020-02-27T17:54:28Z",
+          "updatedAt": "2020-02-27T17:54:28Z"
+        },
+        {
+          "author": "DavidSchinazi",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "[Comment](https://github.com/ekr/draft-schinazi-quic-version-negotiation/issues/2#issuecomment-555826187) from @grmocg on 2019-11-19:\r\n\r\nInterested in seeing where this goes.",
+          "createdAt": "2020-02-27T17:55:10Z",
+          "updatedAt": "2020-02-27T17:55:10Z"
+        }
+      ]
+    },
+    {
+      "number": 8,
+      "id": "MDU6SXNzdWU2NjgwMzU1MTQ=",
+      "title": "Client Offer Version-Specific Transport Parameters",
+      "url": "https://github.com/quicwg/version-negotiation/issues/8",
+      "state": "OPEN",
+      "author": "nibanks",
+      "authorAssociation": "MEMBER",
+      "assignees": [],
+      "labels": [],
+      "body": "Related to https://github.com/quicwg/base-drafts/issues/3965.\r\n\r\nShould the version negotiation transport parameter allow for (optionally) encoding transport parameters specific to each compatible version? This might improve the range of compatible versions in the future.\r\n\r\nFor instance, if version 2 changed the meaning of one of the existing transport parameters such that it wasn't directly compatible with version 1's TPs, this would allow the versions themselves to still be considered compatible, because the client could just offer the v2 TPs along with the v1.",
+      "createdAt": "2020-07-29T18:04:12Z",
+      "updatedAt": "2020-07-29T20:30:26Z",
+      "closedAt": null,
+      "comments": [
+        {
+          "author": "DavidSchinazi",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "@nibanks I'm not sure I understand the problem that this solves. If there is a v2-only TP, the client can send it in v1 and rely on the fact that v1 servers ignore unknown TPs. Could you write up a specific example where this would be useful?",
+          "createdAt": "2020-07-29T19:33:01Z",
+          "updatedAt": "2020-07-29T19:33:01Z"
+        },
+        {
+          "author": "nibanks",
+          "authorAssociation": "MEMBER",
+          "body": "Any kind of breaking change to an existing transport parameter, where the new encoding format in v2 is incompatible with v1.\r\n\r\nFor instance, say `max_udp_payload_size` was changed to require two numbers, a v4 and v6 specific value. I know this is a contrived example, but if something like it happens in the future, the client cannot send a value for 'max_udp_payload_size` that generically works for both v1 and v2. Without this feature, v1 and v2 would have to be considered incompatible.\r\n\r\nAnother example, would be a transport parameter that is explicitly disallowed to be sent by the client in v1, but then is allowed (required?) in v2. If it's not required, the client just wouldn't be able to take advantage of the feature tied to the TP, but if it goes from disallowed to required, then the versions become incompatible. For example `stateless_reset_token`.",
+          "createdAt": "2020-07-29T19:49:42Z",
+          "updatedAt": "2020-07-29T19:51:06Z"
+        },
+        {
+          "author": "DavidSchinazi",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "This doesn't sound like the right solution. If we want to change the format of `max_udp_payload_size` in v2, we can give it a new TP ID. That allows the two versions to be compatible. Similarly, if we want to switch a TP from disallowed to required, we can give it a new ID.\r\n\r\nDo you have any use-cases that can't be solved by changing the Transport Parameter IDs when changing a TP's meaning?",
+          "createdAt": "2020-07-29T19:59:06Z",
+          "updatedAt": "2020-07-29T19:59:06Z"
+        },
+        {
+          "author": "nibanks",
+          "authorAssociation": "MEMBER",
+          "body": "What about if any transport parameter goes from required in v1 to disallowed in v2?",
+          "createdAt": "2020-07-29T20:03:34Z",
+          "updatedAt": "2020-07-29T20:03:42Z"
+        },
+        {
+          "author": "DavidSchinazi",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "As I mentioned in https://github.com/quicwg/version-negotiation/issues/8#issuecomment-665880750 , in that scenario we'd give this TP a new ID in v2.",
+          "createdAt": "2020-07-29T20:17:18Z",
+          "updatedAt": "2020-07-29T20:17:18Z"
+        },
+        {
+          "author": "nibanks",
+          "authorAssociation": "MEMBER",
+          "body": "Yeah, I guess. You just never have a breaking change by constantly appending new transport parameters and ignoring old/deprecated ones. Then the client just sends the superset of all parameters for all versions. It just means you can never actually change the meaning of a transport parameter for with a particular numeric value. If folks are fine with that restriction for transport parameters, then I'm fine closing this issue.\r\n\r\nOne thought though then, when connecting using version negotiation, the client might use the lowest compatible version number for the packet, but it should supply the highest compatible (superset) version of the transport parameters. Does the spec call this out already?",
+          "createdAt": "2020-07-29T20:30:25Z",
+          "updatedAt": "2020-07-29T20:30:25Z"
+        }
+      ]
+    }
+  ],
+  "pulls": [
+    {
+      "number": 7,
+      "id": "MDExOlB1bGxSZXF1ZXN0NDA4NTcxMzIx",
+      "title": "Fixed nit",
+      "url": "https://github.com/quicwg/version-negotiation/pull/7",
+      "state": "MERGED",
+      "author": "martinduke",
+      "authorAssociation": "CONTRIBUTOR",
+      "assignees": [],
+      "labels": [],
+      "body": "",
+      "createdAt": "2020-04-24T14:05:13Z",
+      "updatedAt": "2020-04-24T17:32:36Z",
+      "baseRepository": "quicwg/version-negotiation",
+      "baseRefName": "master",
+      "baseRefOid": "096b2acc536f40cc4a76f894562cd264a8aa853e",
+      "headRepository": "martinduke/version-negotiation",
+      "headRefName": "patch-1",
+      "headRefOid": "9d95ffbdf2e254056bf70b04be67e03e40dd1e71",
+      "closedAt": "2020-04-24T17:32:35Z",
+      "mergedAt": "2020-04-24T17:32:35Z",
+      "mergedBy": "DavidSchinazi",
+      "mergeCommit": {
+        "oid": "e0b5dedc1eebe2c9ff78600ec8334f94f87d4a8b"
+      },
+      "comments": [],
+      "reviews": []
+    }
+  ]
+}
