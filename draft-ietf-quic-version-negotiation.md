@@ -144,7 +144,7 @@ compatible version negotiation mechanism defined in this document (see
 packets with the original version are part of the same connection as the packets
 with the negotiated version.
 
-In comparison, incompatible version negotiation mechanism, which leverages QUIC
+In comparison, the incompatible version negotiation mechanism, which leverages QUIC
 Version Negotiation packets (see {{incompat-vn}}) conceptually operates across
 two QUIC connections: the connection attempt prior to receiving the Version
 Negotiation packet is distinct from the connection with the incompatible version
