@@ -283,7 +283,7 @@ instead.
 Clients MAY include versions following the pattern `0x?a?a?a?a` in their
 `Compatible Version` list, and the server in their `Supported Version` list.
 Those versions are reserved to exercise version negotiation (see the Versions
-section of {{QUIC}}), and MUST be ignored when parsing these fields. On the
+section of {{QUIC}}), and will be ignored when parsing these fields. On the
 other hand, the `Received Negotiation Version` list MUST be identical to the
 received Version Negotiation packet, so clients MUST NOT add or remove reserved
 version from that list.
