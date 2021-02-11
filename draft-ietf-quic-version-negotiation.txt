@@ -26,10 +26,12 @@ Discussion Venues
 
    This note is to be removed before publishing as an RFC.
 
-   Discussion of this work is encouraged to happen on the QUIC IETF
-   mailing list quic@ietf.org (mailto:quic@ietf.org) or on the GitHub
-   repository which contains the draft: https://github.com/quicwg/
-   version-negotiation.
+   Discussion of this document takes place on the QUIC Working Group
+   mailing list (quic@ietf.org), which is archived at
+   https://mailarchive.ietf.org/arch/browse/quic/.
+
+   Source for this draft and an issue tracker can be found at
+   https://github.com/quicwg/version-negotiation.
 
 Status of This Memo
 
