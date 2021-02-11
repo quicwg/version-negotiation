@@ -5,8 +5,8 @@
 QUIC Working Group                                           D. Schinazi
 Internet-Draft                                                Google LLC
 Intended status: Informational                               E. Rescorla
-Expires: 9 August 2021                                           Mozilla
-                                                         5 February 2021
+Expires: 15 August 2021                                          Mozilla
+                                                        11 February 2021
 
 
                 Compatible Version Negotiation for QUIC
@@ -22,18 +22,14 @@ Abstract
    negotiated version share a compatible first flight format, the
    negotiation can take place without incurring an extra round trip.
 
-   Discussion of this work is encouraged to happen on the QUIC IETF
-   mailing list quic@ietf.org (mailto:quic@ietf.org) or on the GitHub
-   repository which contains the draft: https://github.com/quicwg/
-   version-negotiation/ (https://github.com/quicwg/version-
-   negotiation/).
-
 Discussion Venues
 
    This note is to be removed before publishing as an RFC.
 
-   Source for this draft and an issue tracker can be found at
-   https://github.com/quicwg/version-negotiation.
+   Discussion of this work is encouraged to happen on the QUIC IETF
+   mailing list quic@ietf.org (mailto:quic@ietf.org) or on the GitHub
+   repository which contains the draft: https://github.com/quicwg/
+   version-negotiation.
 
 Status of This Memo
 
@@ -50,7 +46,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 9 August 2021.
+   This Internet-Draft will expire on 15 August 2021.
 
 Copyright Notice
 
@@ -109,12 +105,6 @@ Table of Contents
    which optionally leverages similarities between versions and can
    negotiate between the set of "compatible" versions in a single round
    trip.
-
-   Discussion of this work is encouraged to happen on the QUIC IETF
-   mailing list quic@ietf.org (mailto:quic@ietf.org) or on the GitHub
-   repository which contains the draft: https://github.com/quicwg/
-   version-negotiation/ (https://github.com/quicwg/version-
-   negotiation/).
 
 1.1.  Conventions and Definitions
 
