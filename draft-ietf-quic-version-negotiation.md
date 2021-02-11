@@ -37,10 +37,6 @@ allows a client and server to select a mutually supported version. Optionally,
 if the original and negotiated version share a compatible first flight format,
 the negotiation can take place without incurring an extra round trip.
 
-Discussion of this work is encouraged to happen on the QUIC IETF mailing list
-<quic@ietf.org> or on the GitHub repository which contains the draft:
-<https://github.com/quicwg/version-negotiation/>.
-
 
 --- middle
 
@@ -61,10 +57,6 @@ incremental versions are broadly similar to the the previous version.
 This specification describes a simple version negotiation mechanism which
 optionally leverages similarities between versions and can negotiate between
 the set of "compatible" versions in a single round trip.
-
-Discussion of this work is encouraged to happen on the QUIC IETF mailing list
-<quic@ietf.org> or on the GitHub repository which contains the draft:
-<https://github.com/quicwg/version-negotiation/>.
 
 
 ## Conventions and Definitions

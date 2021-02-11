@@ -1,0 +1,6 @@
+<note title="Discussion Venues" removeInRFC="true">
+<t>Discussion of this work is encouraged to happen on the QUIC IETF mailing list
+  <eref target="mailto:quic@ietf.org">quic@ietf.org</eref> or on the GitHub
+  repository which contains the draft:
+  <eref target="https://github.com/quicwg/version-negotiation"/>.</t>
+</note>
