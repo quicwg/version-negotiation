@@ -5,8 +5,8 @@
 QUIC Working Group                                           D. Schinazi
 Internet-Draft                                                Google LLC
 Intended status: Informational                               E. Rescorla
-Expires: 15 August 2021                                          Mozilla
-                                                        11 February 2021
+Expires: 6 September 2021                                        Mozilla
+                                                            5 March 2021
 
 
                 Compatible Version Negotiation for QUIC
@@ -48,7 +48,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 15 August 2021.
+   This Internet-Draft will expire on 6 September 2021.
 
 Copyright Notice
 
@@ -326,7 +326,7 @@ Table of Contents
    Clients MAY include versions following the pattern "0x?a?a?a?a" in
    their "Compatible Version" list, and the server in their "Supported
    Version" list.  Those versions are reserved to exercise version
-   negotiation (see the Versions section of [QUIC]), and MUST be ignored
+   negotiation (see the Versions section of [QUIC]), and will be ignored
    when parsing these fields.  On the other hand, the "Received
    Negotiation Version" list MUST be identical to the received Version
    Negotiation packet, so clients MUST NOT add or remove reserved
@@ -481,23 +481,24 @@ Table of Contents
 
    [INV]      Thomson, M., "Version-Independent Properties of QUIC",
               Work in Progress, Internet-Draft, draft-ietf-quic-
-              invariants-13, 14 January 2021, <http://www.ietf.org/
-              internet-drafts/draft-ietf-quic-invariants-13.txt>.
+              invariants-13, 14 January 2021,
+              <https://datatracker.ietf.org/doc/html/draft-ietf-quic-
+              invariants-13.txt>.
 
    [QUIC]     Iyengar, J. and M. Thomson, "QUIC: A UDP-Based Multiplexed
               and Secure Transport", Work in Progress, Internet-Draft,
               draft-ietf-quic-transport-34, 14 January 2021,
-              <http://www.ietf.org/internet-drafts/draft-ietf-quic-
+              <https://datatracker.ietf.org/doc/html/draft-ietf-quic-
               transport-34.txt>.
 
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
               Requirement Levels", BCP 14, RFC 2119,
               DOI 10.17487/RFC2119, March 1997,
-              <https://www.rfc-editor.org/info/rfc2119>.
+              <https://datatracker.ietf.org/doc/html/rfc2119>.
 
    [RFC8174]  Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC
               2119 Key Words", BCP 14, RFC 8174, DOI 10.17487/RFC8174,
-              May 2017, <https://www.rfc-editor.org/info/rfc8174>.
+              May 2017, <https://datatracker.ietf.org/doc/html/rfc8174>.
 
 Acknowledgments
 
