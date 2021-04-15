@@ -77,7 +77,7 @@ versions A and B are absolutely equal in their wire image and behavior during
 the handshake but differ after the handshake, then A is compatible with B and B
 is compatible with A.
 
-Version compatibility is not bijective: it is possible for version A to be
+Version compatibility is not symmetric: it is possible for version A to be
 compatible with version B and for B not to be compatible with A. This could
 happen for example if version B is a strict superset of version A.
 
