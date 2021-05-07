@@ -76,7 +76,7 @@ therefore define the following terms:
 
 Supported Versions:
 
-: This is the set of versions supported by a given individual server.
+: This is the set of versions supported by a given individual server instance.
 
 Fully-Deployed Versions:
 
@@ -276,11 +276,11 @@ a transport error of type `VERSION_NEGOTIATION_ERROR`.
 
 If a client has reacted to a Version Negotiation packet, it MUST parse the
 server's `Other Versions` field and validate that it does not contain the
-client's original version. If this validation fails, the server MUST close the
+client's original version. If this validation fails, the client MUST close the
 connection. If the connection was using QUIC version 1, it MUST be closed with
-a transport error of type `VERSION_NEGOTIATION_ERROR`. This mitigates an
-attacker's ability to forge Version Negotiation packets to force a version
-downgrade.
+a transport error of type `VERSION_NEGOTIATION_ERROR`. This prevents 
+an attacker from being able to use forged Version Negotiation packets to
+force a version downgrade.
 
 If an endpoint receives its peer's Handshake Version Information and fails to
 parse it (for example, if it is too short or if its length is not divisible by
@@ -389,4 +389,3 @@ Transport Error Codes Registry:
 
 The authors would like to thank Martin Thomson, Mike Bishop, Nick Banks, Ryan
 Hamilton, and Roberto Peon for their input and contributions.
-
