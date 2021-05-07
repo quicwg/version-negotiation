@@ -68,27 +68,6 @@ document are to be interpreted as described in BCP 14 {{!RFC2119}} {{!RFC8174}}
 when, and only when, they appear in all capitals, as shown here.
 
 
-## Server Deployments of QUIC {#server-terms}
-
-While this document mainly discusses a single QUIC server, it is common for
-deployments of QUIC servers to include a fleet of multiple servers. We
-therefore define the following terms:
-
-Supported Versions:
-
-: This is the set of versions supported by a given individual server instance.
-
-Fully-Deployed Versions:
-
-: This is the set of QUIC versions that is supported by every single QUIC
-server in this deployment.
-
-Partially-Deployed Versions:
-
-: This is the set of versions supported by a given individual server, but which
-aren't supported by every single QUIC server in this deployment.
-
-
 # Compatible Versions
 
 If A and B are two distinct versions of QUIC, A is said to be "compatible" with
@@ -210,6 +189,54 @@ balancers to ensure that packets for a given connection are routed to the same
 server.
 
 
+# Server Deployments of QUIC {#server-fleet}
+
+While this document mainly discusses a single QUIC server, it is common for
+deployments of QUIC servers to include a fleet of multiple server instances. We
+therefore define the following terms:
+
+Supported Versions:
+
+: This is the set of versions supported by a given individual server instance.
+
+Fully-Deployed Versions:
+
+: This is the set of QUIC versions that is supported by every single QUIC
+server instance in this deployment.
+
+Partially-Deployed Versions:
+
+: This is the set of versions supported by a given individual server instance,
+but which aren't supported by every single QUIC server instance in this
+deployment.
+
+If a deployment only contains a single server instance, then the Supported
+Versions is equal to the Fully-Deployed Versions, and the Partially-Deployed
+Versions is the empty set.
+
+Conversely, if a deployment contains multiple server instances, it is possible
+for software updates to not happen at the exact same time on all server
+instances. In this scenario, some instances will have a different Supported
+Versions from other instances in the same fleet. When that happens, a client
+might receive a Version Negotiation packet from a server instance that doesn't
+support some Partially-Supported Versions; in that case, those
+Partially-Supported Versions won't be listed in the Version Negotiation packet.
+When the client reacts to that Version Negotiation packet, it might create a
+new QUIC connection which could be routed to a different server instance, which
+has a different set of Supported Versions. The version downgrade prevention
+mechanism described in {{downgrade}} is robust to this scenario and will not
+falsely detect a downgrade attack.
+
+If a server operator is progressively deploying a new QUIC version throughout
+its fleet, it MUST perform a two-step process where it first progressively adds
+support for the new version. This adds the new version to Supported Versions
+but not to Fully-Deployed Versions. Once all server instances have been
+upgraded, the second step is to progressively add the version to Fully-Deployed
+Versions on all server instances. This opens connections to version downgrades
+during the upgrade window, since those could be due to clients communicating
+with both upgraded and non-upgraded server instances.
+
+
 # Handshake Version Information {#hs-vers-info}
 
 During the handshake, endpoints will exchange handshake version information,
@@ -221,7 +248,7 @@ below (using the notation from the "Notational Conventions" section of
 
 ~~~
 Handshake Version Information {
-  Currently Attempted Version (32),
+  Chosen Version (32),
   Other Versions (32) ...,
 }
 ~~~
@@ -229,10 +256,11 @@ Handshake Version Information {
 
 The content of each field is described below:
 
-Currently Attempted Version:
+Chosen Version:
 
-: This field SHALL be equal to the value of the `Version` field in the long
-header that carries this data.
+: The version that the sender has chosen to use for this connection. This field
+MUST be equal to the value of the Version field in the long header that carries
+this data.
 
 The contents of the `Other Versions` field depends on whether it is sent by the
 client or by the server.
@@ -241,23 +269,20 @@ Client-Sent Other Versions:
 
 : When sent by a client, the `Other Versions` field lists all the versions that
 this first flight is compatible with, ordered by descending preference. Note
-that the version in the `Currently Attempted Version` field MUST be included in
-this list to allow the client to communicate the currently attempted version's
-preference. Note that this preference is only advisory, servers MAY choose to
-use their own preference instead.
+that the version in the `Chosen Version` field MUST be included in this list to
+allow the client to communicate the chosen version's preference. Note that this
+preference is only advisory, servers MAY choose to use their own preference
+instead.
 
 Server-Sent Other Versions:
 
 : When sent by a server, the `Other Versions` field lists all the
-Fully-Supported Versions of this server deployment, see {{server-terms}}. This
-field conveys Fully-Supported Versions instead of Supported Versions to allow
-scenarios where the client's first flight (before receiving VN) reached a
-different server than the client's subsequent flight (after receiving VN).
+Fully-Supported Versions of this server deployment, see {{server-fleet}}.
 
 Clients and servers MAY both include versions following the pattern
 `0x?a?a?a?a` in their `Other Versions` list. Those versions are reserved to
 exercise version negotiation (see the Versions section of {{QUIC}}), and will
-be ignored when parsing these fields.
+never be selected when choosing a version to use.
 
 
 # Version Downgrade Prevention {#downgrade}
@@ -267,10 +292,10 @@ version that they initially attempted. Once a client has reacted to a Version
 Negotiation packet, it MUST drop all subsequent Version Negotiation packets on
 that connection.
 
-Servers MUST validate that the client's `Currently Attempted Version` matches
-the version in the long header that carried the handshake version information.
-Similarly, clients MUST validate that the server's `Negotiated Version` matches
-the long header version. If an endpoint's validation fails, it MUST close the
+Servers MUST validate that the client's `Chosen Version` matches the version in
+the long header that carried the handshake version information. Similarly,
+clients MUST validate that the server's `Chosen Version` matches the long
+header version. If an endpoint's validation fails, it MUST close the
 connection. If the connection was using QUIC version 1, it MUST be closed with
 a transport error of type `VERSION_NEGOTIATION_ERROR`.
 
@@ -278,9 +303,9 @@ If a client has reacted to a Version Negotiation packet, it MUST parse the
 server's `Other Versions` field and validate that it does not contain the
 client's original version. If this validation fails, the client MUST close the
 connection. If the connection was using QUIC version 1, it MUST be closed with
-a transport error of type `VERSION_NEGOTIATION_ERROR`. This prevents 
-an attacker from being able to use forged Version Negotiation packets to
-force a version downgrade.
+a transport error of type `VERSION_NEGOTIATION_ERROR`. This prevents an
+attacker from being able to use forged Version Negotiation packets to force a
+version downgrade.
 
 If an endpoint receives its peer's Handshake Version Information and fails to
 parse it (for example, if it is too short or if its length is not divisible by
