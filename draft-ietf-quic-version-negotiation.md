@@ -68,6 +68,75 @@ document are to be interpreted as described in BCP 14 {{!RFC2119}} {{!RFC8174}}
 when, and only when, they appear in all capitals, as shown here.
 
 
+# Server Deployments of QUIC {#server-fleet}
+
+While this document mainly discusses a single QUIC server, it is common for
+deployments of QUIC servers to include a fleet of multiple server instances. We
+therefore define the following terms:
+
+Supported Versions:
+
+: This is the set of versions supported by a given individual server instance.
+
+Fully-Deployed Versions:
+
+: This is the set of QUIC versions that is supported by every single QUIC
+server instance in this deployment.
+
+Partially-Deployed Versions:
+
+: This is the set of versions supported by a given individual server instance,
+but which aren't supported by every single QUIC server instance in this
+deployment.
+
+If a deployment only contains a single server instance, then the Supported
+Versions is equal to the Fully-Deployed Versions, and the Partially-Deployed
+Versions is the empty set. Note however that during software upgrades these
+fields are upgraded at different times, as described below.
+
+Conversely, if a deployment contains multiple server instances, it is possible
+for software updates to not happen at the exact same time on all server
+instances. In this scenario, some instances will have a different Supported
+Versions from other instances in the same fleet. When that happens, a client
+might receive a Version Negotiation packet from a server instance that doesn't
+support some Partially-Supported Versions; in that case, those
+Partially-Supported Versions won't be listed in the Version Negotiation packet.
+
+However, even when there is only a single server instance, it is still possible
+to receive a stale Version Negotiation packet if the server performs its
+software update while the Version Negotiation packet is in flight.
+
+In either of these events, when the client reacts to a Version Negotiation
+packet, it might create a new QUIC connection which could reach a server
+instance which has a different set of Supported Versions than what was received
+in the Version Negotiation packet.
+
+This could cause the version downgrade prevention mechanism described in
+{{downgrade}} to falsely detect a downgrade attack. To avoid that, server
+operators MUST perform a two-step process when they wish to add or remove
+support for a version:
+
+* When adding support for a new version, the first step is to progressively add
+  support for the new version to all server instances. This step updates the
+  Supported Versions but not the Fully-Deployed Versions. Once all server
+  instances have been upgraded, operators wait for at least one minute to allow
+  any in-flight Version Negotiation packets to arrive. Then, the second step is
+  to progressively add the new version to Fully-Deployed Versions on all server
+  instances.
+
+* When removing support for a version, the first step is to progressively
+  remove the version from Fully-Deployed Versions on all server instances. Once
+  it has been removed on all server instances, operators wait for at least one
+  minute to allow any in-flight Version Negotiation packets to arrive. Then,
+  the second step is to progressively remove support for the version from all
+  server instances. That step updates the Supported Versions.
+
+
+Note that this opens connections to version downgrades during the upgrade
+window, since those could be due to clients communicating with both upgraded
+and non-upgraded server instances.
+
+
 # Compatible Versions
 
 If A and B are two distinct versions of QUIC, A is said to be "compatible" with
@@ -143,8 +212,11 @@ the Version Negotiation packet, and a distinct connection after.
 
 ## Incompatible Version Negotiation {#incompat-vn}
 
-The server starts incompatible version negotiation by sending a VN packet,
-listing all the versions that it does support.
+The server starts incompatible version negotiation by sending a Version
+Negotiation packet. This packet SHALL list the server's set of Fully-Deployed
+Versions (see {{server-fleet}}) in the packet's Supported Version field. The
+server MAY add reserved versions (as defined in the Versions section of
+{{QUIC}}) to the Supported Version field.
 
 Upon receiving the VN packet, the client will search for a version it supports
 in the list provided by the server. If it doesn't find one, it aborts the
@@ -187,54 +259,6 @@ accomplish this by sending an INITIAL packet with a Source Connection ID that
 differed from the client's Destination Connection ID). This allows load
 balancers to ensure that packets for a given connection are routed to the same
 server.
-
-
-# Server Deployments of QUIC {#server-fleet}
-
-While this document mainly discusses a single QUIC server, it is common for
-deployments of QUIC servers to include a fleet of multiple server instances. We
-therefore define the following terms:
-
-Supported Versions:
-
-: This is the set of versions supported by a given individual server instance.
-
-Fully-Deployed Versions:
-
-: This is the set of QUIC versions that is supported by every single QUIC
-server instance in this deployment.
-
-Partially-Deployed Versions:
-
-: This is the set of versions supported by a given individual server instance,
-but which aren't supported by every single QUIC server instance in this
-deployment.
-
-If a deployment only contains a single server instance, then the Supported
-Versions is equal to the Fully-Deployed Versions, and the Partially-Deployed
-Versions is the empty set.
-
-Conversely, if a deployment contains multiple server instances, it is possible
-for software updates to not happen at the exact same time on all server
-instances. In this scenario, some instances will have a different Supported
-Versions from other instances in the same fleet. When that happens, a client
-might receive a Version Negotiation packet from a server instance that doesn't
-support some Partially-Supported Versions; in that case, those
-Partially-Supported Versions won't be listed in the Version Negotiation packet.
-When the client reacts to that Version Negotiation packet, it might create a
-new QUIC connection which could be routed to a different server instance, which
-has a different set of Supported Versions. The version downgrade prevention
-mechanism described in {{downgrade}} is robust to this scenario and will not
-falsely detect a downgrade attack.
-
-If a server operator is progressively deploying a new QUIC version throughout
-its fleet, it MUST perform a two-step process where it first progressively adds
-support for the new version. This adds the new version to Supported Versions
-but not to Fully-Deployed Versions. Once all server instances have been
-upgraded, the second step is to progressively add the version to Fully-Deployed
-Versions on all server instances. This opens connections to version downgrades
-during the upgrade window, since those could be due to clients communicating
-with both upgraded and non-upgraded server instances.
 
 
 # Handshake Version Information {#hs-vers-info}
