@@ -282,9 +282,9 @@ The content of each field is described below:
 
 Chosen Version:
 
-: The version that the sender has chosen to use for this connection. This field
-MUST be equal to the value of the Version field in the long header that carries
-this data.
+: The version that the sender has chosen to use for this connection. In most
+cases, this field will be equal to the value of the Version field in the long
+header that carries this data.
 
 The contents of the `Other Versions` field depends on whether it is sent by the
 client or by the server.
@@ -316,26 +316,30 @@ version that they initially attempted. Once a client has reacted to a Version
 Negotiation packet, it MUST drop all subsequent Version Negotiation packets on
 that connection.
 
-Servers MUST validate that the client's `Chosen Version` matches the version in
-the long header that carried the handshake version information. Similarly,
-clients MUST validate that the server's `Chosen Version` matches the long
-header version. If an endpoint's validation fails, it MUST close the
-connection. If the connection was using QUIC version 1, it MUST be closed with
-a transport error of type `VERSION_NEGOTIATION_ERROR`.
-
-If a client has reacted to a Version Negotiation packet, it MUST parse the
-server's `Other Versions` field and validate that it does not contain the
-client's original version. If this validation fails, the client MUST close the
-connection. If the connection was using QUIC version 1, it MUST be closed with
-a transport error of type `VERSION_NEGOTIATION_ERROR`. This prevents an
-attacker from being able to use forged Version Negotiation packets to force a
-version downgrade.
-
-If an endpoint receives its peer's Handshake Version Information and fails to
-parse it (for example, if it is too short or if its length is not divisible by
+Both endpoints MUST parse their peer's Handshake Version Information during the
+handshake. If the Handshake Version Information was missing or if parsing it
+failed (for example, if it is too short or if its length is not divisible by
 four), then the endpoint MUST close the connection. If the connection was using
 QUIC version 1, it MUST be closed with a transport error of type
 `TRANSPORT_PARAMETER_ERROR`.
+
+If a client has reacted to a Version Negotiation packet, it MUST validate that
+the server's `Other Versions` field does not contain the client's original
+version, and that the client would have selected the same negotiated version if
+it had received a Version Negotiation packet whose Supported Versions field had
+the same contents as the server's `Other Versions` field. If any of these
+validations fail, the client MUST close the connection. If the connection was
+using QUIC version 1, it MUST be closed with a transport error of type
+`VERSION_NEGOTIATION_ERROR`. This prevents an attacker from being able to use
+forged Version Negotiation packets to force a version downgrade.
+
+After the process of version negotiation in this document completes, the
+version in use for the connection is the version that the server sent in the
+`Chosen Version` field of its Handshake Version Information. That remains true
+even if other versions were used in the Version field of long headers at any
+point in the lifetime of the connection; endpoints MUST NOT change the version
+that they consider to be in use based on the Version field of long headers as
+that field could be forged by attackers.
 
 
 # Client Choice of Original Version
@@ -396,9 +400,6 @@ the weakest common version.
 
 The requirement that versions not be assumed compatible mitigates the
 possibility of cross-protocol attacks, but more analysis is still needed here.
-
-The presence of the `Attempted Version` and `Negotiated Version` fields
-mitigates an attacker's ability to forge packets by altering the version.
 
 
 # IANA Considerations
