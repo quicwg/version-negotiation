@@ -74,67 +74,65 @@ While this document mainly discusses a single QUIC server, it is common for
 deployments of QUIC servers to include a fleet of multiple server instances. We
 therefore define the following terms:
 
-Supported Versions:
+Accepted Versions:
 
-: This is the set of versions supported by a given individual server instance.
+: This is the set of versions supported by a given server instance. More
+specifically, these are the versions that a given server instance will use if a
+client sends a first flight using them.
+
+Negotiated Versions:
+
+: This is the set of versions that a given server instance will send in a
+Version Negotiation packet if it receives a first flight from an unknown
+version. This set will most often be equal to the Accepted Versions set, except
+during short transitions while versions are added or removed (see below).
 
 Fully-Deployed Versions:
 
-: This is the set of QUIC versions that is supported by every single QUIC
-server instance in this deployment.
+: This is the set of QUIC versions that is supported and negotiated by every
+single QUIC server instance in this deployment. If a deployment only contains a
+single server instance, then this set is equal to the Negotiated Versions set,
+except during short transitions while versions are added or removed (see below).
 
-Partially-Deployed Versions:
-
-: This is the set of versions supported by a given individual server instance,
-but which aren't supported by every single QUIC server instance in this
-deployment.
-
-If a deployment only contains a single server instance, then the Supported
-Versions is equal to the Fully-Deployed Versions, and the Partially-Deployed
-Versions is the empty set. Note however that during software upgrades these
-fields are upgraded at different times, as described below.
-
-Conversely, if a deployment contains multiple server instances, it is possible
-for software updates to not happen at the exact same time on all server
-instances. In this scenario, some instances will have a different Supported
-Versions from other instances in the same fleet. When that happens, a client
-might receive a Version Negotiation packet from a server instance that doesn't
-support some Partially-Supported Versions; in that case, those
-Partially-Supported Versions won't be listed in the Version Negotiation packet.
+If a deployment contains multiple server instances, it is possible for software
+updates to not happen at the exact same time on all server instances. Because
+of this, a client might receive a Version Negotiation packet from a server
+instance that has already been updated and the client's resulting connection
+attempt might reach a different server instance which hasn't been updated yet.
 
 However, even when there is only a single server instance, it is still possible
 to receive a stale Version Negotiation packet if the server performs its
 software update while the Version Negotiation packet is in flight.
 
-In either of these events, when the client reacts to a Version Negotiation
-packet, it might create a new QUIC connection which could reach a server
-instance which has a different set of Supported Versions than what was received
-in the Version Negotiation packet.
-
 This could cause the version downgrade prevention mechanism described in
 {{downgrade}} to falsely detect a downgrade attack. To avoid that, server
-operators MUST perform a two-step process when they wish to add or remove
+operators SHOULD perform a three-step process when they wish to add or remove
 support for a version:
 
 * When adding support for a new version, the first step is to progressively add
   support for the new version to all server instances. This step updates the
-  Supported Versions but not the Fully-Deployed Versions. Once all server
-  instances have been upgraded, operators wait for at least one minute to allow
-  any in-flight Version Negotiation packets to arrive. Then, the second step is
-  to progressively add the new version to Fully-Deployed Versions on all server
-  instances.
+  Accepted Versions but not the Negotiated Versions nor the Fully-Deployed
+  Versions. Once all server instances have been updated, operators wait for at
+  least one minute to allow any in-flight Version Negotiation packets to
+  arrive. Then, the second step is to progressively add the new version to
+  Negotiated Versions on all server instances. Once complete, operators wait
+  for at least another minute. Finally, the third step is to progressively add
+  the new version to Fully-Deployed Versions on all server instances.
 
 * When removing support for a version, the first step is to progressively
   remove the version from Fully-Deployed Versions on all server instances. Once
   it has been removed on all server instances, operators wait for at least one
   minute to allow any in-flight Version Negotiation packets to arrive. Then,
-  the second step is to progressively remove support for the version from all
-  server instances. That step updates the Supported Versions.
+  the second step is to progressively remove the version from Negotiated
+  Versions on all server instances. Once complete, operators wait for at least
+  another minute. Finally, the third step is to progressively remove support for
+  the version from all server instances. That step updates the Supported
+  Versions.
 
 
-Note that this opens connections to version downgrades during the upgrade
-window, since those could be due to clients communicating with both upgraded
-and non-upgraded server instances.
+Note that this opens connections to version downgrades (but only for
+partially-deployed versions) during the update window, since those could be due
+to clients communicating with both updated and non-updated server instances.
 
 
 # Compatible Versions
@@ -213,7 +211,7 @@ the Version Negotiation packet, and a distinct connection after.
 ## Incompatible Version Negotiation {#incompat-vn}
 
 The server starts incompatible version negotiation by sending a Version
-Negotiation packet. This packet SHALL list the server's set of Fully-Deployed
+Negotiation packet. This packet SHALL list the server's set of Negotiated
 Versions (see {{server-fleet}}) in the packet's Supported Version field. The
 server MAY add reserved versions (as defined in the Versions section of
 {{QUIC}}) to the Supported Version field.
