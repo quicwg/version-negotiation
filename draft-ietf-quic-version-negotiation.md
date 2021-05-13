@@ -182,9 +182,9 @@ the versions are compatible.
 The client initiates a QUIC connection by sending a first flight of QUIC
 packets with a long header to the server {{INV}}. We'll refer to the version of
 those packets as the "original version". The client's first flight includes
-handshake version information (see {{hs-vers-info}}) which will be used to
-optionally enable compatible version negotation (see {{compat-vn}}), and to
-prevent version downgrade attacks (see {{downgrade}}).
+Version Information (see {{vers-info}}) which will be used to optionally enable
+compatible version negotation (see {{compat-vn}}), and to prevent version
+downgrade attacks (see {{downgrade}}).
 
 Upon receiving this first flight, the server verifies whether it knows how to
 parse first flights from the original version. If it does not, then it starts
@@ -226,17 +226,17 @@ sends a new first flight with that version - we refer to this version as the
 
 The new first flight will allow the endpoints to establish a connection using
 the negotiated version. The handshake of the negotiated version will exchange
-handshake version information (see {{hs-vers-info}}) required to ensure that VN
-was genuine, i.e. that no attacker injected packets in order to influence the
-VN process, see {{downgrade}}.
+Version Information (see {{vers-info}}) required to ensure that VN was genuine,
+i.e. that no attacker injected packets in order to influence the VN process,
+see {{downgrade}}.
 
 
 ## Compatible Version Negotiation {#compat-vn}
 
 When the server can parse the client's first flight using the original version,
-it can extract the client's handshake version information (see
-{{hs-vers-info}}). This contains the list of versions that the client thinks
-its first flight is compatible with.
+it can extract the client's Version Information (see {{vers-info}}). This
+contains the list of versions that the client thinks its first flight is
+compatible with.
 
 If the server supports one of the client's compatible versions, and the server
 also believes that the original version is compatible with this version, then
@@ -261,22 +261,21 @@ balancers to ensure that packets for a given connection are routed to the same
 server.
 
 
-# Handshake Version Information {#hs-vers-info}
+# Version Information {#vers-info}
 
-During the handshake, endpoints will exchange handshake version information,
-which is a blob of data that is defined below. In QUIC version 1, the handshake
-version information is transmitted using a new transport parameter,
-`version_negotiation`. The contents of handshake version information are shown
-below (using the notation from the "Notational Conventions" section of
-{{QUIC}}):
+During the handshake, endpoints will exchange Version Information, which is a
+blob of data that is defined below. In QUIC version 1, the Version Information
+is transmitted using a new transport parameter, `version_information`. The
+contents of Version Information are shown below (using the notation from the
+"Notational Conventions" section of {{QUIC}}):
 
 ~~~
-Handshake Version Information {
+Version Information {
   Chosen Version (32),
   Other Versions (32) ...,
 }
 ~~~
-{: #fig-hvi-format title="Handshake Version Information Format"}
+{: #fig-vi-format title="Version Information Format"}
 
 The content of each field is described below:
 
@@ -316,11 +315,11 @@ version that they initially attempted. Once a client has reacted to a Version
 Negotiation packet, it MUST drop all subsequent Version Negotiation packets on
 that connection.
 
-Both endpoints MUST parse their peer's Handshake Version Information during the
-handshake. If the Handshake Version Information was missing or if parsing it
-failed (for example, if it is too short or if its length is not divisible by
-four), then the endpoint MUST close the connection. If the connection was using
-QUIC version 1, it MUST be closed with a transport error of type
+Both endpoints MUST parse their peer's Version Information during the
+handshake. If the Version Information was missing or if parsing it failed (for
+example, if it is too short or if its length is not divisible by four), then
+the endpoint MUST close the connection. If the connection was using QUIC
+version 1, it MUST be closed with a transport error of type
 `TRANSPORT_PARAMETER_ERROR`.
 
 If a client has reacted to a Version Negotiation packet, it MUST validate that
@@ -335,11 +334,11 @@ forged Version Negotiation packets to force a version downgrade.
 
 After the process of version negotiation in this document completes, the
 version in use for the connection is the version that the server sent in the
-`Chosen Version` field of its Handshake Version Information. That remains true
-even if other versions were used in the Version field of long headers at any
-point in the lifetime of the connection; endpoints MUST NOT change the version
-that they consider to be in use based on the Version field of long headers as
-that field could be forged by attackers.
+`Chosen Version` field of its Version Information. That remains true even if
+other versions were used in the Version field of long headers at any point in
+the lifetime of the connection; endpoints MUST NOT change the version that they
+consider to be in use based on the Version field of long headers as that field
+could be forged by attackers.
 
 
 # Client Choice of Original Version
@@ -355,14 +354,14 @@ QUIC version 1 features retry packets, which the server can send to validate
 the client's IP address before parsing the client's first flight. This impacts
 compatible version negotiation because a server who wishes to send a retry
 packet before parsing the client's first flight won't have parsed the client's
-handshake version information yet. If a future document wishes to define
-compatibility between two versions that support retry, that document MUST
-specify how version negotiation (both compatible and incompatible) interacts
-with retry during a handshake that requires both. For example, that could be
-accomplished by having the server send a retry packet first and validating the
-client's IP address before starting version negotiation and deciding whether to
-use compatible version negotiation on that connection (in that scenario the
-retry packet would be sent using the original version).
+Version Information yet. If a future document wishes to define compatibility
+between two versions that support retry, that document MUST specify how version
+negotiation (both compatible and incompatible) interacts with retry during a
+handshake that requires both. For example, that could be accomplished by having
+the server send a retry packet first and validating the client's IP address
+before starting version negotiation and deciding whether to use compatible
+version negotiation on that connection (in that scenario the retry packet would
+be sent using the original version).
 
 
 # Interaction with 0-RTT
@@ -393,7 +392,7 @@ should avoid introducing new frames in initial packets.
 # Security Considerations
 
 The security of this version negotiation mechanism relies on the authenticity
-of the handshake version information exchanged during the handshake. In QUIC
+of the Version Information exchanged during the handshake. In QUIC
 version 1, transport parameters are authenticated ensuring the security of this
 mechanism. Negotiation between compatible versions will have the security of
 the weakest common version.
@@ -413,7 +412,7 @@ Transport Parameter Registry:
   +----------+---------------------+---------------+
   | Value    |   Parameter Name    |   Reference   |
   +----------+---------------------+---------------+
-  | 0xFF73DB | version_negotiation | This document |
+  | 0xFF73DB | version_information | This document |
   +----------+---------------------+---------------+
 ~~~
 
