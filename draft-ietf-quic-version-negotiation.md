@@ -94,11 +94,11 @@ single QUIC server instance in this deployment. If a deployment only contains a
 single server instance, then this set is equal to the Negotiated Versions set,
 except during short transitions while versions are added or removed (see below).
 
-If a deployment contains multiple server instances, it is possible for software
-updates to not happen at the exact same time on all server instances. Because
-of this, a client might receive a Version Negotiation packet from a server
-instance that has already been updated and the client's resulting connection
-attempt might reach a different server instance which hasn't been updated yet.
+If a deployment contains multiple server instances, software updates may not
+happen at exactly the same time on all server instances. Because of this, a
+client might receive a Version Negotiation packet from a server instance that
+has already been updated and the client's resulting connection attempt might
+reach a different server instance which hasn't been updated yet.
 
 However, even when there is only a single server instance, it is still possible
 to receive a stale Version Negotiation packet if the server performs its
@@ -109,25 +109,34 @@ This could cause the version downgrade prevention mechanism described in
 operators SHOULD perform a three-step process when they wish to add or remove
 support for a version:
 
-* When adding support for a new version, the first step is to progressively add
-  support for the new version to all server instances. This step updates the
-  Accepted Versions but not the Negotiated Versions nor the Fully-Deployed
-  Versions. Once all server instances have been updated, operators wait for at
-  least one minute to allow any in-flight Version Negotiation packets to
-  arrive. Then, the second step is to progressively add the new version to
-  Negotiated Versions on all server instances. Once complete, operators wait
-  for at least another minute. Finally, the third step is to progressively add
-  the new version to Fully-Deployed Versions on all server instances.
+When adding support for a new version:
 
-* When removing support for a version, the first step is to progressively
-  remove the version from Fully-Deployed Versions on all server instances. Once
-  it has been removed on all server instances, operators wait for at least one
-  minute to allow any in-flight Version Negotiation packets to arrive. Then,
-  the second step is to progressively remove the version from Negotiated
+* The first step is to progressively add support for the new version to all
+  server instances. This step updates the Accepted Versions but not the
+  Negotiated Versions nor the Fully-Deployed Versions. Once all server
+  instances have been updated, operators wait for at least one minute to allow
+  any in-flight Version Negotiation packets to arrive.
+
+* Then, the second step is to progressively add the new version to Negotiated
   Versions on all server instances. Once complete, operators wait for at least
-  another minute. Finally, the third step is to progressively remove support for
-  the version from all server instances. That step updates the Supported
-  Versions.
+  another minute.
+
+* Finally, the third step is to progressively add the new version to
+  Fully-Deployed Versions on all server instances.
+
+When removing support for a version:
+
+* The first step is to progressively remove the version from Fully-Deployed
+  Versions on all server instances. Once it has been removed on all server
+  instances, operators wait for at least one minute to allow any in-flight
+  Version Negotiation packets to arrive.
+
+* Then, the second step is to progressively remove the version from Negotiated
+  Versions on all server instances. Once complete, operators wait for at least
+  another minute.
+
+* Finally, the third step is to progressively remove support for the version
+  from all server instances. That step updates the Supported Versions.
 
 
 Note that this opens connections to version downgrades (but only for
@@ -211,10 +220,10 @@ the Version Negotiation packet, and a distinct connection after.
 ## Incompatible Version Negotiation {#incompat-vn}
 
 The server starts incompatible version negotiation by sending a Version
-Negotiation packet. This packet SHALL list the server's set of Negotiated
-Versions (see {{server-fleet}}) in the packet's Supported Version field. The
+Negotiation packet. This packet SHALL include each entry from the server's set
+of Negotiated Versions (see {{server-fleet}}) in a Supported Version field. The
 server MAY add reserved versions (as defined in the Versions section of
-{{QUIC}}) to the Supported Version field.
+{{QUIC}}) in Supported Version fields.
 
 Upon receiving the VN packet, the client will search for a version it supports
 in the list provided by the server. If it doesn't find one, it aborts the
@@ -224,7 +233,7 @@ sends a new first flight with that version - we refer to this version as the
 
 The new first flight will allow the endpoints to establish a connection using
 the negotiated version. The handshake of the negotiated version will exchange
-Version Information (see {{vers-info}}) required to ensure that VN was genuine,
+version information (see {{vers-info}}) required to ensure that VN was genuine,
 i.e. that no attacker injected packets in order to influence the VN process,
 see {{downgrade}}.
 
@@ -232,8 +241,8 @@ see {{downgrade}}.
 ## Compatible Version Negotiation {#compat-vn}
 
 When the server can parse the client's first flight using the original version,
-it can extract the client's Version Information (see {{vers-info}}). This
-contains the list of versions that the client thinks its first flight is
+it can extract the client's Version Information structure (see {{vers-info}}).
+This contains the list of versions that the client thinks its first flight is
 compatible with.
 
 If the server supports one of the client's compatible versions, and the server
