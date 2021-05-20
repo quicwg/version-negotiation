@@ -311,7 +311,7 @@ instead.
 Server-Sent Other Versions:
 
 : When sent by a server, the `Other Versions` field lists all the
-Fully-Supported Versions of this server deployment, see {{server-fleet}}.
+Fully-Deployed Versions of this server deployment, see {{server-fleet}}.
 
 Clients and servers MAY both include versions following the pattern
 `0x?a?a?a?a` in their `Other Versions` list. Those versions are reserved to
