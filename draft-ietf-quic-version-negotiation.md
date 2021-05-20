@@ -330,7 +330,7 @@ Both endpoints MUST parse their peer's Version Information during the
 handshake. If the Version Information was missing or if parsing it failed (for
 example, if it is too short or if its length is not divisible by four), then
 the endpoint MUST close the connection; if the connection was using QUIC
-version 1, it MUST be closed with a transport error of type
+version 1, that connection closure MUST use a transport error of type
 `TRANSPORT_PARAMETER_ERROR`.
 
 If a client has reacted to a Version Negotiation packet, it MUST validate that
@@ -339,7 +339,7 @@ version, and that the client would have selected the same negotiated version if
 it had received a Version Negotiation packet whose Supported Versions field had
 the same contents as the server's `Other Versions` field. If any of these
 checks fail, the client MUST close the connection; if the connection was using
-QUIC version 1, it MUST be closed with a transport error of type
+QUIC version 1, that connection closure MUST use a transport error of type
 `VERSION_NEGOTIATION_ERROR`. This prevents an attacker from being able to use
 forged Version Negotiation packets to force a version downgrade.
 
