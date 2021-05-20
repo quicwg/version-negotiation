@@ -67,6 +67,10 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD",
 document are to be interpreted as described in BCP 14 {{!RFC2119}} {{!RFC8174}}
 when, and only when, they appear in all capitals, as shown here.
 
+In this document, the Maximum Segment Lifetime (MSL) represents the time a QUIC
+packet can exist in the network. Implementations can make this configurable,
+and a RECOMMENDED value is one minute.
+
 
 # Server Deployments of QUIC {#server-fleet}
 
@@ -74,24 +78,24 @@ While this document mainly discusses a single QUIC server, it is common for
 deployments of QUIC servers to include a fleet of multiple server instances. We
 therefore define the following terms:
 
-Accepted Versions:
+Acceptable Versions:
 
 : This is the set of versions supported by a given server instance. More
 specifically, these are the versions that a given server instance will use if a
 client sends a first flight using them.
 
-Negotiated Versions:
+Offered Versions:
 
 : This is the set of versions that a given server instance will send in a
 Version Negotiation packet if it receives a first flight from an unknown
-version. This set will most often be equal to the Accepted Versions set, except
-during short transitions while versions are added or removed (see below).
+version. This set will most often be equal to the Acceptaple Versions set,
+except during short transitions while versions are added or removed (see below).
 
 Fully-Deployed Versions:
 
 : This is the set of QUIC versions that is supported and negotiated by every
 single QUIC server instance in this deployment. If a deployment only contains a
-single server instance, then this set is equal to the Negotiated Versions set,
+single server instance, then this set is equal to the Offered Versions set,
 except during short transitions while versions are added or removed (see below).
 
 If a deployment contains multiple server instances, software updates may not
@@ -112,14 +116,14 @@ support for a version:
 When adding support for a new version:
 
 * The first step is to progressively add support for the new version to all
-  server instances. This step updates the Accepted Versions but not the
-  Negotiated Versions nor the Fully-Deployed Versions. Once all server
-  instances have been updated, operators wait for at least one minute to allow
-  any in-flight Version Negotiation packets to arrive.
+  server instances. This step updates the Acceptable Versions but not the
+  Offered Versions nor the Fully-Deployed Versions. Once all server instances
+  have been updated, operators wait for at least one MSL to allow any in-flight
+  Version Negotiation packets to arrive.
 
-* Then, the second step is to progressively add the new version to Negotiated
+* Then, the second step is to progressively add the new version to Offered
   Versions on all server instances. Once complete, operators wait for at least
-  another minute.
+  another MSL.
 
 * Finally, the third step is to progressively add the new version to
   Fully-Deployed Versions on all server instances.
@@ -128,15 +132,15 @@ When removing support for a version:
 
 * The first step is to progressively remove the version from Fully-Deployed
   Versions on all server instances. Once it has been removed on all server
-  instances, operators wait for at least one minute to allow any in-flight
+  instances, operators wait for at least one MSL to allow any in-flight
   Version Negotiation packets to arrive.
 
-* Then, the second step is to progressively remove the version from Negotiated
+* Then, the second step is to progressively remove the version from Offered
   Versions on all server instances. Once complete, operators wait for at least
-  another minute.
+  another MSL.
 
 * Finally, the third step is to progressively remove support for the version
-  from all server instances. That step updates the Supported Versions.
+  from all server instances. That step updates the Acceptable Versions.
 
 
 Note that this opens connections to version downgrades (but only for
@@ -221,7 +225,7 @@ the Version Negotiation packet, and a distinct connection after.
 
 The server starts incompatible version negotiation by sending a Version
 Negotiation packet. This packet SHALL include each entry from the server's set
-of Negotiated Versions (see {{server-fleet}}) in a Supported Version field. The
+of Offered Versions (see {{server-fleet}}) in a Supported Version field. The
 server MAY add reserved versions (as defined in the Versions section of
 {{QUIC}}) in Supported Version fields.
 
@@ -325,7 +329,7 @@ that connection.
 Both endpoints MUST parse their peer's Version Information during the
 handshake. If the Version Information was missing or if parsing it failed (for
 example, if it is too short or if its length is not divisible by four), then
-the endpoint MUST close the connection. If the connection was using QUIC
+the endpoint MUST close the connection; if the connection was using QUIC
 version 1, it MUST be closed with a transport error of type
 `TRANSPORT_PARAMETER_ERROR`.
 
@@ -334,8 +338,8 @@ the server's `Other Versions` field does not contain the client's original
 version, and that the client would have selected the same negotiated version if
 it had received a Version Negotiation packet whose Supported Versions field had
 the same contents as the server's `Other Versions` field. If any of these
-validations fail, the client MUST close the connection. If the connection was
-using QUIC version 1, it MUST be closed with a transport error of type
+checks fail, the client MUST close the connection; if the connection was using
+QUIC version 1, it MUST be closed with a transport error of type
 `VERSION_NEGOTIATION_ERROR`. This prevents an attacker from being able to use
 forged Version Negotiation packets to force a version downgrade.
 
