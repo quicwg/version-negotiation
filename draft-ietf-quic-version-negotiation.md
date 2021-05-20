@@ -340,8 +340,9 @@ it had received a Version Negotiation packet whose Supported Versions field had
 the same contents as the server's `Other Versions` field. If any of these
 checks fail, the client MUST close the connection; if the connection was using
 QUIC version 1, that connection closure MUST use a transport error of type
-`VERSION_NEGOTIATION_ERROR`. This prevents an attacker from being able to use
-forged Version Negotiation packets to force a version downgrade.
+`VERSION_NEGOTIATION_ERROR`. This connection closure prevents an attacker from
+being able to use forged Version Negotiation packets to force a version
+downgrade.
 
 After the process of version negotiation in this document completes, the
 version in use for the connection is the version that the server sent in the
