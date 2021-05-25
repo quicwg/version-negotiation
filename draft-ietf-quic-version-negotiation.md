@@ -213,12 +213,15 @@ but not enough to fully establish a connection using that version.
 
 QUIC connections are shared state between a client and a server {{INV}}. The
 compatible version negotiation mechanism defined in this document (see
-{{compat-vn}}) operates inside of a QUIC connection; i.e., the packets with the
-original version are part of the same connection as the packets with the
-negotiated version. On the other hand, the incompatible version negotiation
-mechanism, which leverages QUIC Version Negotiation packets (see
-{{incompat-vn}}) conceptually operates across two QUIC connections: one before
-the Version Negotiation packet, and a distinct connection after.
+{{compat-vn}}) is performed as part of a single QUIC connection; that is, the
+packets with the original version are part of the same connection as the packets
+with the negotiated version.
+
+In comparison, the incompatible version negotiation mechanism, which leverages QUIC
+Version Negotiation packets (see {{incompat-vn}}) conceptually operates across
+two QUIC connections: the connection attempt prior to receiving the Version
+Negotiation packet is distinct from the connection with the incompatible version
+that follows.
 
 
 ## Incompatible Version Negotiation {#incompat-vn}
