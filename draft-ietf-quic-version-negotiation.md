@@ -67,6 +67,86 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD",
 document are to be interpreted as described in BCP 14 {{!RFC2119}} {{!RFC8174}}
 when, and only when, they appear in all capitals, as shown here.
 
+In this document, the Maximum Segment Lifetime (MSL) represents the time a QUIC
+packet can exist in the network. Implementations can make this configurable,
+and a RECOMMENDED value is one minute.
+
+
+# Server Deployments of QUIC {#server-fleet}
+
+While this document mainly discusses a single QUIC server, it is common for
+deployments of QUIC servers to include a fleet of multiple server instances. We
+therefore define the following terms:
+
+Acceptable Versions:
+
+: This is the set of versions supported by a given server instance. More
+specifically, these are the versions that a given server instance will use if a
+client sends a first flight using them.
+
+Offered Versions:
+
+: This is the set of versions that a given server instance will send in a
+Version Negotiation packet if it receives a first flight from an unknown
+version. This set will most often be equal to the Acceptaple Versions set,
+except during short transitions while versions are added or removed (see below).
+
+Fully-Deployed Versions:
+
+: This is the set of QUIC versions that is supported and negotiated by every
+single QUIC server instance in this deployment. If a deployment only contains a
+single server instance, then this set is equal to the Offered Versions set,
+except during short transitions while versions are added or removed (see below).
+
+If a deployment contains multiple server instances, software updates may not
+happen at exactly the same time on all server instances. Because of this, a
+client might receive a Version Negotiation packet from a server instance that
+has already been updated and the client's resulting connection attempt might
+reach a different server instance which hasn't been updated yet.
+
+However, even when there is only a single server instance, it is still possible
+to receive a stale Version Negotiation packet if the server performs its
+software update while the Version Negotiation packet is in flight.
+
+This could cause the version downgrade prevention mechanism described in
+{{downgrade}} to falsely detect a downgrade attack. To avoid that, server
+operators SHOULD perform a three-step process when they wish to add or remove
+support for a version:
+
+When adding support for a new version:
+
+* The first step is to progressively add support for the new version to all
+  server instances. This step updates the Acceptable Versions but not the
+  Offered Versions nor the Fully-Deployed Versions. Once all server instances
+  have been updated, operators wait for at least one MSL to allow any in-flight
+  Version Negotiation packets to arrive.
+
+* Then, the second step is to progressively add the new version to Offered
+  Versions on all server instances. Once complete, operators wait for at least
+  another MSL.
+
+* Finally, the third step is to progressively add the new version to
+  Fully-Deployed Versions on all server instances.
+
+When removing support for a version:
+
+* The first step is to progressively remove the version from Fully-Deployed
+  Versions on all server instances. Once it has been removed on all server
+  instances, operators wait for at least one MSL to allow any in-flight
+  Version Negotiation packets to arrive.
+
+* Then, the second step is to progressively remove the version from Offered
+  Versions on all server instances. Once complete, operators wait for at least
+  another MSL.
+
+* Finally, the third step is to progressively remove support for the version
+  from all server instances. That step updates the Acceptable Versions.
+
+
+Note that this opens connections to version downgrades (but only for
+partially-deployed versions) during the update window, since those could be due
+to clients communicating with both updated and non-updated server instances.
+
 
 # Compatible Versions
 
@@ -113,9 +193,9 @@ the versions are compatible.
 The client initiates a QUIC connection by sending a first flight of QUIC
 packets with a long header to the server {{INV}}. We'll refer to the version of
 those packets as the "original version". The client's first flight includes
-handshake version information (see {{hs-vers-info}}) which will be used to
-optionally enable compatible version negotation (see {{compat-vn}}), and to
-prevent version downgrade attacks (see {{downgrade}}).
+Version Information (see {{vers-info}}) which will be used to optionally enable
+compatible version negotation (see {{compat-vn}}), and to prevent version
+downgrade attacks (see {{downgrade}}).
 
 Upon receiving this first flight, the server verifies whether it knows how to
 parse first flights from the original version. If it does not, then it starts
@@ -143,8 +223,11 @@ the Version Negotiation packet, and a distinct connection after.
 
 ## Incompatible Version Negotiation {#incompat-vn}
 
-The server starts incompatible version negotiation by sending a VN packet,
-listing all the versions that it does support.
+The server starts incompatible version negotiation by sending a Version
+Negotiation packet. This packet SHALL include each entry from the server's set
+of Offered Versions (see {{server-fleet}}) in a Supported Version field. The
+server MAY add reserved versions (as defined in the Versions section of
+{{QUIC}}) in Supported Version fields.
 
 Upon receiving the VN packet, the client will search for a version it supports
 in the list provided by the server. If it doesn't find one, it aborts the
@@ -154,17 +237,17 @@ sends a new first flight with that version - we refer to this version as the
 
 The new first flight will allow the endpoints to establish a connection using
 the negotiated version. The handshake of the negotiated version will exchange
-handshake version information (see {{hs-vers-info}}) required to ensure that VN
-was genuine, i.e. that no attacker injected packets in order to influence the
-VN process, see {{downgrade}}.
+version information (see {{vers-info}}) required to ensure that VN was genuine,
+i.e. that no attacker injected packets in order to influence the VN process,
+see {{downgrade}}.
 
 
 ## Compatible Version Negotiation {#compat-vn}
 
 When the server can parse the client's first flight using the original version,
-it can extract the client's handshake version information (see
-{{hs-vers-info}}). This contains the list of versions that the client thinks
-its first flight is compatible with.
+it can extract the client's Version Information structure (see {{vers-info}}).
+This contains the list of versions that the client thinks its first flight is
+compatible with.
 
 If the server supports one of the client's compatible versions, and the server
 also believes that the original version is compatible with this version, then
@@ -189,97 +272,51 @@ balancers to ensure that packets for a given connection are routed to the same
 server.
 
 
-# Handshake Version Information {#hs-vers-info}
+# Version Information {#vers-info}
 
-During the handshake, endpoints will exchange handshake version information,
-which is a blob of data that is defined below. In QUIC version 1, the handshake
-version information is transmitted using a new transport parameter,
-`version_negotiation`. The contents of handshake version information depend on
-whether the client or server is sending it, and are shown below (using the
-notation from the "Notational Conventions" section of {{QUIC}}):
+During the handshake, endpoints will exchange Version Information, which is a
+blob of data that is defined below. In QUIC version 1, the Version Information
+is transmitted using a new transport parameter, `version_information`. The
+contents of Version Information are shown below (using the notation from the
+"Notational Conventions" section of {{QUIC}}):
 
 ~~~
-Client Handshake Version Information {
-  Currently Attempted Version (32),
-  Previously Attempted Version (32),
-  Received Negotiation Version Count (i),
-  Received Negotiation Version (32) ...,
-  Compatible Version Count (i),
-  Compatible Version (32) ...,
+Version Information {
+  Chosen Version (32),
+  Other Versions (32) ...,
 }
 ~~~
-{: #fig-client-hvi title="Client Handshake Version Information"}
+{: #fig-vi-format title="Version Information Format"}
 
 The content of each field is described below:
 
-Currently Attempted Version:
+Chosen Version:
 
-: The version that the client is attempting to use. This field MUST be equal to
-the value of the Version field in the long header that carries this data.
+: The version that the sender has chosen to use for this connection. In most
+cases, this field will be equal to the value of the Version field in the long
+header that carries this data.
 
-Previously Attempted Version:
+The contents of the `Other Versions` field depends on whether it is sent by the
+client or by the server.
 
-: If the client is sending this first flight in response to a Version
-Negotiation packet, this field contains the version that the client used in the
-previous first flight that triggered the version negotiation packet. If the
-client did not receive a Version Negotiation packet, this field SHALL be
-all-zeroes.
+Client-Sent Other Versions:
 
-Received Negotiation Version Count:
-
-: A variable-length integer specifying the number of Received Negotiation
-Version fields following it. If the client is sending this first flight in
-response to a Version Negotiation packet, the subsequent versions SHALL include
-all the versions from that Version Negotiation packet in order, even if they
-are not supported by the client (even if the versions are reserved). If the
-client has not received a Version Negotiation packet on this connection, this
-field SHALL be 0.
-
-Compatible Version Count:
-
-: A variable-length integer specifying the number of Compatible Version fields
-following it. The client lists all versions that this first flight is
-compatible with in the subsequent Compatible Version fields, ordered by
-descending preference. Note that the version in the Currently Attempted Version
-field MUST be included in the Compatible Version list to allow the client to
-communicate the currently attempted version's preference. Note that this
+: When sent by a client, the `Other Versions` field lists all the versions that
+this first flight is compatible with, ordered by descending preference. Note
+that the version in the `Chosen Version` field MUST be included in this list to
+allow the client to communicate the chosen version's preference. Note that this
 preference is only advisory, servers MAY choose to use their own preference
 instead.
 
-~~~
-Server Handshake Version Information {
-  Negotiated Version (32),
-  Supported Version Count (i),
-  Supported Version (32) ...,
-}
-~~~
-{: #fig-server-hvi title="Server Handshake Version Information"}
+Server-Sent Other Versions:
 
-The content of each field is described below:
+: When sent by a server, the `Other Versions` field lists all the
+Fully-Deployed Versions of this server deployment, see {{server-fleet}}.
 
-Negotiated Version:
-
-: The version that the server chose to use for the connection. This field MUST
-be equal to the value of the Version field in the long header that carries this
-data.
-
-Supported Version Count:
-
-: A variable-length integer specifying the number of Supported Version fields
-following it. The server encodes all versions it supports in the subsequent
-list, ordered by descending preference. Note that the version in the Negotiated
-Version field MUST be included in the Supported Version list to allow the
-server to communicate the negotiated version's preference. Note that this
-preference is only advisory, clients MAY choose to use their own preference
-instead.
-
-Clients MAY include versions following the pattern `0x?a?a?a?a` in their
-`Compatible Version` list, and the server in their `Supported Version` list.
-Those versions are reserved to exercise version negotiation (see the Versions
-section of {{QUIC}}), and will be ignored when parsing these fields. On the
-other hand, the `Received Negotiation Version` list MUST be identical to the
-received Version Negotiation packet, so clients MUST NOT add or remove reserved
-version from that list.
+Clients and servers MAY both include versions following the pattern
+`0x?a?a?a?a` in their `Other Versions` list. Those versions are reserved to
+exercise version negotiation (see the Versions section of {{QUIC}}), and will
+never be selected when choosing a version to use.
 
 
 # Version Downgrade Prevention {#downgrade}
@@ -289,49 +326,31 @@ version that they initially attempted. Once a client has reacted to a Version
 Negotiation packet, it MUST drop all subsequent Version Negotiation packets on
 that connection.
 
-Servers MUST validate that the client's `Currently Attempted Version` matches
-the version in the long header that carried the handshake version information.
-Similarly, clients MUST validate that the server's `Negotiated Version` matches
-the long header version. If an endpoint's validation fails, it MUST close the
-connection. If the connection was using QUIC version 1, it MUST be closed with
-a transport error of type `VERSION_NEGOTIATION_ERROR`.
+Both endpoints MUST parse their peer's Version Information during the
+handshake. If the Version Information was missing or if parsing it failed (for
+example, if it is too short or if its length is not divisible by four), then
+the endpoint MUST close the connection; if the connection was using QUIC
+version 1, that connection closure MUST use a transport error of type
+`TRANSPORT_PARAMETER_ERROR`.
 
-When a server parses the client's handshake version information, if the
-`Received Negotiation Version Count` is not zero, the server MUST validate that
-it could have sent the Version Negotation packet described by the client in
-response to a first flight of version `Previously Attempted Version`. In
-particular, the server MUST ensure that there are no versions that it supports
-that are absent from the Received Negotiation Versions, and that the ordering
-matches the server's preference. If this validation fails, the server MUST
-close the connection. If the connection was using QUIC version 1, it MUST be
-closed with a transport error of type `VERSION_NEGOTIATION_ERROR`. This
-mitigates an attacker's ability to forge Version Negotiation packets to force a
-version downgrade.
+If a client has reacted to a Version Negotiation packet, it MUST validate that
+the server's `Other Versions` field does not contain the client's original
+version, and that the client would have selected the same negotiated version if
+it had received a Version Negotiation packet whose Supported Versions field had
+the same contents as the server's `Other Versions` field. If any of these
+checks fail, the client MUST close the connection; if the connection was using
+QUIC version 1, that connection closure MUST use a transport error of type
+`VERSION_NEGOTIATION_ERROR`. This connection closure prevents an attacker from
+being able to use forged Version Negotiation packets to force a version
+downgrade.
 
-If a server operator is progressively deploying a new QUIC version throughout
-its fleet, it MAY perform a two-step process where it first progressively adds
-support for the new version, but without enforcing its presence in `Received
-Negotiation Versions`. Once all servers have been upgraded, the second step is
-to start enforcing that the new version is present in `Received Negotiation
-Versions`. This opens connections to version downgrades during the upgrade
-window, since those could be due to clients communicating with both upgraded
-and non-upgraded servers.
-
-If an endpoint receives its peer's Handshake Version Information and fails to
-parse it (for example, if it is too short), then the endpoint MUST close the
-connection. If the connection was using QUIC version 1, it MUST be closed with
-a transport error of type `TRANSPORT_PARAMETER_ERROR`.
-
-
-# Supported Versions
-
-The server's `Supported Version` list allows it to communicate the full list of
-versions it supports to the client. In the case where clients initially attempt
-connections with the oldest version they support, this allows them to be
-notified of more recent versions the server supports. If the client notices
-that the server supports a version that is more preferable that the one
-initially attempted by default, the client SHOULD cache that information and
-attempt the preferred version in subsequent connections.
+After the process of version negotiation in this document completes, the
+version in use for the connection is the version that the server sent in the
+`Chosen Version` field of its Version Information. That remains true even if
+other versions were used in the Version field of long headers at any point in
+the lifetime of the connection; endpoints MUST NOT change the version that they
+consider to be in use based on the Version field of long headers as that field
+could be forged by attackers.
 
 
 # Client Choice of Original Version
@@ -347,14 +366,14 @@ QUIC version 1 features retry packets, which the server can send to validate
 the client's IP address before parsing the client's first flight. This impacts
 compatible version negotiation because a server who wishes to send a retry
 packet before parsing the client's first flight won't have parsed the client's
-handshake version information yet. If a future document wishes to define
-compatibility between two versions that support retry, that document MUST
-specify how version negotiation (both compatible and incompatible) interacts
-with retry during a handshake that requires both. For example, that could be
-accomplished by having the server send a retry packet first and validating the
-client's IP address before starting version negotiation and deciding whether to
-use compatible version negotiation on that connection (in that scenario the
-retry packet would be sent using the original version).
+Version Information yet. If a future document wishes to define compatibility
+between two versions that support retry, that document MUST specify how version
+negotiation (both compatible and incompatible) interacts with retry during a
+handshake that requires both. For example, that could be accomplished by having
+the server send a retry packet first and validating the client's IP address
+before starting version negotiation and deciding whether to use compatible
+version negotiation on that connection (in that scenario the retry packet would
+be sent using the original version).
 
 
 # Interaction with 0-RTT
@@ -385,16 +404,13 @@ should avoid introducing new frames in initial packets.
 # Security Considerations
 
 The security of this version negotiation mechanism relies on the authenticity
-of the handshake version information exchanged during the handshake. In QUIC
+of the Version Information exchanged during the handshake. In QUIC
 version 1, transport parameters are authenticated ensuring the security of this
 mechanism. Negotiation between compatible versions will have the security of
 the weakest common version.
 
 The requirement that versions not be assumed compatible mitigates the
 possibility of cross-protocol attacks, but more analysis is still needed here.
-
-The presence of the `Attempted Version` and `Negotiated Version` fields
-mitigates an attacker's ability to forge packets by altering the version.
 
 
 # IANA Considerations
@@ -405,11 +421,11 @@ If this document is approved, IANA shall assign the following entry in the QUIC
 Transport Parameter Registry:
 
 ~~~
-  +--------+---------------------+---------------+
-  | Value  |   Parameter Name    |   Reference   |
-  +--------+---------------------+---------------+
-  | 0x73DB | version_negotiation | This document |
-  +--------+---------------------+---------------+
+  +----------+---------------------+---------------+
+  | Value    |   Parameter Name    |   Reference   |
+  +----------+---------------------+---------------+
+  | 0xFF73DB | version_information | This document |
+  +----------+---------------------+---------------+
 ~~~
 
 
@@ -434,4 +450,3 @@ Transport Error Codes Registry:
 
 The authors would like to thank Martin Thomson, Mike Bishop, Nick Banks, Ryan
 Hamilton, and Roberto Peon for their input and contributions.
-
