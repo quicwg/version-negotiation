@@ -330,11 +330,17 @@ Negotiation packet, it MUST drop all subsequent Version Negotiation packets on
 that connection.
 
 Both endpoints MUST parse their peer's Version Information during the
-handshake. If the Version Information was missing or if parsing it failed (for
-example, if it is too short or if its length is not divisible by four), then
-the endpoint MUST close the connection; if the connection was using QUIC
-version 1, that connection closure MUST use a transport error of type
-`TRANSPORT_PARAMETER_ERROR`.
+handshake. If parsing the Version Information failed (for example, if it is too
+short or if its length is not divisible by four), then the endpoint MUST close
+the connection; if the connection was using QUIC version 1, that connection
+closure MUST use a transport error of type `TRANSPORT_PARAMETER_ERROR`.
+
+If the Version Information was missing, the endpoints MAY complete the
+handshake if they have reason to believe the peer might not support this
+extension. However, if a client has reacted to a Version Negotiation packet and
+the Version Information was missing, the client MUST close the connection; if
+the connection was using QUIC version 1, that connection closure MUST use a
+transport error of type `VERSION_NEGOTIATION_ERROR`.
 
 If a client has reacted to a Version Negotiation packet, it MUST validate that
 the server's `Other Versions` field does not contain the client's original
