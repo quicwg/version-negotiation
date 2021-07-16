@@ -229,12 +229,12 @@ that follows.
 The server starts incompatible version negotiation by sending a Version
 Negotiation packet. This packet SHALL include each entry from the server's set
 of Offered Versions (see {{server-fleet}}) in a Supported Version field. The
-server MAY add reserved versions (as defined in the Versions section of
-{{QUIC}}) in Supported Version fields.
+server MAY add reserved versions (as defined in {{Section 6.3 of QUIC}}) in
+Supported Version fields.
 
 A client MUST ignore a Version Negotiation packet if it contains the original
 version attempted by the client.  The client also ignores a Version Negotiation
-that contains incorrect connection ID fields.
+that contains incorrect connection ID fields; see {{Section 6 of RFC8999}}.
 
 Upon receiving the VN packet, the client will search for a version it supports
 in the list provided by the server. If it doesn't find one, it aborts the
