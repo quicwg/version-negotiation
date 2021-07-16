@@ -232,6 +232,10 @@ of Offered Versions (see {{server-fleet}}) in a Supported Version field. The
 server MAY add reserved versions (as defined in the Versions section of
 {{QUIC}}) in Supported Version fields.
 
+A client MUST ignore a Version Negotiation packet if it contains the original
+version attempted by the client.  The client also ignores a Version Negotiation
+that contains incorrect connection ID fields.
+
 Upon receiving the VN packet, the client will search for a version it supports
 in the list provided by the server. If it doesn't find one, it aborts the
 connection attempt. Otherwise, it selects a mutually supported version and
@@ -342,16 +346,20 @@ the Version Information was missing, the client MUST close the connection; if
 the connection was using QUIC version 1, that connection closure MUST use a
 transport error of type `VERSION_NEGOTIATION_ERROR`.
 
-If a client has reacted to a Version Negotiation packet, it MUST validate that
-the server's `Other Versions` field does not contain the client's original
-version, and that the client would have selected the same negotiated version if
-it had received a Version Negotiation packet whose Supported Versions field had
-the same contents as the server's `Other Versions` field. If any of these
-checks fail, the client MUST close the connection; if the connection was using
-QUIC version 1, that connection closure MUST use a transport error of type
-`VERSION_NEGOTIATION_ERROR`. This connection closure prevents an attacker from
-being able to use forged Version Negotiation packets to force a version
-downgrade.
+The client MUST validate the server `Other Versions` field by confirming that it
+would have attempted the same version with this knowledge of the versions the
+server supports. That is, the client would have selected the same version if it
+received Version Negotiation packet that listed the versions in the server's
+`Other Versions` field, plus the negotiated version. If the client would have
+selected a different version, the client MUST close the connection; if the
+connection was using QUIC version 1, that connection closure MUST use a
+transport error of type `VERSION_NEGOTIATION_ERROR`. This connection closure
+prevents an attacker from being able to use forged Version Negotiation packets
+to force a version downgrade.
+
+This validation of `Other Versions` is not sufficient to prevent downgrade.
+Downgrade prevention also depends on the client ignoring Version Negotiation
+packets that contain the original version; see {{incompat-vn}}.
 
 After the process of version negotiation in this document completes, the
 version in use for the connection is the version that the server sent in the
