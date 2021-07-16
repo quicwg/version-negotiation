@@ -7,7 +7,6 @@ wg: QUIC
 
 ipr: trust200902
 area: General
-workgroup: QUIC Working Group
 keyword: Internet-Draft
 
 stand_alone: yes
