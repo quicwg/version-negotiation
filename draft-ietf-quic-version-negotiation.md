@@ -235,7 +235,7 @@ of Offered Versions (see {{server-fleet}}) in a Supported Version field. The
 server MAY add reserved versions (as defined in {{Section 6.3 of QUIC}}) in
 Supported Version fields.
 
-A client MUST ignore a Version Negotiation packet if it contains the original
+Clients will ignore a Version Negotiation packet if it contains the original
 version attempted by the client.  The client also ignores a Version Negotiation
 that contains incorrect connection ID fields; see {{Section 6 of RFC8999}}.
 
@@ -352,7 +352,7 @@ transport error of type `VERSION_NEGOTIATION_ERROR`.
 The client MUST validate the server `Other Versions` field by confirming that it
 would have attempted the same version with this knowledge of the versions the
 server supports. That is, the client would have selected the same version if it
-received Version Negotiation packet that listed the versions in the server's
+received a Version Negotiation packet that listed the versions in the server's
 `Other Versions` field, plus the negotiated version. If the client would have
 selected a different version, the client MUST close the connection; if the
 connection was using QUIC version 1, that connection closure MUST use a
