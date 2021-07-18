@@ -349,16 +349,18 @@ the Version Information was missing, the client MUST close the connection; if
 the connection was using QUIC version 1, that connection closure MUST use a
 transport error of type `VERSION_NEGOTIATION_ERROR`.
 
-The client MUST validate the server `Other Versions` field by confirming that it
-would have attempted the same version with this knowledge of the versions the
-server supports. That is, the client would have selected the same version if it
-received a Version Negotiation packet that listed the versions in the server's
-`Other Versions` field, plus the negotiated version. If the client would have
-selected a different version, the client MUST close the connection; if the
-connection was using QUIC version 1, that connection closure MUST use a
-transport error of type `VERSION_NEGOTIATION_ERROR`. This connection closure
-prevents an attacker from being able to use forged Version Negotiation packets
-to force a version downgrade.
+If the client received and acted on a Version Negotiation packet, it client MUST
+validate the server `Other Versions` field.  The `Other Versions` field is
+validated by confirming that the client would have attempted the same version
+with knowledge of the versions the server supports. That is, the client would
+have selected the same version if it received a Version Negotiation packet that
+listed the versions in the server's `Other Versions` field, plus the negotiated
+version. If the client would have selected a different version, the client MUST
+close the connection; if the connection was using QUIC version 1, that
+connection closure MUST use a transport error of type
+`VERSION_NEGOTIATION_ERROR`. This connection closure prevents an attacker from
+being able to use forged Version Negotiation packets to force a version
+downgrade.
 
 This validation of `Other Versions` is not sufficient to prevent downgrade.
 Downgrade prevention also depends on the client ignoring Version Negotiation
@@ -468,5 +470,5 @@ Transport Error Codes Registry:
 # Acknowledgments {#acknowledgments}
 {:numbered="false"}
 
-The authors would like to thank Martin Thomson, Mike Bishop, Nick Banks, Ryan
-Hamilton, and Roberto Peon for their input and contributions.
+The authors would like to thank Nick Banks, Mike Bishop, Ryan Hamilton, Roberto
+Peon, Anthony Rossi, and Martin Thomson for their input and contributions.
