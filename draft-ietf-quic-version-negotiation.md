@@ -349,8 +349,8 @@ the Version Information was missing, the client MUST close the connection; if
 the connection was using QUIC version 1, that connection closure MUST use a
 transport error of type `VERSION_NEGOTIATION_ERROR`.
 
-If the client received and acted on a Version Negotiation packet, it client MUST
-validate the server `Other Versions` field.  The `Other Versions` field is
+If the client received and acted on a Version Negotiation packet, the client MUST
+validate the server's `Other Versions` field.  The `Other Versions` field is
 validated by confirming that the client would have attempted the same version
 with knowledge of the versions the server supports. That is, the client would
 have selected the same version if it received a Version Negotiation packet that
