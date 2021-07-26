@@ -51,15 +51,17 @@ reacts when it receives one. QUIC version 1 {{!QUIC=I-D.ietf-quic-transport}}
 allows the server to use a VN packet to indicate that the version the client
 offered is unacceptable, but doesn't allow the client to safely make use of
 that information to create a new connection with a mutually supported version.
+
 With proper safety mechanisms in place, the VN packet can be part of a
 mechanism to allow two QUIC implementations to negotiate between two totally
-disjoint versions of QUIC, at the cost of an extra round trip. However, it is
-beneficial to avoid that cost whenever possible, especially given that most
-incremental versions are broadly similar to the the previous version.
+disjoint versions of QUIC. This document specifies version negotiation using VN
+packets, which adds an extra round trip to connection establishment if needed.
 
-This specification describes a simple version negotiation mechanism which
-optionally leverages similarities between versions and can negotiate between
-the set of "compatible" versions in a single round trip.
+It is beneficial to avoid additional round trips whenever possible, especially
+given that most incremental versions are broadly similar to the the previous
+version.  This specification also defines a simple version negotiation mechanism
+which leverages similarities between versions and can negotiate between the set
+of "compatible" versions without additional round trips.
 
 
 ## Conventions and Definitions
