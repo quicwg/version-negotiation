@@ -387,18 +387,19 @@ oldest version that the client supports.
 
 # Interaction with Retry
 
-QUIC version 1 features retry packets, which the server can send to validate
-the client's IP address before parsing the client's first flight. This impacts
-compatible version negotiation because a server who wishes to send a retry
-packet before parsing the client's first flight won't have parsed the client's
-Version Information yet. If a future document wishes to define compatibility
-between two versions that support retry, that document MUST specify how version
-negotiation (both compatible and incompatible) interacts with retry during a
-handshake that requires both. For example, that could be accomplished by having
-the server send a retry packet first and validating the client's IP address
-before starting version negotiation and deciding whether to use compatible
-version negotiation on that connection (in that scenario the retry packet would
-be sent using the original version).
+QUIC version 1 features Retry packets, which the server can send to validate the
+client's IP address before parsing the client's first flight. A server that
+sends a Retry packet can do so before parsing the client's first flight. A
+server that sends a Retry packet therefore might not have processed the client's
+Version Information before doing so.
+
+If a future document wishes to define compatibility between two versions that
+support retry, that document MUST specify how version negotiation (both
+compatible and incompatible) interacts with retry during a handshake that
+requires both. For example, that could be accomplished by having the server send
+a Retry packet first and validating the client's IP address before attempting
+compatible version negotiation. In that scenario the Retry packet would be sent
+using the original version.
 
 
 # Interaction with 0-RTT
