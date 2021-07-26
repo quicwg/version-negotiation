@@ -378,9 +378,11 @@ could be forged by attackers.
 
 # Client Choice of Original Version
 
-The client's first flight SHOULD be sent using the version that the server is
-most likely to support (in the absence of other information, this will often be
-the oldest version the client supports).
+The client's first connection attempt SHOULD be made using the version that the
+server is most likely to support.  The client selects the version it believes to
+be best supported from the versions that are compatible with the client's most
+preferred version.  Without additional information this could mean selecting the
+oldest version that the client supports.
 
 
 # Interaction with Retry
