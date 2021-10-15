@@ -443,30 +443,52 @@ possibility of cross-protocol attacks, but more analysis is still needed here.
 
 ## QUIC Transport Parameter
 
-If this document is approved, IANA shall assign the following entry in the QUIC
-Transport Parameter Registry:
+This document registers a new value in the QUIC Transport Parameter Registry
+maintained at
+[](https://www.iana.org/assignments/quic/quic.xhtml#quic-transport).
 
-~~~
-  +----------+---------------------+---------------+
-  | Value    |   Parameter Name    |   Reference   |
-  +----------+---------------------+---------------+
-  | 0xFF73DB | version_information | This document |
-  +----------+---------------------+---------------+
-~~~
+Value:
+
+: 0xFF73DB
+
+Parameter Name:
+
+: version_information
+
+Status:
+
+: permanent (if this document is approved)
+
+Specification:
+
+: This document
 
 
 ## QUIC Transport Error Code
 
-If this document is approved, IANA shall assign the following entry in the QUIC
-Transport Error Codes Registry:
+This document registers a new value in the QUIC Transport Error Codes Registry
+maintained at
+[](https://www.iana.org/assignments/quic/quic.xhtml#quic-transport-error-codes).
 
-~~~
-  +--------+---------------------------+---------------+
-  | Value  |      Parameter Name       |   Reference   |
-  +--------+---------------------------+---------------+
-  | 0x53F8 | VERSION_NEGOTIATION_ERROR | This document |
-  +--------+---------------------------+---------------+
-~~~
+Value:
+
+: 0x53F8
+
+Code:
+
+: VERSION_NEGOTIATION_ERROR
+
+Description:
+
+: Error negotiating version
+
+Status:
+
+: permanent (if this document is approved)
+
+Specification:
+
+: This document
 
 
 --- back
