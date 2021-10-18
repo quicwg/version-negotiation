@@ -457,11 +457,15 @@ Parameter Name:
 
 Status:
 
-: permanent (if this document is approved)
+: provisional
 
 Specification:
 
 : This document
+
+When this document is approved, it will request permanent allocation of a
+codepoint in the 0-63 range to replace the provisional codepoint described
+above.
 
 
 ## QUIC Transport Error Code
@@ -484,11 +488,15 @@ Description:
 
 Status:
 
-: permanent (if this document is approved)
+: provisional
 
 Specification:
 
 : This document
+
+When this document is approved, it will request permanent allocation of a
+codepoint in the 0-63 range to replace the provisional codepoint described
+above.
 
 
 --- back
