@@ -28,7 +28,8 @@ author:
     email: ekr@rtfm.com
 
 normative:
-  RFC8999:
+  INV: RFC8999
+  QUIC: RFC9000
 
 
 --- abstract
@@ -45,12 +46,12 @@ the negotiation can take place without incurring an extra round trip.
 
 # Introduction
 
-The version-invariant properties of QUIC {{!INV=RFC8999}} define a version
-negotiation (VN) packet but do not specify how an endpoint reacts when it
-receives one. QUIC version 1 {{!QUIC=RFC9000}} allows the server to use a VN
-packet to indicate that the version the client offered is unacceptable, but
-doesn't allow the client to safely make use of that information to create a new
-connection with a mutually supported version.
+The version-invariant properties of QUIC {{INV}} define a version negotiation
+(VN) packet but do not specify how an endpoint reacts when it receives one.
+QUIC version 1 {{QUIC}} allows the server to use a VN packet to indicate that
+the version the client offered is unacceptable, but doesn't allow the client to
+safely make use of that information to create a new connection with a mutually
+supported version.
 
 With proper safety mechanisms in place, the VN packet can be part of a
 mechanism to allow two QUIC implementations to negotiate between two totally
@@ -237,8 +238,8 @@ server MAY add reserved versions (as defined in {{Section 6.3 of QUIC}}) in
 Supported Version fields.
 
 Clients will ignore a Version Negotiation packet if it contains the original
-version attempted by the client.  The client also ignores a Version Negotiation
-that contains incorrect connection ID fields; see {{Section 6 of RFC8999}}.
+version attempted by the client. The client also ignores a Version Negotiation
+that contains incorrect connection ID fields; see {{Section 6 of INV}}.
 
 Upon receiving the VN packet, the client will search for a version it supports
 in the list provided by the server. If it doesn't find one, it aborts the
