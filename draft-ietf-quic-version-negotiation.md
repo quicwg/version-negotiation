@@ -45,12 +45,12 @@ the negotiation can take place without incurring an extra round trip.
 
 # Introduction
 
-The version-invariant properties of QUIC {{!INV=I-D.ietf-quic-invariants}}
-define a version negotiation (VN) packet but do not specify how an endpoint
-reacts when it receives one. QUIC version 1 {{!QUIC=RFC9000}} allows the server
-to use a VN packet to indicate that the version the client offered is
-unacceptable, but doesn't allow the client to safely make use of that
-information to create a new connection with a mutually supported version.
+The version-invariant properties of QUIC {{!INV=RFC8999}} define a version
+negotiation (VN) packet but do not specify how an endpoint reacts when it
+receives one. QUIC version 1 {{!QUIC=RFC9000}} allows the server to use a VN
+packet to indicate that the version the client offered is unacceptable, but
+doesn't allow the client to safely make use of that information to create a new
+connection with a mutually supported version.
 
 With proper safety mechanisms in place, the VN packet can be part of a
 mechanism to allow two QUIC implementations to negotiate between two totally
