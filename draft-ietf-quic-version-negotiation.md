@@ -323,7 +323,10 @@ instead.
 Server-Sent Other Versions:
 
 : When sent by a server, the `Other Versions` field lists all the
-Fully-Deployed Versions of this server deployment, see {{server-fleet}}.
+Fully-Deployed Versions of this server deployment, see {{server-fleet}}. Note
+that the version in the `Chosen Version` field is not necessarily included in
+this list, because the server operator could be in the process of removing
+support for this version.
 
 Clients and servers MAY both include versions following the pattern
 `0x?a?a?a?a` in their `Other Versions` list. Those versions are reserved to
