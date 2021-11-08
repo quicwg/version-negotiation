@@ -326,7 +326,7 @@ Server-Sent Other Versions:
 Fully-Deployed Versions of this server deployment, see {{server-fleet}}. Note
 that the version in the `Chosen Version` field is not necessarily included in
 this list, because the server operator could be in the process of removing
-support for this version.
+support for this version. For the same reason, this field MAY be empty.
 
 Clients and servers MAY both include versions following the pattern
 `0x?a?a?a?a` in their `Other Versions` list. Those versions are reserved to
