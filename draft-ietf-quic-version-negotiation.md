@@ -258,11 +258,11 @@ see {{downgrade}}.
 
 When the server can parse the client's first flight using the original version,
 it can extract the client's Version Information structure (see {{vers-info}}).
-This contains the list of versions that the client thinks its first flight is
+This contains the list of versions that the client knows its first flight is
 compatible with.
 
 If the server supports one of the client's compatible versions, and the server
-also believes that the original version is compatible with this version, then
+also knows that the original version is compatible with this version, then
 the server converts the client's first flight to that version and replies to
 the client as if it had received the converted first flight. The version used
 by the server in its reply is refered to as the "negotiated version". The
@@ -348,8 +348,7 @@ the connection; if the connection was using QUIC version 1, that connection
 closure MUST use a transport error of type TRANSPORT_PARAMETER_ERROR.
 
 If the Version Information was missing, the endpoints MAY complete the
-handshake if they have reason to believe the peer might not support this
-extension. However, if a client has reacted to a Version Negotiation packet and
+handshake. However, if a client has reacted to a Version Negotiation packet and
 the Version Information was missing, the client MUST close the connection; if
 the connection was using QUIC version 1, that connection closure MUST use a
 transport error of type VERSION_NEGOTIATION_ERROR.
@@ -383,9 +382,9 @@ could be forged by attackers.
 # Client Choice of Original Version
 
 The client's first connection attempt SHOULD be made using the version that the
-server is most likely to support.  The client selects the version it believes to
-be best supported from the versions that are compatible with the client's most
-preferred version.  Without additional information this could mean selecting the
+server is most likely to support. The client selects the version most likely to
+be supported from the versions that are compatible with the client's most
+preferred version. Without additional information this could mean selecting the
 oldest version that the client supports.
 
 
