@@ -347,11 +347,15 @@ short or if its length is not divisible by four), then the endpoint MUST close
 the connection; if the connection was using QUIC version 1, that connection
 closure MUST use a transport error of type TRANSPORT_PARAMETER_ERROR.
 
+Every QUIC version that supports version negotiation MUST define a method for
+closing the connection with a version negotiation error. For QUIC version 1,
+version negotiation errors are signaled using a transport error of type
+VERSION_NEGOTIATION_ERROR; see {{iana-error}}.
+
 If the Version Information was missing, the endpoints MAY complete the
 handshake. However, if a client has reacted to a Version Negotiation packet and
-the Version Information was missing, the client MUST close the connection; if
-the connection was using QUIC version 1, that connection closure MUST use a
-transport error of type VERSION_NEGOTIATION_ERROR.
+the Version Information was missing, the client MUST close the connection with a
+version negotiation error.
 
 If the client received and acted on a Version Negotiation packet, the client MUST
 validate the server's Other Versions field.  The Other Versions field is
@@ -360,11 +364,9 @@ with knowledge of the versions the server supports. That is, the client would
 have selected the same version if it received a Version Negotiation packet that
 listed the versions in the server's Other Versions field, plus the negotiated
 version. If the client would have selected a different version, the client MUST
-close the connection; if the connection was using QUIC version 1, that
-connection closure MUST use a transport error of type
-VERSION_NEGOTIATION_ERROR. This connection closure prevents an attacker from
-being able to use forged Version Negotiation packets to force a version
-downgrade.
+close the connection with a version negotiation error. This connection closure
+prevents an attacker from being able to use forged Version Negotiation packets
+to force a version downgrade.
 
 This validation of Other Versions is not sufficient to prevent downgrade.
 Downgrade prevention also depends on the client ignoring Version Negotiation
@@ -471,7 +473,7 @@ codepoint in the 0-63 range to replace the provisional codepoint described
 above.
 
 
-## QUIC Transport Error Code
+## QUIC Transport Error Code {#iana-error}
 
 This document registers a new value in the QUIC Transport Error Codes Registry
 maintained at
