@@ -262,9 +262,11 @@ This contains the list of versions that the client knows its first flight is
 compatible with.
 
 If the server supports one of the client's compatible versions, and the server
-also knows that the original version is compatible with this version, then the
-server converts the client's first flight to that version and replies to the
-client as if it had received the converted first flight. The version used by the
+also knows that the original version is compatible with this version, and the
+client's first flight is compatible with this version, then the server converts
+the client's first flight to that version and replies to the client as if it had
+received the converted first flight. Note that this conversion process cannot
+fail by definition of the first flight being compatible. The version used by the
 server in its reply is refered to as the "negotiated version". The server MUST
 NOT reply with a version that is not present in the client's compatible
 versions, unless it is the original version.
