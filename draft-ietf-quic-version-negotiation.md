@@ -288,7 +288,7 @@ server.
 
 During the handshake, endpoints will exchange Version Information, which is a
 blob of data that is defined below. In QUIC version 1, the Version Information
-is transmitted using a new transport parameter, `version_information`. The
+is transmitted using a new transport parameter, version_information. The
 contents of Version Information are shown below (using the notation from the
 "Notational Conventions" section of {{QUIC}}):
 
@@ -308,28 +308,28 @@ Chosen Version:
 cases, this field will be equal to the value of the Version field in the long
 header that carries this data.
 
-The contents of the `Other Versions` field depends on whether it is sent by the
+The contents of the Other Versions field depends on whether it is sent by the
 client or by the server.
 
 Client-Sent Other Versions:
 
-: When sent by a client, the `Other Versions` field lists all the versions that
+: When sent by a client, the Other Versions field lists all the versions that
 this first flight is compatible with, ordered by descending preference. Note
-that the version in the `Chosen Version` field MUST be included in this list to
+that the version in the Chosen Version field MUST be included in this list to
 allow the client to communicate the chosen version's preference. Note that this
 preference is only advisory, servers MAY choose to use their own preference
 instead.
 
 Server-Sent Other Versions:
 
-: When sent by a server, the `Other Versions` field lists all the
+: When sent by a server, the Other Versions field lists all the
 Fully-Deployed Versions of this server deployment, see {{server-fleet}}. Note
-that the version in the `Chosen Version` field is not necessarily included in
+that the version in the Chosen Version field is not necessarily included in
 this list, because the server operator could be in the process of removing
 support for this version. For the same reason, this field MAY be empty.
 
 Clients and servers MAY both include versions following the pattern
-`0x?a?a?a?a` in their `Other Versions` list. Those versions are reserved to
+0x?a?a?a?a in their Other Versions list. Those versions are reserved to
 exercise version negotiation (see the Versions section of {{QUIC}}), and will
 never be selected when choosing a version to use.
 
@@ -345,35 +345,35 @@ Both endpoints MUST parse their peer's Version Information during the
 handshake. If parsing the Version Information failed (for example, if it is too
 short or if its length is not divisible by four), then the endpoint MUST close
 the connection; if the connection was using QUIC version 1, that connection
-closure MUST use a transport error of type `TRANSPORT_PARAMETER_ERROR`.
+closure MUST use a transport error of type TRANSPORT_PARAMETER_ERROR.
 
 If the Version Information was missing, the endpoints MAY complete the
 handshake if they have reason to believe the peer might not support this
 extension. However, if a client has reacted to a Version Negotiation packet and
 the Version Information was missing, the client MUST close the connection; if
 the connection was using QUIC version 1, that connection closure MUST use a
-transport error of type `VERSION_NEGOTIATION_ERROR`.
+transport error of type VERSION_NEGOTIATION_ERROR.
 
 If the client received and acted on a Version Negotiation packet, the client MUST
-validate the server's `Other Versions` field.  The `Other Versions` field is
+validate the server's Other Versions field.  The Other Versions field is
 validated by confirming that the client would have attempted the same version
 with knowledge of the versions the server supports. That is, the client would
 have selected the same version if it received a Version Negotiation packet that
-listed the versions in the server's `Other Versions` field, plus the negotiated
+listed the versions in the server's Other Versions field, plus the negotiated
 version. If the client would have selected a different version, the client MUST
 close the connection; if the connection was using QUIC version 1, that
 connection closure MUST use a transport error of type
-`VERSION_NEGOTIATION_ERROR`. This connection closure prevents an attacker from
+VERSION_NEGOTIATION_ERROR. This connection closure prevents an attacker from
 being able to use forged Version Negotiation packets to force a version
 downgrade.
 
-This validation of `Other Versions` is not sufficient to prevent downgrade.
+This validation of Other Versions is not sufficient to prevent downgrade.
 Downgrade prevention also depends on the client ignoring Version Negotiation
 packets that contain the original version; see {{incompat-vn}}.
 
 After the process of version negotiation in this document completes, the
 version in use for the connection is the version that the server sent in the
-`Chosen Version` field of its Version Information. That remains true even if
+Chosen Version field of its Version Information. That remains true even if
 other versions were used in the Version field of long headers at any point in
 the lifetime of the connection; endpoints MUST NOT change the version that they
 consider to be in use based on the Version field of long headers as that field
