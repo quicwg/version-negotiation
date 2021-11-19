@@ -337,9 +337,9 @@ never be selected when choosing a version to use.
 # Version Downgrade Prevention {#downgrade}
 
 Clients MUST ignore any received Version Negotiation packets that contain the
-version that they initially attempted. Once a client has reacted to a Version
-Negotiation packet, it MUST drop all subsequent Version Negotiation packets on
-that connection.
+version that they initially attempted. A client that makes a connection attempt
+based on information received from a Version Negotiation packet MUST ignore any
+Version Negotiation packets it receives in response to that connection attempt.
 
 Both endpoints MUST parse their peer's Version Information during the
 handshake. If parsing the Version Information failed (for example, if it is too
