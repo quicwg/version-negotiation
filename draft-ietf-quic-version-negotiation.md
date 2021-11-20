@@ -187,6 +187,10 @@ or not. For example, two versions could have been defined concurrently and then
 specified as compatible in a third document much later - in that scenario one
 endpoint might be aware of the compatibility document while the other may not.
 
+When a client creates a QUIC connection, its goal is to use an application layer
+protocol. Therefore, when considering which versions are compatible, clients
+will only consider versions that support the intended application layer protocol.
+
 
 # Version Negotiation Mechanism
 
