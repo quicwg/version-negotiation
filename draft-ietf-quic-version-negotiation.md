@@ -423,11 +423,7 @@ In order to facilitate the deployment of future versions of QUIC, designers of
 future versions SHOULD attempt to design their new version such that commonly
 deployed versions are compatible with it. For example, a successor to QUIC
 version 1 may wish to design its transport parameters in a way that does not
-preclude compatibility. Additionally, frames in QUIC version 1 do not use a
-self-describing encoding, so unrecognized frame types cannot be parsed or
-ignored (see the Extension Frames section of {{QUIC}}); this means that new
-versions that wish to be very similar to QUIC version 1 and compatible with it
-should avoid introducing new frames in initial packets.
+preclude compatibility.
 
 
 # Security Considerations
