@@ -273,14 +273,12 @@ If the server does not find a compatible version, it will use the original
 version if it supports it, and if it doesn't then the server will perform
 incompatible version negotiation instead, see {{incompat-vn}}.
 
-For the duration of the compatible version negotiation process, clients MUST use
-the same 5-tuple (source and destination IP addresses and UDP port numbers).
-During that time, clients MUST also use the same Destination Connection ID,
-except if the server explicitly instructs the client to use a different
-Destination Connection ID (for example, a QUIC version 1 server can accomplish
-this by sending an INITIAL packet with a Source Connection ID that differed from
-the client's Destination Connection ID). This allows load balancers to ensure
-that packets for a given connection are routed to the same server.
+Note that, after the first flight is converted to the negotiated version, the
+handshake completes in the negotiated version. The entire handshake (including
+the converted first flight) needs to conform to the rules of the negotiated
+version. For instance, if the negotiated version requires that the 5-tuple
+remain stable for the entire handshake (as QUIC version 1 does), then this
+applies to the entire handshake, including the first flight.
 
 
 # Version Information {#vers-info}
