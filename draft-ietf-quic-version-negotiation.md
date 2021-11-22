@@ -498,6 +498,44 @@ codepoint in the 0-63 range to replace the provisional codepoint described above
 
 --- back
 
+# Example scenarios
+
+The following is an example of compatible negotiation in the case where both endpoints support both QUIC version 2 and the version negotiation. C and S denotes client and server, respectively.
+
+~~~
+C: Initial: ver=1, version_information = 1, {2, 1}
+S: Initial: ver=2; Handshake: ver=2, version_information = 2, {2, 1}
+C: Handshake: ver=2
+~~~
+
+The following is an example of incompatible negotiation in the case where both endpoints support both QUIC version 2 and the version negotiation.
+
+~~~
+C: Initial: ver=greasing, version_information = greasing, {2, 1, greasing}
+S: Version Negotiation: ver=0, {2, 1}
+C: Initial: ver=2, version_information = 2, {2, 1}
+S: Initial: ver=2; Handshake: ver=2, version_information = 2, {2, 1}
+C: Handshake: ver=2
+~~~
+
+The following is an example of no version change in the case where a client supports QUIC version 2 and the version negotiation and a server supports RFC 9000 only.
+
+~~~
+C: Initial: ver=1, version_information = 1, {2, 1}
+S: Initial: ver=1; Handshake: ver=1
+C: Handshake: ver=1
+~~~
+
+The following is an example of version negotiation failure in the case where a client supports QUIC version 2 and the version negotiation and a server supports RFC 9000 only. Since the client receives a version negotiation packet, version_information is necessary in the Handshake packet from a server for the version negotiation.
+
+~~~
+C: Initial: ver=greasing, version_information = greasing, {2, 1, greasing}
+S: Version Negotiation: ver=0, {1}
+C: Initial: ver=1, version_information = 1, {1}
+S: Initial: ver=1; Handshake: ver=1
+C: Handshake: CC(VERSION_NEGOTIATION_ERROR)
+~~~
+
 # Acknowledgments {#acknowledgments}
 {:numbered="false"}
 
