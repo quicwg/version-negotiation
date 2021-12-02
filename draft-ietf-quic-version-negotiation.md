@@ -283,11 +283,15 @@ applies to the entire handshake, including the first flight.
 
 # Version Information {#vers-info}
 
-During the handshake, endpoints will exchange Version Information, which is a
-blob of data that is defined below. In QUIC version 1, the Version Information
-is transmitted using a new transport parameter, version_information. The
-contents of Version Information are shown below (using the notation from the
-"Notational Conventions" section of {{QUIC}}):
+During the handshake, endpoints will exchange Version Information, which
+consists of a chosen version and a list of other versions. Any version of QUIC
+that supports this mechanism MUST provide a mechanism to exchange Version
+Information in both directions during the handshake, such that this data is
+authenticated.
+
+In QUIC version 1, the Version Information is transmitted using a new transport
+parameter, version_information. The contents of Version Information are shown
+below (using the notation from the "Notational Conventions" section of {{QUIC}}):
 
 ~~~
 Version Information {
