@@ -371,9 +371,11 @@ with knowledge of the versions the server supports. That is, the client would
 have selected the same version if it received a Version Negotiation packet that
 listed the versions in the server's Other Versions field, plus the negotiated
 version. If the client would have selected a different version, the client MUST
-close the connection with a version negotiation error. This connection closure
-prevents an attacker from being able to use forged Version Negotiation packets
-to force a version downgrade.
+close the connection with a version negotiation error. In particular, if the
+client reacted to a Version Negotiation packet and the server's Other Versions
+field is empty, the client MUST close the connection with a version negotiation
+error. These connection closures prevent an attacker from being able to use
+forged Version Negotiation packets to force a version downgrade.
 
 This validation of Other Versions is not sufficient to prevent downgrade.
 Downgrade prevention also depends on the client ignoring Version Negotiation
