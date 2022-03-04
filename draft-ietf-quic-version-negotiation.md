@@ -389,7 +389,8 @@ could be forged by attackers.
 
 # Minimum support
 
-Hosts can support this standard incrementally.
+Hosts can support this standard incrementally to simplify implementation, if
+not all features of the design are desired.
 
 {{INV}} and {{QUIC}} already describe how servers send Version Negotiation
 packets in response to long header packets with unsupported version fields, even
@@ -398,14 +399,14 @@ but servers might not send the packet multiple times for the same connection, or
 when under stress.
 
 If a server supports two or more QUIC versions and sends Version Negotiation
-packets, it MUST send the Version Information Transport Parameter {{vers-info}},
-and parse the client's transport parameter in accordance with {{downgrade}}.
+packets, it MUST follow the requirements in {{vers-info}} and {downgrade}}.
 Failure to comply would leave the connection vulnerable to downgrade attacks, or
 cause connection failure, if the client initiates Incompatible Version
-Negotiation.
+Negotiation ({{incompat-vn}}).
 
 A server that supports two or more compatible QUIC versions MAY implement
-Compatible version negotiation if it prefers one version over another.
+Compatible version negotiation ({{compat-vn}}) if it prefers one version over
+another.
 
 A client that supports two or more versions, and chooses to respond to a Version
 Negotiation packet with a connection attempt using one of the advertised
@@ -419,8 +420,7 @@ it MUST support compatible version negotiation.
 Therefore, clients can only avoid support for compatible negotiation by either
 (1) never attempting connection based on a Version Negotiation packet, and
 electing not to include the transport parameter; or (2) never including a
-supported version in that transport parameter with which the one in use is
-compatible.
+compatible version in the trnasport parameter.
 
 # Client Choice of Original Version
 
