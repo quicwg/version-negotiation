@@ -418,9 +418,10 @@ version that is compatible with a version advertised in the transport parameter,
 it MUST support compatible version negotiation.
 
 Therefore, clients can only avoid support for compatible negotiation by either
-(1) never attempting connection based on a Version Negotiation packet, and
-electing not to include the transport parameter; or (2) never including a
-compatible version in the trnasport parameter.
+
+* never attempting connection based on a Version Negotiation packet, and
+electing not to include the transport parameter; or
+* never including a compatible version in the trnasport parameter.
 
 # Client Choice of Original Version
 
