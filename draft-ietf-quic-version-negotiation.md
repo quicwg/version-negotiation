@@ -391,11 +391,11 @@ could be forged by attackers.
 
 Hosts can support this standard incrementally.
 
-{{RFC8999}} and {{RFC9000}} already describe how servers send Version
-Negotiation packets in response to long header packets with unsupported
-version fields, even if they support only one version. Doing so prevents long
-timeouts at the client, but servers might not send the packet multiple times
-for the same connection, or when under stress.
+{{INV}} and {{QUIC}} already describe how servers send Version Negotiation
+packets in response to long header packets with unsupported version fields, even
+if they support only one version. Doing so prevents long timeouts at the client,
+but servers might not send the packet multiple times for the same connection, or
+when under stress.
 
 If a server supports two or more QUIC versions and sends Version Negotiation
 packets, it MUST send the Version Information Transport Parameter {{vers-info}},
