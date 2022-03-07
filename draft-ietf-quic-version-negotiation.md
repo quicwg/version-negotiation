@@ -286,6 +286,9 @@ version. For instance, if the negotiated version requires that the 5-tuple
 remain stable for the entire handshake (as QUIC version 1 does), then this
 applies to the entire handshake, including the first flight.
 
+Note also that the client can disable compatible version negotiation by
+omitting the Version Information Transport Parameter, or not reporting other
+versions in it.
 
 # Version Information {#vers-info}
 
