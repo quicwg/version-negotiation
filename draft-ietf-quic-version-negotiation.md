@@ -248,7 +248,7 @@ Supported Version fields.
 
 Clients will ignore a Version Negotiation packet if it contains the original
 version attempted by the client. The client also ignores a Version Negotiation
-that contains incorrect connection ID fields; see {{Section 6 of INV}}.
+packet that contains incorrect connection ID fields; see {{Section 6 of INV}}.
 
 Upon receiving the VN packet, the client will search for a version it supports
 in the list provided by the server. If it doesn't find one, it aborts the
