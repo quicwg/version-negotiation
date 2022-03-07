@@ -340,6 +340,11 @@ in their Other Versions list. Those versions are reserved to exercise version
 negotiation (see the Versions section of {{QUIC}}), and will never be selected
 when choosing a version to use.
 
+If a client receives this parameter with any version field as zero, it MUST
+terminate the connection, and SHOULD use error code TRANSPORT_PARAMETER_ERROR
+or appropriate equivalent for the negotiated version. If a server receives such
+a parameter it MUST either terminate the connection or drop the packet.
+
 
 # Version Downgrade Prevention {#downgrade}
 
