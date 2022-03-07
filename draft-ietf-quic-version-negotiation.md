@@ -46,17 +46,18 @@ the negotiation can take place without incurring an extra round trip.
 
 # Introduction
 
-The version-invariant properties of QUIC {{INV}} define a version negotiation
-(VN) packet but do not specify how an endpoint reacts when it receives one. QUIC
-version 1 {{QUIC}} allows the server to use a VN packet to indicate that the
-version the client offered is unacceptable, but doesn't allow the client to
-safely make use of that information to create a new connection with a mutually
-supported version.
+The version-invariant properties of QUIC {{INV}} define a Version Negotiation
+packet but do not specify how an endpoint reacts when it receives one. QUIC
+version 1 {{QUIC}} allows the server to use a Version Negotiation packet to
+indicate that the version the client offered is unacceptable, but doesn't allow
+the client to safely make use of that information to create a new connection
+with a mutually supported version.
 
-With proper safety mechanisms in place, the VN packet can be part of a mechanism
-to allow two QUIC implementations to negotiate between two totally disjoint
-versions of QUIC. This document specifies version negotiation using VN packets,
-which adds an extra round trip to connection establishment if needed.
+With proper safety mechanisms in place, the Version Negotiation packet can be
+part of a mechanism to allow two QUIC implementations to negotiate between two
+totally disjoint versions of QUIC. This document specifies version negotiation
+using Version Negotiation packets, which adds an extra round trip to connection
+establishment if needed.
 
 It is beneficial to avoid additional round trips whenever possible, especially
 given that most incremental versions are broadly similar to the the previous
@@ -115,17 +116,17 @@ Clients will ignore a Version Negotiation packet if it contains the original
 version attempted by the client. The client also ignores a Version Negotiation
 packet that contains incorrect connection ID fields; see {{Section 6 of INV}}.
 
-Upon receiving the VN packet, the client will search for a version it supports
-in the list provided by the server. If it doesn't find one, it aborts the
-connection attempt. Otherwise, it selects a mutually supported version and sends
-a new first flight with that version - we refer to this version as the
-"negotiated version".
+Upon receiving the Version Negotiation packet, the client will search for a
+version it supports in the list provided by the server. If it doesn't find one,
+it aborts the connection attempt. Otherwise, it selects a mutually supported
+version and sends a new first flight with that version - we refer to this
+version as the "negotiated version".
 
 The new first flight will allow the endpoints to establish a connection using
 the negotiated version. The handshake of the negotiated version will exchange
-version information (see {{vers-info}}) required to ensure that VN was genuine,
-i.e. that no attacker injected packets in order to influence the VN process, see
-{{downgrade}}.
+version information (see {{vers-info}}) required to ensure that version
+negotiation was genuine, i.e. that no attacker injected packets in order to
+influence the version negotiation process, see {{downgrade}}.
 
 
 ## Compatible Versions
