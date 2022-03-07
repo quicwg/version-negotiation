@@ -280,9 +280,13 @@ server in its reply is refered to as the "negotiated version". The server MUST
 NOT reply with a version that is not present in the client's compatible
 versions, unless it is the original version.
 
-If the server does not find a compatible version, it will use the original
-version if it supports it, and if it doesn't then the server will perform
-incompatible version negotiation instead, see {{incompat-vn}}.
+Clients will be made aware of compatible version negotiation by seeing a change
+in the QUIC long header Version field. It is possible for the server to
+initially send packets with the original version before switching to the
+negotiated version (for example, this can happen when the client's Version
+Information structured spans multiple packets; in that case the server might
+acknowledge the first packet in the original version and later switch to a
+different negotiated version).
 
 Note that, after the first flight is converted to the negotiated version, the
 handshake completes in the negotiated version. The entire handshake (including
@@ -294,6 +298,10 @@ applies to the entire handshake, including the first flight.
 Note also that the client can disable compatible version negotiation by
 only including the Chosen Version in the Other Versions field of the Version
 Information Transport Parameter.
+
+If the server does not find a compatible version, it will use the original
+version if it supports it, and if it doesn't then the server will perform
+incompatible version negotiation instead, see {{incompat-vn}}.
 
 # Version Information {#vers-info}
 
@@ -393,9 +401,13 @@ After the process of version negotiation in this document completes, the version
 in use for the connection is the version that the server sent in the Chosen
 Version field of its Version Information. That remains true even if other
 versions were used in the Version field of long headers at any point in the
-lifetime of the connection; endpoints MUST NOT change the version that they
-consider to be in use based on the Version field of long headers as that field
-could be forged by attackers.
+lifetime of the connection. In particular, since during compatible version
+negotiation the client is made aware of the negotiated version by the QUIC long
+header version (see {{compat-vn}}), clients MUST validate that the server's
+Chosen Version is equal to the negotiated version; if they do not match, the
+client MUST close the connection with a version negotiation error. This prevents
+an attacker's ability to influence version negotiation by forging the Version
+long header field.
 
 
 # Client Choice of Original Version
