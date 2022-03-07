@@ -280,9 +280,13 @@ server in its reply is refered to as the "negotiated version". The server MUST
 NOT reply with a version that is not present in the client's compatible
 versions, unless it is the original version.
 
-If the server does not find a compatible version, it will use the original
-version if it supports it, and if it doesn't then the server will perform
-incompatible version negotiation instead, see {{incompat-vn}}.
+Clients will be made aware of compatible version negotiation by seeing a change
+in the QUIC long header Version field. It is possible for the server to
+initially send packets with the original version before switching to the
+negotiated version (for example, this can happen when the client's Version
+Information structured spans multiple packets; in that case the server might
+acknowledge the first packet in the original version and later switch to a
+different negotiated version).
 
 Note that, after the first flight is converted to the negotiated version, the
 handshake completes in the negotiated version. The entire handshake (including
@@ -294,6 +298,10 @@ applies to the entire handshake, including the first flight.
 Note also that the client can disable compatible version negotiation by
 only including the Chosen Version in the Other Versions field of the Version
 Information Transport Parameter.
+
+If the server does not find a compatible version, it will use the original
+version if it supports it, and if it doesn't then the server will perform
+incompatible version negotiation instead, see {{incompat-vn}}.
 
 # Version Information {#vers-info}
 
