@@ -156,11 +156,13 @@ to clients communicating with both updated and non-updated server instances.
 # Compatible Versions
 
 If A and B are two distinct versions of QUIC, A is said to be "compatible" with
-B if it is possible to take a first flight of packets from version A and convert
-it into a first flight of packets from version B. As an example, if versions A
-and B are absolutely equal in their wire image and behavior during the handshake
-but differ after the handshake, then A is compatible with B and B is compatible
-with A.
+B if it is possible to take a first flight of packets from version A and
+convert it into a first flight of packets from version B. As an example, if
+versions A and B are absolutely equal in their wire image and behavior during
+the handshake but differ after the handshake, then A is compatible with B and B
+is compatible with A. Note that the conversion of the first flight can be lossy:
+some data such as QUICv1 0-RTT packets could be ignored during conversion and
+retransmitted later.
 
 Version compatibility is not symmetric: it is possible for version A to be
 compatible with version B and for B not to be compatible with A. This could
