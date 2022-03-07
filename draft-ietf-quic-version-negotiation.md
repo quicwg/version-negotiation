@@ -287,8 +287,8 @@ remain stable for the entire handshake (as QUIC version 1 does), then this
 applies to the entire handshake, including the first flight.
 
 Note also that the client can disable compatible version negotiation by
-omitting the Version Information Transport Parameter, or not reporting other
-versions in it.
+only including the Chosen Version in the Other Versions field of the Version
+Information Transport Parameter.
 
 # Version Information {#vers-info}
 
