@@ -189,8 +189,11 @@ endpoint might be aware of the compatibility document while the other may not.
 
 When a client creates a QUIC connection, its goal is to use an application layer
 protocol. Therefore, when considering which versions are compatible, clients
-will only consider versions that support the intended application layer protocol.
-
+will only consider versions that support one of the intended application layer
+protocols. For example, if the client's first flight advertises multiple
+Application Layer Protocol Negotiation (ALPN) {{?RFC7301}} tokens and multiple
+compatible versions, the server needs to ensure that the ALPN token that it
+selects can run over the QUIC version that it selects.
 
 # Version Negotiation Mechanism
 
