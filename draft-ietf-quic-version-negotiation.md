@@ -77,83 +77,58 @@ packet can exist in the network. Implementations can make this configurable, and
 a RECOMMENDED value is one minute.
 
 
-# Server Deployments of QUIC {#server-fleet}
+# Version Negotiation Mechanism
 
-While this document mainly discusses a single QUIC server, it is common for
-deployments of QUIC servers to include a fleet of multiple server instances. We
-therefore define the following terms:
+This document specifies two means of performing version negotiation: one
+"incompatible" which requires a round trip and is applicable to all versions,
+and one "compatible" that allows saving the round trip but only applies when the
+versions are compatible.
 
-Acceptable Versions:
+The client initiates a QUIC connection by sending a first flight of QUIC packets
+with a long header to the server {{INV}}. We'll refer to the version of those
+packets as the "original version". The client's first flight includes Version
+Information (see {{vers-info}}) which will be used to optionally enable
+compatible version negotation (see {{compat-vn}}), and to prevent version
+downgrade attacks (see {{downgrade}}).
 
-: This is the set of versions supported by a given server instance. More
-specifically, these are the versions that a given server instance will use if a
-client sends a first flight using them.
+Upon receiving this first flight, the server verifies whether it knows how to
+parse first flights from the original version. If it does not, then it starts
+incompatible version negotiation, see {{incompat-vn}}. If the server can parse
+the first flight, it can either establish the connection using the original
+version, or it MAY attempt compatible version negotiation, see {{compat-vn}}.
 
-Offered Versions:
-
-: This is the set of versions that a given server instance will send in a
-Version Negotiation packet if it receives a first flight from an unknown
-version. This set will most often be equal to the Acceptaple Versions set,
-except during short transitions while versions are added or removed (see below).
-
-Fully-Deployed Versions:
-
-: This is the set of QUIC versions that is supported and negotiated by every
-single QUIC server instance in this deployment. If a deployment only contains a
-single server instance, then this set is equal to the Offered Versions set,
-except during short transitions while versions are added or removed (see below).
-
-If a deployment contains multiple server instances, software updates may not
-happen at exactly the same time on all server instances. Because of this, a
-client might receive a Version Negotiation packet from a server instance that
-has already been updated and the client's resulting connection attempt might
-reach a different server instance which hasn't been updated yet.
-
-However, even when there is only a single server instance, it is still possible
-to receive a stale Version Negotiation packet if the server performs its
-software update while the Version Negotiation packet is in flight.
-
-This could cause the version downgrade prevention mechanism described in
-{{downgrade}} to falsely detect a downgrade attack. To avoid that, server
-operators SHOULD perform a three-step process when they wish to add or remove
-support for a version:
-
-When adding support for a new version:
-
-* The first step is to progressively add support for the new version to all
-  server instances. This step updates the Acceptable Versions but not the
-  Offered Versions nor the Fully-Deployed Versions. Once all server instances
-  have been updated, operators wait for at least one MSL to allow any in-flight
-  Version Negotiation packets to arrive.
-
-* Then, the second step is to progressively add the new version to Offered
-  Versions on all server instances. Once complete, operators wait for at least
-  another MSL.
-
-* Finally, the third step is to progressively add the new version to
-  Fully-Deployed Versions on all server instances.
-
-When removing support for a version:
-
-* The first step is to progressively remove the version from Fully-Deployed
-  Versions on all server instances. Once it has been removed on all server
-  instances, operators wait for at least one MSL to allow any in-flight Version
-  Negotiation packets to arrive.
-
-* Then, the second step is to progressively remove the version from Offered
-  Versions on all server instances. Once complete, operators wait for at least
-  another MSL.
-
-* Finally, the third step is to progressively remove support for the version
-  from all server instances. That step updates the Acceptable Versions.
+Note that it is possible for a server to have the ability to parse the first
+flight of a given version without fully supporting it, in the sense that it
+implements enough of the version's specification to parse first flight packets
+but not enough to fully establish a connection using that version.
 
 
-Note that this opens connections to version downgrades (but only for
-partially-deployed versions) during the update window, since those could be due
-to clients communicating with both updated and non-updated server instances.
+## Incompatible Version Negotiation {#incompat-vn}
+
+The server starts incompatible version negotiation by sending a Version
+Negotiation packet. This packet SHALL include each entry from the server's set
+of Offered Versions (see {{server-fleet}}) in a Supported Version field. The
+server MAY add reserved versions (as defined in {{Section 6.3 of QUIC}}) in
+Supported Version fields.
+
+Clients will ignore a Version Negotiation packet if it contains the original
+version attempted by the client. The client also ignores a Version Negotiation
+packet that contains incorrect connection ID fields; see {{Section 6 of INV}}.
+
+Upon receiving the VN packet, the client will search for a version it supports
+in the list provided by the server. If it doesn't find one, it aborts the
+connection attempt. Otherwise, it selects a mutually supported version and sends
+a new first flight with that version - we refer to this version as the
+"negotiated version".
+
+The new first flight will allow the endpoints to establish a connection using
+the negotiated version. The handshake of the negotiated version will exchange
+version information (see {{vers-info}}) required to ensure that VN was genuine,
+i.e. that no attacker injected packets in order to influence the VN process, see
+{{downgrade}}.
 
 
-# Compatible Versions
+## Compatible Versions
 
 If A and B are two distinct versions of QUIC, A is said to be "compatible" with
 B if it is possible to take a first flight of packets from version A and
@@ -197,71 +172,6 @@ Application Layer Protocol Negotiation (ALPN) {{?ALPN=RFC7301}} tokens and
 multiple compatible versions, the server needs to ensure that the ALPN token
 that it selects can run over the QUIC version that it selects.
 
-# Version Negotiation Mechanism
-
-This document specifies two means of performing version negotiation: one
-"incompatible" which requires a round trip and is applicable to all versions,
-and one "compatible" that allows saving the round trip but only applies when the
-versions are compatible.
-
-The client initiates a QUIC connection by sending a first flight of QUIC packets
-with a long header to the server {{INV}}. We'll refer to the version of those
-packets as the "original version". The client's first flight includes Version
-Information (see {{vers-info}}) which will be used to optionally enable
-compatible version negotation (see {{compat-vn}}), and to prevent version
-downgrade attacks (see {{downgrade}}).
-
-Upon receiving this first flight, the server verifies whether it knows how to
-parse first flights from the original version. If it does not, then it starts
-incompatible version negotiation, see {{incompat-vn}}. If the server can parse
-the first flight, it can either establish the connection using the original
-version, or it MAY attempt compatible version negotiation, see {{compat-vn}}.
-
-Note that it is possible for a server to have the ability to parse the first
-flight of a given version without fully supporting it, in the sense that it
-implements enough of the version's specification to parse first flight packets
-but not enough to fully establish a connection using that version.
-
-
-## Connections and Version Negotiation
-
-QUIC connections are shared state between a client and a server {{INV}}. The
-compatible version negotiation mechanism defined in this document (see
-{{compat-vn}}) is performed as part of a single QUIC connection; that is, the
-packets with the original version are part of the same connection as the packets
-with the negotiated version.
-
-In comparison, the incompatible version negotiation mechanism, which leverages
-QUIC Version Negotiation packets (see {{incompat-vn}}) conceptually operates
-across two QUIC connections: the connection attempt prior to receiving the
-Version Negotiation packet is distinct from the connection with the incompatible
-version that follows.
-
-
-## Incompatible Version Negotiation {#incompat-vn}
-
-The server starts incompatible version negotiation by sending a Version
-Negotiation packet. This packet SHALL include each entry from the server's set
-of Offered Versions (see {{server-fleet}}) in a Supported Version field. The
-server MAY add reserved versions (as defined in {{Section 6.3 of QUIC}}) in
-Supported Version fields.
-
-Clients will ignore a Version Negotiation packet if it contains the original
-version attempted by the client. The client also ignores a Version Negotiation
-packet that contains incorrect connection ID fields; see {{Section 6 of INV}}.
-
-Upon receiving the VN packet, the client will search for a version it supports
-in the list provided by the server. If it doesn't find one, it aborts the
-connection attempt. Otherwise, it selects a mutually supported version and sends
-a new first flight with that version - we refer to this version as the
-"negotiated version".
-
-The new first flight will allow the endpoints to establish a connection using
-the negotiated version. The handshake of the negotiated version will exchange
-version information (see {{vers-info}}) required to ensure that VN was genuine,
-i.e. that no attacker injected packets in order to influence the VN process, see
-{{downgrade}}.
-
 
 ## Compatible Version Negotiation {#compat-vn}
 
@@ -302,6 +212,31 @@ Information Transport Parameter.
 If the server does not find a compatible version, it will use the original
 version if it supports it, and if it doesn't then the server will perform
 incompatible version negotiation instead, see {{incompat-vn}}.
+
+
+## Connections and Version Negotiation
+
+QUIC connections are shared state between a client and a server {{INV}}. The
+compatible version negotiation mechanism defined in this document (see
+{{compat-vn}}) is performed as part of a single QUIC connection; that is, the
+packets with the original version are part of the same connection as the packets
+with the negotiated version.
+
+In comparison, the incompatible version negotiation mechanism, which leverages
+QUIC Version Negotiation packets (see {{incompat-vn}}) conceptually operates
+across two QUIC connections: the connection attempt prior to receiving the
+Version Negotiation packet is distinct from the connection with the incompatible
+version that follows.
+
+
+## Client Choice of Original Version
+
+The client's first connection attempt SHOULD be made using the version that the
+server is most likely to support. The client selects the version most likely to
+be supported from the versions that are compatible with the client's most
+preferred version. Without additional information this could mean selecting the
+oldest version that the client supports.
+
 
 # Version Information {#vers-info}
 
@@ -412,13 +347,80 @@ an attacker's ability to influence version negotiation by forging the Version
 long header field.
 
 
-# Client Choice of Original Version
+# Server Deployments of QUIC {#server-fleet}
 
-The client's first connection attempt SHOULD be made using the version that the
-server is most likely to support. The client selects the version most likely to
-be supported from the versions that are compatible with the client's most
-preferred version. Without additional information this could mean selecting the
-oldest version that the client supports.
+While this document mainly discusses a single QUIC server, it is common for
+deployments of QUIC servers to include a fleet of multiple server instances. We
+therefore define the following terms:
+
+Acceptable Versions:
+
+: This is the set of versions supported by a given server instance. More
+specifically, these are the versions that a given server instance will use if a
+client sends a first flight using them.
+
+Offered Versions:
+
+: This is the set of versions that a given server instance will send in a
+Version Negotiation packet if it receives a first flight from an unknown
+version. This set will most often be equal to the Acceptaple Versions set,
+except during short transitions while versions are added or removed (see below).
+
+Fully-Deployed Versions:
+
+: This is the set of QUIC versions that is supported and negotiated by every
+single QUIC server instance in this deployment. If a deployment only contains a
+single server instance, then this set is equal to the Offered Versions set,
+except during short transitions while versions are added or removed (see below).
+
+If a deployment contains multiple server instances, software updates may not
+happen at exactly the same time on all server instances. Because of this, a
+client might receive a Version Negotiation packet from a server instance that
+has already been updated and the client's resulting connection attempt might
+reach a different server instance which hasn't been updated yet.
+
+However, even when there is only a single server instance, it is still possible
+to receive a stale Version Negotiation packet if the server performs its
+software update while the Version Negotiation packet is in flight.
+
+This could cause the version downgrade prevention mechanism described in
+{{downgrade}} to falsely detect a downgrade attack. To avoid that, server
+operators SHOULD perform a three-step process when they wish to add or remove
+support for a version:
+
+When adding support for a new version:
+
+* The first step is to progressively add support for the new version to all
+  server instances. This step updates the Acceptable Versions but not the
+  Offered Versions nor the Fully-Deployed Versions. Once all server instances
+  have been updated, operators wait for at least one MSL to allow any in-flight
+  Version Negotiation packets to arrive.
+
+* Then, the second step is to progressively add the new version to Offered
+  Versions on all server instances. Once complete, operators wait for at least
+  another MSL.
+
+* Finally, the third step is to progressively add the new version to
+  Fully-Deployed Versions on all server instances.
+
+When removing support for a version:
+
+* The first step is to progressively remove the version from Fully-Deployed
+  Versions on all server instances. Once it has been removed on all server
+  instances, operators wait for at least one MSL to allow any in-flight Version
+  Negotiation packets to arrive.
+
+* Then, the second step is to progressively remove the version from Offered
+  Versions on all server instances. Once complete, operators wait for at least
+  another MSL.
+
+* Finally, the third step is to progressively remove support for the version
+  from all server instances. That step updates the Acceptable Versions.
+
+
+Note that this opens connections to version downgrades (but only for
+partially-deployed versions) during the update window, since those could be due
+to clients communicating with both updated and non-updated server instances.
 
 
 # Considerations for Future Versions
@@ -431,6 +433,7 @@ QUIC version 1 defines multiple features which are not documented in the QUIC
 invariants. Since at the time of writing QUIC version 1 is widely deployed,
 this section discusses considerations for future versions to help with
 compatibility with QUIC version 1.
+
 
 ## Interaction with Retry
 
