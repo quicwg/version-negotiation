@@ -421,7 +421,18 @@ preferred version. Without additional information this could mean selecting the
 oldest version that the client supports.
 
 
-# Interaction with Retry
+# Considerations for Future Versions
+
+In order to facilitate the deployment of future versions of QUIC, designers of
+future versions SHOULD attempt to design their new version such that commonly
+deployed versions are compatible with it.
+
+QUIC version 1 defines multiple features which are not documented in the QUIC
+invariants. Since at the time of writing QUIC version 1 is widely deployed,
+this section discusses considerations for future versions to help with
+compatibility with QUIC version 1.
+
+## Interaction with Retry
 
 QUIC version 1 features Retry packets, which the server can send to validate the
 client's IP address before parsing the client's first flight. A server that
@@ -433,12 +444,24 @@ If a future document wishes to define compatibility between two versions that
 support retry, that document MUST specify how version negotiation (both
 compatible and incompatible) interacts with retry during a handshake that
 requires both. For example, that could be accomplished by having the server send
-a Retry packet first and validating the client's IP address before attempting
-compatible version negotiation. In that scenario the Retry packet would be sent
-using the original version.
+a Retry packet in the original version first and therefore validating the
+client's IP address before attempting compatible version negotiation. If both
+versions support authenticating Retry packets, the compatibility defition needs
+to define how to authenticate the Retry in the negotiated version handshake even
+though the Retry itself was sent using the original version.
 
 
-# Interaction with 0-RTT
+## Interaction with TLS resumption
+
+QUIC version 1 uses TLS 1.3, which supports session resumption by sending
+session tickets in one connection that can be used in a later connection; see
+{{Section 2.2 of ?RFC8446}}. New versions that also use TLS 1.3 SHOULD mandate
+that their session tickets are rightly scoped to one version of QUIC; i.e.,
+require that clients not use them across version and that servers validate this
+client requirement.
+
+
+## Interaction with 0-RTT
 
 QUIC version 1 allows sending data from the client to the server during the
 handshake, by using 0-RTT packets. If a future document wishes to define
@@ -447,15 +470,6 @@ address the scenario where there are 0-RTT packets in the client's first flight.
 For example, this could be accomplished by defining which transformations are
 applied to 0-RTT packets. Alternatively, that document could specify that
 compatible version negotiation causes 0-RTT data to be rejected by the server.
-
-
-# Considerations for Future Versions
-
-In order to facilitate the deployment of future versions of QUIC, designers of
-future versions SHOULD attempt to design their new version such that commonly
-deployed versions are compatible with it. For example, a successor to QUIC
-version 1 may wish to design its transport parameters in a way that does not
-preclude compatibility.
 
 
 # Security Considerations
