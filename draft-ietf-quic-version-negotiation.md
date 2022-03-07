@@ -401,9 +401,13 @@ After the process of version negotiation in this document completes, the version
 in use for the connection is the version that the server sent in the Chosen
 Version field of its Version Information. That remains true even if other
 versions were used in the Version field of long headers at any point in the
-lifetime of the connection; endpoints MUST NOT change the version that they
-consider to be in use based on the Version field of long headers as that field
-could be forged by attackers.
+lifetime of the connection. In particular, since during compatible version
+negotiation the client is made aware of the negotiated version by the QUIC long
+header version (see {{compat-vn}}), clients MUST validate that the server's
+Chosen Version is equal to the negotiated version; if they do not match, the
+client MUST close the connection with a version negotiation error. This prevents
+an attacker's ability to influence version negotiation by forging the Version
+long header field.
 
 
 # Client Choice of Original Version
