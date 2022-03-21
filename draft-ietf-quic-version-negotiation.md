@@ -482,9 +482,9 @@ from the server's transport parameters, then the client SHALL proceed as if the
 server's transport parameters contained a version_information transport
 parameter with a Chosen Version set to 0x00000001 and an Other Version list
 containing exactly one version set to 0x00000001. This allows version
-negotiation to work with servers that only support QUIC version 1. Note
-that implementations which wish to use VN to negotiate versions other
-than QUIC version 1 will need to implement this draft.
+negotiation to work with servers that only support QUIC version 1. Note that
+implementations which wish to use version negotiation to negotiate versions
+other than QUIC version 1 will need to implement this draft.
 
 
 # Security Considerations
