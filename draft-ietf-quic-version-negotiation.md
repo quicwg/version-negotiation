@@ -27,10 +27,6 @@ author:
     organization: Mozilla
     email: ekr@rtfm.com
 
-normative:
-  INV: RFC8999
-  QUIC: RFC9000
-
 
 --- abstract
 
@@ -46,17 +42,18 @@ the negotiation can take place without incurring an extra round trip.
 
 # Introduction
 
-The version-invariant properties of QUIC {{INV}} define a version negotiation
-(VN) packet but do not specify how an endpoint reacts when it receives one. QUIC
-version 1 {{QUIC}} allows the server to use a VN packet to indicate that the
-version the client offered is unacceptable, but doesn't allow the client to
-safely make use of that information to create a new connection with a mutually
-supported version.
+The version-invariant properties of QUIC {{!INV=RFC8999}} define a Version
+Negotiation packet but do not specify how an endpoint reacts when it receives
+one. QUIC version 1 {{!QUIC=RFC9000}} allows the server to use a Version
+Negotiation packet to indicate that the version the client offered is
+unacceptable, but doesn't allow the client to safely make use of that
+information to create a new connection with a mutually supported version.
 
-With proper safety mechanisms in place, the VN packet can be part of a mechanism
-to allow two QUIC implementations to negotiate between two totally disjoint
-versions of QUIC. This document specifies version negotiation using VN packets,
-which adds an extra round trip to connection establishment if needed.
+With proper safety mechanisms in place, the Version Negotiation packet can be
+part of a mechanism to allow two QUIC implementations to negotiate between two
+totally disjoint versions of QUIC. This document specifies version negotiation
+using Version Negotiation packets, which adds an extra round trip to connection
+establishment if needed.
 
 It is beneficial to avoid additional round trips whenever possible, especially
 given that most incremental versions are broadly similar to the the previous
@@ -115,28 +112,28 @@ Clients will ignore a Version Negotiation packet if it contains the original
 version attempted by the client. The client also ignores a Version Negotiation
 packet that contains incorrect connection ID fields; see {{Section 6 of INV}}.
 
-Upon receiving the VN packet, the client will search for a version it supports
-in the list provided by the server. If it doesn't find one, it aborts the
-connection attempt. Otherwise, it selects a mutually supported version and sends
-a new first flight with that version - we refer to this version as the
-"negotiated version".
+Upon receiving the Version Negotiation packet, the client will search for a
+version it supports in the list provided by the server. If it doesn't find one,
+it aborts the connection attempt. Otherwise, it selects a mutually supported
+version and sends a new first flight with that version - we refer to this
+version as the "negotiated version".
 
 The new first flight will allow the endpoints to establish a connection using
 the negotiated version. The handshake of the negotiated version will exchange
-version information (see {{vers-info}}) required to ensure that VN was genuine,
-i.e. that no attacker injected packets in order to influence the VN process, see
-{{downgrade}}.
+version information (see {{vers-info}}) required to ensure that version
+negotiation was genuine, i.e. that no attacker injected packets in order to
+influence the version negotiation process, see {{downgrade}}.
 
 
 ## Compatible Versions
 
 If A and B are two distinct versions of QUIC, A is said to be "compatible" with
-B if it is possible to take a first flight of packets from version A and
-convert it into a first flight of packets from version B. As an example, if
-versions A and B are absolutely equal in their wire image and behavior during
-the handshake but differ after the handshake, then A is compatible with B and B
-is compatible with A. Note that the conversion of the first flight can be lossy:
-some data such as QUICv1 0-RTT packets could be ignored during conversion and
+B if it is possible to take a first flight of packets from version A and convert
+it into a first flight of packets from version B. As an example, if versions A
+and B are absolutely equal in their wire image and behavior during the handshake
+but differ after the handshake, then A is compatible with B and B is compatible
+with A. Note that the conversion of the first flight can be lossy: some data
+such as QUIC version 1 0-RTT packets could be ignored during conversion and
 retransmitted later.
 
 Version compatibility is not symmetric: it is possible for version A to be
@@ -168,7 +165,7 @@ When a client creates a QUIC connection, its goal is to use an application layer
 protocol. Therefore, when considering which versions are compatible, clients
 will only consider versions that support one of the intended application layer
 protocols. For example, if the client's first flight advertises multiple
-Application Layer Protocol Negotiation (ALPN) {{?ALPN=RFC7301}} tokens and
+Application Layer Protocol Negotiation (ALPN) {{!ALPN=RFC7301}} tokens and
 multiple compatible versions, the server needs to ensure that the ALPN token
 that it selects can run over the QUIC version that it selects.
 
@@ -458,10 +455,10 @@ though the Retry itself was sent using the original version.
 
 QUIC version 1 uses TLS 1.3, which supports session resumption by sending
 session tickets in one connection that can be used in a later connection; see
-{{Section 2.2 of ?RFC8446}}. New versions that also use TLS 1.3 SHOULD mandate
-that their session tickets are rightly scoped to one version of QUIC; i.e.,
-require that clients not use them across version and that servers validate this
-client requirement.
+{{Section 2.2 of !TLS=RFC8446}}. New versions that also use TLS 1.3 SHOULD
+mandate that their session tickets are rightly scoped to one version of QUIC;
+i.e., require that clients not use them across version and that servers validate
+this client requirement.
 
 
 ## Interaction with 0-RTT
