@@ -472,6 +472,21 @@ applied to 0-RTT packets. Alternatively, that document could specify that
 compatible version negotiation causes 0-RTT data to be rejected by the server.
 
 
+# Special Handling for QUIC Version 1
+
+Because QUIC version 1 was the only IETF Standards Track version of QUIC
+published before this document, it is handled specially as follows: if a client
+is starting a QUIC version 1 connection in response to a received Version
+Negotiation packet, and the version_information transport parameter is missing
+from the server's transport parameters, then the client SHALL proceed as if the
+server's transport parameters contained a version_information transport
+parameter with a Chosen Version set to 0x00000001 and an Other Version list
+containing exactly one version set to 0x00000001. This allows version
+negotiation to work with servers that only support QUIC version 1. Note that
+implementations which wish to use version negotiation to negotiate versions
+other than QUIC version 1 will need to implement this draft.
+
+
 # Security Considerations
 
 The security of this version negotiation mechanism relies on the authenticity of
