@@ -2,24 +2,41 @@
 title: Compatible Version Negotiation for QUIC
 abbrev: QUIC Compatible VN
 docname: draft-ietf-quic-version-negotiation-latest
-category: std
-wg: QUIC
-
+submissiontype: IETF
 ipr: trust200902
-area: General
-keyword: Internet-Draft
-
+category: std
 stand_alone: yes
 pi: [toc, sortrefs, symrefs]
-
+area: Transport
+wg: QUIC
+number:
+date:
+consensus:
+venue:
+  group: "QUIC"
+  type: "Working Group"
+  mail: "quic@ietf.org"
+  arch: "https://mailarchive.ietf.org/arch/browse/quic/"
+  github: "quicwg/version-negotiation"
+  latest: "https://quicwg.github.io/version-negotiation/draft-ietf-quic-version-negotiation.html"
+keyword:
+  - quic
+  - version
+  - negotiation
+  - compatible
+  - incompatible
+  - not quite tls
+  - tls-ng
 author:
   -
-    ins: "D. Schinazi"
-    name: "David Schinazi"
-    organization: "Google LLC"
-    street: "1600 Amphitheatre Parkway"
-    city: "Mountain View, California 94043"
-    country: "United States of America"
+    ins: D. Schinazi
+    name: David Schinazi
+    org: Google LLC
+    street: 1600 Amphitheatre Parkway
+    city: Mountain View
+    region: CA
+    code: 94043
+    country: United States of America
     email: dschinazi.ietf@gmail.com
   -
     ins: E. Rescorla
@@ -64,10 +81,7 @@ of "compatible" versions without additional round trips.
 
 ## Conventions and Definitions
 
-The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD",
-"SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and "OPTIONAL" in this
-document are to be interpreted as described in BCP 14 {{!RFC2119}} {{!RFC8174}}
-when, and only when, they appear in all capitals, as shown here.
+{::boilerplate bcp14-tagged}
 
 In this document, the Maximum Segment Lifetime (MSL) represents the time a QUIC
 packet can exist in the network. Implementations can make this configurable, and
@@ -258,7 +272,6 @@ Version Information {
 The content of each field is described below:
 
 Chosen Version:
-
 : The version that the sender has chosen to use for this connection. In most
 cases, this field will be equal to the value of the Version field in the long
 header that carries this data.
@@ -267,7 +280,6 @@ The contents of the Other Versions field depends on whether it is sent by the
 client or by the server.
 
 Client-Sent Other Versions:
-
 : When sent by a client, the Other Versions field lists all the versions that
 this first flight is compatible with, ordered by descending preference. Note
 that the version in the Chosen Version field MUST be included in this list to
@@ -276,12 +288,12 @@ preference is only advisory, servers MAY choose to use their own preference
 instead.
 
 Server-Sent Other Versions:
-
 : When sent by a server, the Other Versions field lists all the Fully-Deployed
 Versions of this server deployment, see {{server-fleet}}. Note that the version
 in the Chosen Version field is not necessarily included in this list, because
 the server operator could be in the process of removing support for this
 version. For the same reason, the Other Versions field MAY be empty.
+{: spacing="compact"}
 
 Clients and servers MAY both include versions following the pattern 0x?a?a?a?a
 in their Other Versions list. Those versions are reserved to exercise version
@@ -351,7 +363,6 @@ deployments of QUIC servers to include a fleet of multiple server instances. We
 therefore define the following terms:
 
 Acceptable Versions:
-
 : This is the set of versions supported by a given server instance. More
 specifically, these are the versions that a given server instance will use if a
 client sends a first flight using them.
@@ -364,11 +375,11 @@ version. This set will most often be equal to the Acceptaple Versions set,
 except during short transitions while versions are added or removed (see below).
 
 Fully-Deployed Versions:
-
 : This is the set of QUIC versions that is supported and negotiated by every
 single QUIC server instance in this deployment. If a deployment only contains a
 single server instance, then this set is equal to the Offered Versions set,
 except during short transitions while versions are added or removed (see below).
+{: spacing="compact"}
 
 If a deployment contains multiple server instances, software updates may not
 happen at exactly the same time on all server instances. Because of this, a
@@ -503,25 +514,21 @@ possibility of cross-protocol attacks, but more analysis is still needed here.
 
 ## QUIC Transport Parameter
 
-This document registers a new value in the QUIC Transport Parameter Registry
-maintained at
-[](https://www.iana.org/assignments/quic/quic.xhtml#quic-transport).
+This document registers a new value in the "QUIC Transport Parameters" registry
+maintained at <[](https://www.iana.org/assignments/quic)>.
 
 Value:
-
 : 0xFF73DB
 
 Parameter Name:
-
 : version_information
 
 Status:
-
 : provisional
 
 Specification:
-
 : This document
+{: spacing="compact"}
 
 When this document is approved, it will request permanent allocation of a
 codepoint in the 0-63 range to replace the provisional codepoint described above.
@@ -529,29 +536,24 @@ codepoint in the 0-63 range to replace the provisional codepoint described above
 
 ## QUIC Transport Error Code {#iana-error}
 
-This document registers a new value in the QUIC Transport Error Codes Registry
-maintained at
-[](https://www.iana.org/assignments/quic/quic.xhtml#quic-transport-error-codes).
+This document registers a new value in the "QUIC Transport Error Codes" registry
+maintained at <[](https://www.iana.org/assignments/quic)>.
 
 Value:
-
 : 0x53F8
 
 Code:
-
 : VERSION_NEGOTIATION_ERROR
 
 Description:
-
 : Error negotiating version
 
 Status:
-
 : provisional
 
 Specification:
-
 : This document
+{: spacing="compact"}
 
 When this document is approved, it will request permanent allocation of a
 codepoint in the 0-63 range to replace the provisional codepoint described above.
