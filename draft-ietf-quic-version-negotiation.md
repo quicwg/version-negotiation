@@ -558,16 +558,6 @@ negotiation to work with servers that only support QUIC version 1. Note that
 implementations which wish to use version negotiation to negotiate versions
 other than QUIC version 1 will need to implement this draft.
 
-## Special Case Behavior for QUIC Version 1
-
-QUIC version 1 was standardized prior to the publication of this
-document and therefore QUICv1 servers may not support this
-extension. If a client implementations whch start a QUICv1 connection
-in response to a version negotiation packet and the server omits,
-the 
-
-
-
 
 # Security Considerations
 
