@@ -78,7 +78,7 @@ It is beneficial to avoid additional round trips whenever possible, especially
 given that most incremental versions are broadly similar to the the previous
 version. This specification also defines a simple version negotiation mechanism
 which leverages similarities between versions and can negotiate between the set
-of "compatible" versions jointly supported by without additional round trips.
+of "compatible" versions without additional round trips.
 
 
 ## Conventions and Definitions
@@ -111,16 +111,16 @@ Upon receiving this first flight, the server verifies whether it knows how to
 parse first flights from the original version. If it does not, then it starts
 incompatible version negotiation, see {{incompat-vn}}, which causes the
 client to initiate a new connection with a different version.
-For instance, if the client initiates a connection with version 1
+For instance, if the client initiates a connection with version A
 and the server starts incompatible version negotiation and the client
-then initiates a new connection with version 2, we say that
-the first connection's client chosen version is 1, the second connection's
-client chosen is 2, and the original version for the entire
-sequence is 1.
+then initiates a new connection with version B, we say that
+the first connection's client chosen version is A, the second connection's
+client chosen version is B, and the original version for the entire
+sequence is A.
 
 If the server can parse the first flight, it can either establish the
 connection using the client's chosen version, or it MAY select any other
-compatible version, as described in {{compat-vn}}. 
+compatible version, as described in {{compat-vn}}.
 
 Note that it is possible for a server to have the ability to parse the first
 flight of a given version without fully supporting it, in the sense that it
@@ -199,8 +199,8 @@ chosen version, it can extract the client's Version Information structure
 client knows its first flight is compatible with.
 
 In order to perform compatible version negotiation, the server MUST select
-one of these versions that (1) it supports and (2) it knows is
-compatible with the client's chosen version. Once the server has
+one of these versions that (1) it supports and (2) it knows
+the client's chosen version to be compatible with. Once the server has
 selected a version, termed the "negotiated version", it then attempts
 to convert the client's first flight into that version, and replies to
 the client as if it had received the converted first flight.
@@ -210,8 +210,7 @@ version is the same as the client's chosen version, then this will be
 the identity transform. If the first flight is correctly formatted,
 then this conversion process cannot fail by definition of the first
 flight being compatible; if the server is unable to convert the first
-flight, it MUST respond with CONNECTION_CLOSE and an error of
-PROTOCOL_VIOLATION.
+flight, it MUST abort the handshake.
 
 Clients can determine the server's negotiated version by examining
 the QUIC long header Version field. It is possible for the server to
@@ -243,10 +242,10 @@ scenario may occur:
 
 ~~~
     Client                                          Server
-    
+
     Chosen = A, Other Versions = (A, B) ----------------->
     <------------------------ Version Negotiation = (D, C)
-    
+
     Chosen = C, Other Versions = (C, D) ----------------->
     <-------------------------------------- Negotiated = D
 ~~~
