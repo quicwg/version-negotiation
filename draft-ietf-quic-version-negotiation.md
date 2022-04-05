@@ -152,7 +152,10 @@ retransmitted later.
 
 Version compatibility is not symmetric: it is possible for version A to be
 compatible with version B and for B not to be compatible with A. This could
-happen for example if version B is a strict superset of version A.
+happen for example if version B is a strict superset of version A: if version A
+includes the concept of streams and STREAM frames, and version B includes the
+concepts of streams and tubes along with STREAM and TUBE frames, then A would be
+compatible with B but B would not be compatible with A.
 
 Note that version compatibility does not mean that every single possible
 instance of a first flight will succeed in conversion to the other version. A
