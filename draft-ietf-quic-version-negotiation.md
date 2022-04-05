@@ -234,11 +234,16 @@ version that follows.
 
 ## Client Choice of Original Version
 
-The client's first connection attempt SHOULD be made using the version that the
-server is most likely to support. The client selects the version most likely to
-be supported from the versions that are compatible with the client's most
-preferred version. Without additional information this could mean selecting the
-oldest version that the client supports.
+When the client picks its original version, it will try to avoid incompatible
+version negotiation to save a round trip. Therefore, the client SHOULD pick an
+original version to maximize the combined probability of both:
+
+* The server knows how to parse first flights from the original version.
+
+* The original version is compatible with the client's prefered version.
+
+Without additional information, this could mean selecting the oldest version
+that the client supports.
 
 
 # Version Information {#vers-info}
