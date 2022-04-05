@@ -105,12 +105,12 @@ enable compatible version negotation (see {{compat-vn}}), and to
 prevent version downgrade attacks (see {{downgrade}}).  We'll refer to
 the version of the very first packets the client sends as the "original version"
 and the version of the first packets the client sends in a
-a given QUIC connection as the "client's chosen version".
+given QUIC connection as the "client's chosen version".
 
 Upon receiving this first flight, the server verifies whether it knows how to
 parse first flights from the original version. If it does not, then it starts
 incompatible version negotiation, see {{incompat-vn}}, which causes the
-client to initiate new connection with a different version.
+client to initiate a new connection with a different version.
 For instance, if the client initiates a connection with version 1
 and the server starts incompatible version negotiation and the client
 then initiates a new connection with version 2, we say that
@@ -198,7 +198,7 @@ chosen version, it can extract the client's Version Information structure
 (see {{vers-info}}). This contains the list of versions that the
 client knows its first flight is compatible with.
 
-In order to do compatible version negotiation, the server MUST select
+In order to perform compatible version negotiation, the server MUST select
 one of these versions that (1) it supports and (2) it knows is
 compatible with the client's chosen version. Once the server has
 selected a version, termed the "negotiated version", it then attempts
@@ -207,7 +207,7 @@ the client as if it had received the converted first flight.
 
 If those formats are identical, as in cases where the negotiated
 version is the same as the client's chosen version, then this will be
-the identity transform). If the first flight is correctly formatted,
+the identity transform. If the first flight is correctly formatted,
 then this conversion process cannot fail by definition of the first
 flight being compatible; if the server is unable to convert the first
 flight, it MUST respond with CONNECTION_CLOSE and an error of
