@@ -234,6 +234,10 @@ across two QUIC connections: the connection attempt prior to receiving the
 Version Negotiation packet is distinct from the connection with the incompatible
 version that follows.
 
+Note that this separation across two connections is conceptual: it applies to
+normative requirements on QUIC connections, but does not require implementations
+to internally use two distinct connection objects.
+
 
 ## Client Choice of Original Version
 
