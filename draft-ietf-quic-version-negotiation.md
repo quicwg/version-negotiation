@@ -175,14 +175,6 @@ or not. For example, two versions could have been defined concurrently and then
 specified as compatible in a third document much later - in that scenario one
 endpoint might be aware of the compatibility document while the other may not.
 
-When a client creates a QUIC connection, its goal is to use an application layer
-protocol. Therefore, when considering which versions are compatible, clients
-will only consider versions that support one of the intended application layer
-protocols. For example, if the client's first flight advertises multiple
-Application Layer Protocol Negotiation (ALPN) {{!ALPN=RFC7301}} tokens and
-multiple compatible versions, the server needs to ensure that the ALPN token
-that it selects can run over the QUIC version that it selects.
-
 
 ## Compatible Version Negotiation {#compat-vn}
 
@@ -429,6 +421,36 @@ When removing support for a version:
 Note that this opens connections to version downgrades (but only for
 partially-deployed versions) during the update window, since those could be due
 to clients communicating with both updated and non-updated server instances.
+
+
+# Application Layer Protocol Considerations
+
+When a client creates a QUIC connection, its goal is to use an application layer
+protocol. Therefore, when considering which versions are compatible, clients
+will only consider versions that support one of the intended application layer
+protocols. If the client's first flight advertises multiple Application Layer
+Protocol Negotiation (ALPN) {{!ALPN=RFC7301}} tokens and multiple compatible
+versions, it is possible for some application layer protocols to not be able to
+run over some of the offered compatible versions. It is the server's
+responsibility to only select an ALPN token that can run over the compatible
+QUIC version that it selects.
+
+A given ALPN token MUST NOT be used with a new QUIC version different from the
+version for which the ALPN token was originally defined, unless all the
+following requirements are met:
+
+* The new QUIC version supports the transport features required by the
+  application protocol.
+
+* The new QUIC version supports ALPN.
+
+* The version of QUIC for which the ALPN token was originally defined is
+  compatible with the new QUIC version.
+
+When incompatible version negotiation is in use, the second connection which is
+created in response to the received version negotiation packet MUST restart its
+application layer protocol negotiation process without taking into account the
+original version.
 
 
 # Considerations for Future Versions
