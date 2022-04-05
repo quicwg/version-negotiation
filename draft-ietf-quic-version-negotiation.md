@@ -242,13 +242,13 @@ are compatible and versions C and D are compatible, the following
 scenario may occur:
 
 ~~~
-Client                                          Server
-
-Chosen = A, Other Versions = (A, B) ----------------->
-<------------------------ Version Negotiation = (D, C)
-
-Chosen = C, Other Versions = (C, D) ----------------->
-<-------------------------------------- Negotiated = D
+    Client                                          Server
+    
+    Chosen = A, Other Versions = (A, B) ----------------->
+    <------------------------ Version Negotiation = (D, C)
+    
+    Chosen = C, Other Versions = (C, D) ----------------->
+    <-------------------------------------- Negotiated = D
 ~~~
 
 In this example, the client selected C from the server's
