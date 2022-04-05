@@ -236,11 +236,11 @@ version that follows.
 
 When the client picks its original version, it will try to avoid incompatible
 version negotiation to save a round trip. Therefore, the client SHOULD pick an
-original version to maximize the combined probability of both:
+original version to maximize the combined probability that both:
 
 * The server knows how to parse first flights from the original version.
 
-* The original version is compatible with the client's prefered version.
+* The original version is compatible with the client's preferred version.
 
 Without additional information, this could mean selecting the oldest version
 that the client supports.
