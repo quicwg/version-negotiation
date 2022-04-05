@@ -433,16 +433,17 @@ Application Layer Protocol Negotiation (ALPN) {{!ALPN=RFC7301}} tokens and
 multiple compatible versions, the server needs to ensure that the ALPN token
 that it selects can run over the QUIC version that it selects.
 
-A given ALPN token MUST NOT be used with multiple QUIC versions unless all the
+A given ALPN token MUST NOT be used with a new QUIC version different from the
+version for which the ALPN token was originally defined, unless all the
 following requirements are met:
 
-* These QUIC versions support the transport features required by the application
-  protocol.
+* The new QUIC version supports the transport features required by the
+  application protocol.
 
-* These QUIC versions support ALPN.
+* The new QUIC version supports ALPN.
 
 * The version of QUIC for which the ALPN token was originally defined is
-  compatible with these QUIC versions.
+  compatible with the new QUIC version.
 
 When incompatible version negotiation is in use, the second connection which is
 created in response to the received version negotiation packet MUST restart its
