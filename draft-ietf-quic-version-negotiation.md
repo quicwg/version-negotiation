@@ -234,18 +234,19 @@ version), it will perform incompatible version negotiation instead, see
 {{incompat-vn}}.
 
 Note that it is possible to have incompatible version negotation followed by
-compatible version negotiation. For instance, if A and B are compatible and
-versions C and D are compatible, the following scenario may occur:
+compatible version negotiation. For instance, if version A is compatible with B
+and C is compatible with D, the following scenario could occur:
 
 ~~~
-    Client                                          Server
+Client                                          Server
 
-    Chosen = A, Other Versions = (A, B) ----------------->
-    <------------------------ Version Negotiation = (D, C)
+Chosen = A, Other Versions = (A, B) ----------------->
+<------------------------ Version Negotiation = (D, C)
 
-    Chosen = C, Other Versions = (C, D) ----------------->
-    <-------------------------------------- Negotiated = D
+Chosen = C, Other Versions = (C, D) ----------------->
+<-------------------------------------- Negotiated = D
 ~~~
+{: #fig-dual-example title="Combined Negotiation Example"}
 
 In this example, the client selected C from the server's Version Negotiation
 packet, but the server preferred D and then selected it from the client's offer.
