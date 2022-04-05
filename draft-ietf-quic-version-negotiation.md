@@ -455,11 +455,11 @@ If a future document wishes to define compatibility between two versions that
 support retry, that document MUST specify how version negotiation (both
 compatible and incompatible) interacts with retry during a handshake that
 requires both. For example, that could be accomplished by having the server send
-a Retry packet in the original version first and therefore validating the
-client's IP address before attempting compatible version negotiation. If both
-versions support authenticating Retry packets, the compatibility defition needs
-to define how to authenticate the Retry in the negotiated version handshake even
-though the Retry itself was sent using the original version.
+a Retry packet in the original version first thereby validating the client's IP
+address before attempting compatible version negotiation. If both versions
+support authenticating Retry packets, the compatibility defition needs to define
+how to authenticate the Retry in the negotiated version handshake even though
+the Retry itself was sent using the original version.
 
 
 ## Interaction with TLS resumption
@@ -467,9 +467,9 @@ though the Retry itself was sent using the original version.
 QUIC version 1 uses TLS 1.3, which supports session resumption by sending
 session tickets in one connection that can be used in a later connection; see
 {{Section 2.2 of !TLS=RFC8446}}. New versions that also use TLS 1.3 SHOULD
-mandate that their session tickets are rightly scoped to one version of QUIC;
-i.e., require that clients not use them across version and that servers validate
-this client requirement.
+mandate that their session tickets are tightly scoped to one version of QUIC;
+i.e., require that clients not use them across multiple version and that servers
+validate this client requirement.
 
 
 ## Interaction with 0-RTT
@@ -479,8 +479,8 @@ handshake, by using 0-RTT packets. If a future document wishes to define
 compatibility between two versions that support 0-RTT, that document MUST
 address the scenario where there are 0-RTT packets in the client's first flight.
 For example, this could be accomplished by defining which transformations are
-applied to 0-RTT packets. Alternatively, that document could specify that
-compatible version negotiation causes 0-RTT data to be rejected by the server.
+applied to 0-RTT packets. That document could specify that compatible version
+negotiation causes 0-RTT data to be rejected by the server.
 
 
 # Special Handling for QUIC Version 1
