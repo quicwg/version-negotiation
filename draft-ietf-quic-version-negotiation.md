@@ -214,7 +214,7 @@ to convert the first flight, it MUST abort the handshake.
 Clients can determine the server's negotiated version by examining the QUIC long
 header Version field. It is possible for the server to initially send packets
 with the client's chosen version before switching to the negotiated version (for
-example, this can happen when the client's Version Information structured spans
+example, this can happen when the client's Version Information structure spans
 multiple packets; in that case the server might acknowledge the first packet in
 the client's chosen version and later switch to a different negotiated version).
 
@@ -227,7 +227,7 @@ applies to the entire handshake, including the first flight.
 
 Note also that the client can disable compatible version negotiation by only
 including the Chosen Version in the Other Versions field of the Version
-Information Transport Parameter.
+Information transport parameter.
 
 If the server does not find a compatible version (including the client's chosen
 version), it will perform incompatible version negotiation instead, see
@@ -560,7 +560,8 @@ parameter with a Chosen Version set to 0x00000001 and an Other Version list
 containing exactly one version set to 0x00000001. This allows version
 negotiation to work with servers that only support QUIC version 1. Note that
 implementations which wish to use version negotiation to negotiate versions
-other than QUIC version 1 will need to implement this draft.
+other than QUIC version 1 will need to implement the version negotiation
+mechanism defined in this document.
 
 
 # Security Considerations
