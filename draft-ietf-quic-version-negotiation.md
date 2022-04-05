@@ -233,7 +233,7 @@ version that follows.
 
 Note that this separation across two connections is conceptual: it applies to
 normative requirements on QUIC connections, but does not require implementations
-to use two distinct connection objects.
+to internally use two distinct connection objects.
 
 
 ## Client Choice of Original Version
