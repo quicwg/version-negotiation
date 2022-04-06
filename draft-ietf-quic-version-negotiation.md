@@ -244,7 +244,7 @@ Chosen = A, Other Versions = (A, B) ----------------->
 <------------------------ Version Negotiation = (D, C)
 
 Chosen = C, Other Versions = (C, D) ----------------->
-<-------------------------------------- Negotiated = D
+<----------------- Chosen = D, Other Versions = (D, C)
 ~~~
 {: #fig-dual-example title="Combined Negotiation Example"}
 
