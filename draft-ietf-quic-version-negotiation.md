@@ -80,13 +80,33 @@ which leverages similarities between versions and can negotiate between the set
 of "compatible" versions without additional round trips.
 
 
-## Conventions and Definitions
+## Conventions
 
 {::boilerplate bcp14-tagged}
 
-In this document, the Maximum Segment Lifetime (MSL) represents the time a QUIC
-packet can exist in the network. Implementations can make this configurable, and
-a RECOMMENDED value is one minute.
+
+## Definitions
+
+The document uses the following terms:
+
+* In the context of a given QUIC connection, the "first flight" of packets
+  refers to the set of packets the client creates and sends to initiate the
+  connection before it has heard back from the server.
+
+* In the context of a given QUIC connection, the "client's chosen version" is
+  the QUIC version of the connection's first flight.
+
+* The "original version" is the QUIC version of the very first packet the client
+  sends to the server. If version negotiation spans multiple connections, the
+  original version is equal to the client's chosen version of the first QUIC
+  connection.
+
+* The "negotiated version" is the QUIC version in use on the connection once the
+  version negotiation process completes.
+
+* The "Maximum Segment Lifetime" (MSL) represents the time a QUIC packet can
+  exist in the network. Implementations can make this configurable, and a
+  RECOMMENDED value is one minute.
 
 
 # Version Negotiation Mechanism
@@ -96,14 +116,11 @@ This document specifies two means of performing version negotiation: one
 and one "compatible" that allows saving the round trip but only applies when the
 versions are compatible.
 
-The client initiates a QUIC connection by choosing an initial version and
+The client initiates a QUIC connection by choosing an original version and
 sending a first flight of QUIC packets with a long header to the server {{INV}}.
 The client's first flight includes Version Information (see {{vers-info}}) which
 will be used to optionally enable compatible version negotation (see
 {{compat-vn}}), and to prevent version downgrade attacks (see {{downgrade}}).
-We'll refer to the version of the very first packets the client sends as the
-"original version" and the version of the first packets the client sends in a
-given QUIC connection as the "client's chosen version".
 
 Upon receiving this first flight, the server verifies whether it knows how to
 parse first flights from the original version. If it does not, then it starts
@@ -140,8 +157,8 @@ packet that contains incorrect connection ID fields; see {{Section 6 of INV}}.
 Upon receiving the Version Negotiation packet, the client will search for a
 version it supports in the list provided by the server. If it doesn't find one,
 it aborts the connection attempt. Otherwise, it selects a mutually supported
-version and sends a new first flight with that version - we refer to this
-version as the "negotiated version".
+version and sends a new first flight with that version - this version is now the
+negotiated version.
 
 The new first flight will allow the endpoints to establish a connection using
 the negotiated version. The handshake of the negotiated version will exchange
@@ -200,10 +217,10 @@ first flight is compatible with.
 
 In order to perform compatible version negotiation, the server MUST select one
 of these versions that (1) it supports and (2) it knows the client's chosen
-version to be compatible with. Once the server has selected a version, termed
-the "negotiated version", it then attempts to convert the client's first flight
-into that version, and replies to the client as if it had received the converted
-first flight.
+version to be compatible with. This selected version is now the negotiated
+version. After selecting it, the server attempts to convert the client's first
+flight into that version, and replies to the client as if it had received the
+converted first flight.
 
 If those formats are identical, as in cases where the negotiated version is the
 same as the client's chosen version, then this will be the identity transform.
