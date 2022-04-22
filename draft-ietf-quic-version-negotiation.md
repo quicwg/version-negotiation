@@ -282,7 +282,7 @@ original version to maximize the combined probability that both:
 * The original version is compatible with the client's preferred version.
 
 Without additional information, this could mean selecting the oldest version
-that the client supports, while adversiting newer compatible versions in the
+that the client supports, while advertising newer compatible versions in the
 client's first flight.
 
 
