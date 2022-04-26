@@ -97,16 +97,17 @@ The document uses the following terms:
   the QUIC version of the connection's first flight.
 
 * The "original version" is the QUIC version of the very first packet the client
-  sends to the server. If version negotiation spans multiple connections, the
-  original version is equal to the client's chosen version of the first QUIC
-  connection.
+  sends to the server. If version negotiation spans multiple connections (see
+  {{connections}}), the original version is equal to the client's chosen version
+  of the first QUIC connection.
 
 * The "negotiated version" is the QUIC version in use on the connection once the
   version negotiation process completes.
 
 * The "Maximum Segment Lifetime" (MSL) represents the time a QUIC packet can
   exist in the network. Implementations can make this configurable, and a
-  RECOMMENDED value is one minute.
+  RECOMMENDED value is one minute. Note that the term "segment" here originated
+  in {{Section 3.3 of !TCP=RFC0793}}.
 
 
 # Version Negotiation Mechanism
@@ -269,7 +270,7 @@ In this example, the client selected C from the server's Version Negotiation
 packet, but the server preferred D and then selected it from the client's offer.
 
 
-## Connections and Version Negotiation
+## Connections and Version Negotiation {#connections}
 
 QUIC connections are shared state between a client and a server {{INV}}. The
 compatible version negotiation mechanism defined in this document (see
