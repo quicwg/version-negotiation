@@ -117,7 +117,7 @@ This document specifies two means of performing version negotiation: one
 and one "compatible" that allows saving the round trip but only applies when the
 versions are compatible.
 
-The client initiates a QUIC connection by choosing an original version and
+The client initiates a QUIC connection by choosing an initial version and
 sending a first flight of QUIC packets with a long header to the server {{INV}}.
 The client's first flight includes Version Information (see {{vers-info}}) which
 will be used to optionally enable compatible version negotation (see
