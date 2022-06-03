@@ -227,12 +227,16 @@ If the first flight is correctly formatted, then this conversion process cannot
 fail by definition of the first flight being compatible; if the server is unable
 to convert the first flight, it MUST abort the handshake.
 
-Clients can determine the server's negotiated version by examining the QUIC long
-header Version field. It is possible for the server to initially send packets
-with the client's chosen version before switching to the negotiated version (for
-example, this can happen when the client's Version Information structure spans
-multiple packets; in that case the server might acknowledge the first packet in
-the client's chosen version and later switch to a different negotiated version).
+Any version of QUIC MUST specify how to determine whether it is has
+been selected during compatible negotiation. Any set of mutually
+compatible versions SHOULD use the same mechanism.  Note that even if
+versions use the long header field to indicate the new version, it is
+possible for the server to initially send packets with the client's
+chosen version before switching to the negotiated version (for
+example, this can happen when the client's Version Information
+structure spans multiple packets; in that case the server might
+acknowledge the first packet in the client's chosen version and later
+switch to a different negotiated version).
 
 Note that, after the first flight is converted to the negotiated version, the
 handshake completes in the negotiated version. The entire handshake (including
