@@ -327,7 +327,8 @@ The content of each field is described below:
 Chosen Version:
 : The version that the sender has chosen to use for this connection. In most
 cases, this field will be equal to the value of the Version field in the long
-header that carries this data.
+header that carries this data; however future versions or extensions can choose
+to set different values in the long header Version field.
 
 The contents of the Other Versions field depends on whether it is sent by the
 client or by the server.
