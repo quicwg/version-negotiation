@@ -58,10 +58,10 @@ round trip.
 
 # Introduction
 
-The version-invariant properties of QUIC {{!INV=RFC8999}} define a Version
-Negotiation packet but do not specify how an endpoint reacts when it receives
-one. QUIC version 1 {{!QUIC=RFC9000}} allows the server to use a Version
-Negotiation packet to indicate that the version the client chose is
+The version-invariant properties of QUIC {{!QUIC-INVARIANTS=RFC8999}} define a
+Version Negotiation packet but do not specify how an endpoint reacts when it
+receives one. QUIC version 1 {{!QUIC=RFC9000}} allows the server to use a
+Version Negotiation packet to indicate that the version the client chose is
 unacceptable, but doesn't allow the client to safely make use of that
 information to create a new connection with a mutually supported version.
 
@@ -116,10 +116,11 @@ and one "compatible" that allows saving the round trip but only applies when the
 versions are compatible.
 
 The client initiates a QUIC connection by choosing an initial version and
-sending a first flight of QUIC packets with a long header to the server {{INV}}.
-The client's first flight includes Version Information (see {{vers-info}}) which
-will be used to optionally enable compatible version negotation (see
-{{compat-vn}}), and to prevent version downgrade attacks (see {{downgrade}}).
+sending a first flight of QUIC packets with a long header to the server
+{{QUIC-INVARIANTS}}. The client's first flight includes Version Information (see
+{{vers-info}}) which will be used to optionally enable compatible version
+negotation (see {{compat-vn}}), and to prevent version downgrade attacks (see
+{{downgrade}}).
 
 Upon receiving this first flight, the server verifies whether it knows how to
 parse first flights from the original version. If it does not, then it starts
@@ -151,7 +152,8 @@ Supported Version fields.
 
 Clients will ignore a Version Negotiation packet if it contains the original
 version attempted by the client. The client also ignores a Version Negotiation
-packet that contains incorrect connection ID fields; see {{Section 6 of INV}}.
+packet that contains incorrect connection ID fields; see {{Section 6 of
+QUIC-INVARIANTS}}.
 
 Upon receiving the Version Negotiation packet, the client will search for a
 version it supports in the list provided by the server. If it doesn't find one,
@@ -275,11 +277,11 @@ packet, but the server preferred D and then selected it from the client's offer.
 
 ## Connections and Version Negotiation {#connections}
 
-QUIC connections are shared state between a client and a server {{INV}}. The
-compatible version negotiation mechanism defined in this document (see
-{{compat-vn}}) is performed as part of a single QUIC connection; that is, the
-packets with the client's chosen version are part of the same connection as the
-packets with the negotiated version.
+QUIC connections are shared state between a client and a server
+{{QUIC-INVARIANTS}}. The compatible version negotiation mechanism defined in
+this document (see {{compat-vn}}) is performed as part of a single QUIC
+connection; that is, the packets with the client's chosen version are part of
+the same connection as the packets with the negotiated version.
 
 In comparison, the incompatible version negotiation mechanism, which leverages
 QUIC Version Negotiation packets (see {{incompat-vn}}) conceptually operates
