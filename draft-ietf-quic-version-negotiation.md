@@ -58,10 +58,10 @@ round trip.
 
 # Introduction
 
-The version-invariant properties of QUIC {{!QUIC-INVARIANTS=RFC8999}} define a Version
-Negotiation packet but do not specify how an endpoint reacts when it receives
-one. QUIC version 1 {{!QUIC=RFC9000}} allows the server to use a Version
-Negotiation packet to indicate that the version the client chose is
+The version-invariant properties of QUIC {{!QUIC-INVARIANTS=RFC8999}} define a
+Version Negotiation packet but do not specify how an endpoint reacts when it
+receives one. QUIC version 1 {{!QUIC=RFC9000}} allows the server to use a
+Version Negotiation packet to indicate that the version the client chose is
 unacceptable, but doesn't allow the client to safely make use of that
 information to create a new connection with a mutually supported version.
 
