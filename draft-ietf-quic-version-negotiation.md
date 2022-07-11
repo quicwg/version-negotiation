@@ -119,7 +119,7 @@ The client initiates a QUIC connection by choosing an initial version and
 sending a first flight of QUIC packets with a long header to the server
 {{QUIC-INVARIANTS}}. The client's first flight includes Version Information (see
 {{vers-info}}) which will be used to optionally enable compatible version
-negotation (see {{compat-vn}}), and to prevent version downgrade attacks (see
+negotiation (see {{compat-vn}}), and to prevent version downgrade attacks (see
 {{downgrade}}).
 
 Upon receiving this first flight, the server verifies whether it knows how to
@@ -256,7 +256,7 @@ If the server does not find a compatible version (including the client's chosen
 version), it will perform incompatible version negotiation instead, see
 {{incompat-vn}}.
 
-Note that it is possible to have incompatible version negotation followed by
+Note that it is possible to have incompatible version negotiation followed by
 compatible version negotiation. For instance, if version A is compatible with B
 and C is compatible with D, the following scenario could occur:
 
@@ -431,7 +431,7 @@ client sends a first flight using them.
 Offered Versions:
 : This is the set of versions that a given server instance will send in a
 Version Negotiation packet if it receives a first flight from an unknown
-version. This set will most often be equal to the Acceptaple Versions set,
+version. This set will most often be equal to the Acceptable Versions set,
 except during short transitions while versions are added or removed (see below).
 
 Fully-Deployed Versions:
@@ -547,9 +547,9 @@ compatible and incompatible) interacts with retry during a handshake that
 requires both. For example, that could be accomplished by having the server send
 a Retry packet in the original version first thereby validating the client's IP
 address before attempting compatible version negotiation. If both versions
-support authenticating Retry packets, the compatibility defition needs to define
-how to authenticate the Retry in the negotiated version handshake even though
-the Retry itself was sent using the client's chosen version.
+support authenticating Retry packets, the compatibility definition needs to
+define how to authenticate the Retry in the negotiated version handshake even
+though the Retry itself was sent using the client's chosen version.
 
 
 ## Interaction with TLS resumption
