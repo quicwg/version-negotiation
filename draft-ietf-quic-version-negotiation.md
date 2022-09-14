@@ -243,11 +243,15 @@ a different negotiated version). Any set of mutually compatible versions SHOULD
 use the same mechanism.
 
 Note that, after the first flight is converted to the negotiated version, the
-handshake completes in the negotiated version. The entire handshake (including
-the converted first flight) needs to conform to the rules of the negotiated
-version. For instance, if the negotiated version requires that the 5-tuple
-remain stable for the entire handshake (as QUIC version 1 does), then this
-applies to the entire handshake, including the first flight.
+handshake completes in the negotiated version. If the negotiated version has
+requirements that apply during the handshake, those requirements apply to the
+entire handshake, including the converted first flight. In particular, if the
+negotiated version mandates that endpoints perform validations on handshake
+packets, endpoints MUST also perform such validations on the converted first
+flight. For instance, if the negotiated version requires that the 5-tuple remain
+stable for the entire handshake (as QUIC version 1 does), then both endpoints
+need to validate the 5-tuple of all handshake packets, including the converted
+first flight.
 
 Note also that the client can disable compatible version negotiation by only
 including the Chosen Version in the Other Versions field of the Version
