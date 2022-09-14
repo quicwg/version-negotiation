@@ -155,11 +155,11 @@ version attempted by the client; see {{downgrade}}. The client also ignores a
 Version Negotiation packet that contains incorrect connection ID fields; see
 {{Section 6 of QUIC-INVARIANTS}}.
 
-Upon receiving the Version Negotiation packet, the client will search for a
+Upon receiving the Version Negotiation packet, the client SHALL search for a
 version it supports in the list provided by the server. If it doesn't find one,
-it aborts the connection attempt. Otherwise, it selects a mutually supported
-version and sends a new first flight with that version - this version is now the
-negotiated version.
+it SHALL abort the connection attempt. Otherwise, it SHALL select a mutually
+supported version and sends a new first flight with that version - this version
+is now the negotiated version.
 
 The new first flight will allow the endpoints to establish a connection using
 the negotiated version. The handshake of the negotiated version will exchange
