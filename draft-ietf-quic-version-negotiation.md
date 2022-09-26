@@ -52,7 +52,7 @@ unacceptable. This document describes a version negotiation mechanism that
 allows a client and server to select a mutually supported version. Optionally,
 if the client's chosen version and the negotiated version share a compatible
 first flight format, the negotiation can take place without incurring an extra
-round trip.
+round trip. This document updates RFC 8999.
 
 
 --- middle
