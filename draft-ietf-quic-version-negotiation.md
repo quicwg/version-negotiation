@@ -10,6 +10,7 @@ wg: QUIC
 number:
 date:
 consensus: true
+updates: 8999
 venue:
   group: "QUIC"
   type: "Working Group"
