@@ -106,7 +106,7 @@ The document uses the following terms:
 * The "Maximum Segment Lifetime" (MSL) represents the time a QUIC packet can
   exist in the network. Implementations can make this configurable, and a
   RECOMMENDED value is one minute. Note that the term "segment" here originated
-  in {{Section 3.3 of !TCP=RFC0793}}.
+  in {{Section 3.4.1 of !TCP=RFC9293}}.
 
 
 # Version Negotiation Mechanism
