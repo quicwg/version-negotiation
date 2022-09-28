@@ -65,6 +65,8 @@ receives one. QUIC version 1 {{!QUIC=RFC9000}} allows the server to use a
 Version Negotiation packet to indicate that the version the client chose is
 unacceptable, but doesn't allow the client to safely make use of that
 information to create a new connection with a mutually supported version.
+This document updates {{QUIC-INVARIANTS}} by defining version
+negotiation mechanisms that leverage the Version Negotiation packet.
 
 With proper safety mechanisms in place, the Version Negotiation packet can be
 part of a mechanism to allow two QUIC implementations to negotiate between two
