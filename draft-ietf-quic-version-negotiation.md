@@ -552,12 +552,13 @@ Version Information before doing so.
 If a future document wishes to define compatibility between two versions that
 support retry, that document MUST specify how version negotiation (both
 compatible and incompatible) interacts with retry during a handshake that
-requires both. For example, that could be accomplished by having the server send
-a Retry packet in the original version first thereby validating the client's IP
-address before attempting compatible version negotiation. If both versions
-support authenticating Retry packets, the compatibility definition needs to
-define how to authenticate the Retry in the negotiated version handshake even
-though the Retry itself was sent using the client's chosen version.
+requires both. For example, that could be accomplished by having the server
+first send a Retry packet in the original version thereby validating the
+client's IP address before attempting compatible version negotiation. If both
+versions support authenticating Retry packets, the compatibility definition
+needs to define how to authenticate the Retry in the negotiated version
+handshake even though the Retry itself was sent using the client's chosen
+version.
 
 
 ## Interaction with TLS resumption
