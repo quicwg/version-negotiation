@@ -170,6 +170,9 @@ version information (see {{vers-info}}) required to ensure that version
 negotiation was genuine, i.e. that no attacker injected packets in order to
 influence the version negotiation process, see {{downgrade}}.
 
+Only servers can start incompatible version negotiation: clients MUST NOT send
+Version Negotiation packets and servers MUST ignore all received Version
+Negotiation packets.
 
 
 ## Compatible Versions
