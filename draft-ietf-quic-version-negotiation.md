@@ -375,7 +375,7 @@ when choosing a version to use.
 A version downgrade is an attack where a malicious entity manages to make the
 QUIC endpoints negotiate a QUIC version different from the one they would have
 negotiated in the absence of the attack. The mechanism described in this
-document prevents these attacks.
+document prevents this attack.
 
 Clients MUST ignore any received Version Negotiation packets that contain the
 version that they initially attempted. A client that makes a connection attempt
