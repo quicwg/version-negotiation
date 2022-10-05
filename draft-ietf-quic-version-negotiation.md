@@ -161,7 +161,7 @@ Version Negotiation packet that contains incorrect connection ID fields; see
 Upon receiving the Version Negotiation packet, the client SHALL search for a
 version it supports in the list provided by the server. If it doesn't find one,
 it SHALL abort the connection attempt. Otherwise, it SHALL select a mutually
-supported version and sends a new first flight with that version - this version
+supported version and send a new first flight with that version - this version
 is now the negotiated version.
 
 The new first flight will allow the endpoints to establish a connection using
@@ -536,7 +536,7 @@ future versions SHOULD attempt to design their new version such that commonly
 deployed versions are compatible with it.
 
 QUIC version 1 defines multiple features which are not documented in the QUIC
-invariants. Since at the time of writing QUIC version 1 is widely deployed,
+invariants. Since, at the time of writing, QUIC version 1 is widely deployed,
 this section discusses considerations for future versions to help with
 compatibility with QUIC version 1.
 
