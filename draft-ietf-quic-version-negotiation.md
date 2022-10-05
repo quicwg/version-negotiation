@@ -493,10 +493,10 @@ When removing support for a version:
 * Finally, the third step is to progressively remove support for the version
   from all server instances. That step updates the Acceptable Versions.
 
-
-Note that this opens connections to version downgrades (but only for
-partially-deployed versions) during the update window, since those could be due
-to clients communicating with both updated and non-updated server instances.
+Note that, during the update window, connections are vulnerable to downgrade
+attacks for partially-deployed versions. This is because a client cannot
+distinguish such a downgrade attack from legitimate exchanges with both updated
+and non-updated server instances.
 
 
 # Application Layer Protocol Considerations
