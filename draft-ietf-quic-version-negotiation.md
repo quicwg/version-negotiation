@@ -242,8 +242,8 @@ server to initially send packets with the client's chosen version before
 switching to the negotiated version (this can happen when the client's Version
 Information structure spans multiple packets; in that case the server might
 acknowledge the first packet in the client's chosen version and later switch to
-a different negotiated version). Any set of mutually compatible versions SHOULD
-use the same mechanism.
+a different negotiated version). Mutually compatible versions SHOULD use the
+same mechanism.
 
 Note that, after the first flight is converted to the negotiated version, the
 handshake completes in the negotiated version. If the negotiated version has
