@@ -413,15 +413,17 @@ As an example, let's assume a client supports hypothetical QUIC versions 10, 12,
 and 14 with a preference for higher versions. The client initiates a connection
 attempt with version 12. Let's explore two independent example scenarios:
 
-* In the first scenario, the client receives a Version Negotiation packet with
+* In the first scenario, the server supports versions 10, 13, and 14 but only
+  13 and 14 are Fully-Deployed. The server sends a Version Negotiation packet with
   versions 10, 13, and 14. This triggers an incompatible version negotiation and
   the client initiates a new connection with version 14. Then the server's Other
   Versions field contains 13 and 14. In that scenario, the client would have
   also picked 14 if it had received a Version Negotiation packet with versions
   13 and 14, therefore the handshake succeeds using negotiated version 14.
 
-* In the second scenario, the client receives a Version Negotiation packet with
-  versions 10 and 13. This triggers an incompatible version negotiation and the
+* In the second scenario, the server supports versions 10, 13, and 14 and they
+  are all Fully-Deployed. However, the attacker forges a Version Negotiation
+  packet with versions 10 and 13. This triggers an incompatible version negotiation and the
   client initiates a new connection with version 10. Then the server's Other
   Versions field contains 10, 13 and 14. In that scenario, the client would have
   picked 14 instead of 10 if it had received a Version Negotiation packet with
