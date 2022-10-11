@@ -325,9 +325,10 @@ that supports this mechanism MUST provide a mechanism to exchange Version
 Information in both directions during the handshake, such that this data is
 authenticated.
 
-In QUIC version 1, the Version Information is transmitted using a new transport
-parameter, version_information. The contents of Version Information are shown
-below (using the notation from the "Notational Conventions" section of {{QUIC}}):
+In QUIC version 1, the Version Information is transmitted using a new
+"version_information" transport parameter; see {{Section 7.4 of QUIC}}. The
+contents of Version Information are shown below (using the notation from the
+"Notational Conventions" section of {{QUIC}}):
 
 ~~~
 Version Information {
