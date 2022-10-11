@@ -260,8 +260,8 @@ need to validate the 5-tuple of all handshake packets, including the converted
 first flight.
 
 Note also that the client can disable compatible version negotiation by only
-including the Chosen Version in the Other Versions field of the Version
-Information transport parameter; see {{vers-info}}.
+including the Chosen Version in the Available Versions field of the Version
+Information; see {{vers-info}}.
 
 If the server does not find a compatible version (including the client's chosen
 version), it will perform incompatible version negotiation instead, see
@@ -274,11 +274,11 @@ and C is compatible with D, the following scenario could occur:
 ~~~
 Client                                          Server
 
-Chosen = A, Other Versions = (A, B) ----------------->
+Chosen = A, Available Versions = (A, B) ------------->
 <------------------------ Version Negotiation = (D, C)
 
-Chosen = C, Other Versions = (C, D) ----------------->
-<----------------- Chosen = D, Other Versions = (D, C)
+Chosen = C, Available Versions = (C, D) ------------->
+<------------- Chosen = D, Available Versions = (D, C)
 ~~~
 {: #fig-dual-example title="Combined Negotiation Example"}
 
@@ -323,8 +323,8 @@ client's first flight.
 # Version Information {#vers-info}
 
 During the handshake, endpoints will exchange Version Information, which
-consists of a chosen version and a list of other versions. Any version of QUIC
-that supports this mechanism MUST provide a mechanism to exchange Version
+consists of a chosen version and a list of available versions. Any version of
+QUIC that supports this mechanism MUST provide a mechanism to exchange Version
 Information in both directions during the handshake, such that this data is
 authenticated.
 
@@ -336,7 +336,7 @@ contents of Version Information are shown below (using the notation from the
 ~~~
 Version Information {
   Chosen Version (32),
-  Other Versions (32) ...,
+  Available Versions (32) ...,
 }
 ~~~
 {: #fig-vi-format title="Version Information Format"}
@@ -349,29 +349,29 @@ cases, this field will be equal to the value of the Version field in the long
 header that carries this data; however future versions or extensions can choose
 to set different values in the long header Version field.
 
-The contents of the Other Versions field depends on whether it is sent by the
-client or by the server.
+The contents of the Available Versions field depends on whether it is sent by
+the client or by the server.
 
-Client-Sent Other Versions:
-: When sent by a client, the Other Versions field lists all the versions that
-this first flight is compatible with, ordered by descending preference. Note
-that the version in the Chosen Version field MUST be included in this list to
-allow the client to communicate the chosen version's preference. Note that this
-preference is only advisory, servers MAY choose to use their own preference
+Client-Sent Available Versions:
+: When sent by a client, the Available Versions field lists all the versions
+that this first flight is compatible with, ordered by descending preference.
+Note that the version in the Chosen Version field MUST be included in this list
+to allow the client to communicate the chosen version's preference. Note that
+this preference is only advisory, servers MAY choose to use their own preference
 instead.
 
-Server-Sent Other Versions:
-: When sent by a server, the Other Versions field lists all the Fully-Deployed
-Versions of this server deployment, see {{server-fleet}}. Note that the version
-in the Chosen Version field is not necessarily included in this list, because
-the server operator could be in the process of removing support for this
-version. For the same reason, the Other Versions field MAY be empty.
-{: spacing="compact"}
+Server-Sent Available Versions:
+: When sent by a server, the Available Versions field lists all the
+Fully-Deployed Versions of this server deployment, see {{server-fleet}}. Note
+that the version in the Chosen Version field is not necessarily included in this
+list, because the server operator could be in the process of removing support
+for this version. For the same reason, the Available Versions field MAY be empty.
+{:spacing="compact"}
 
 Clients and servers MAY both include versions following the pattern 0x?a?a?a?a
-in their Other Versions list. Those versions are reserved to exercise version
-negotiation (see the Versions section of {{QUIC}}), and will never be selected
-when choosing a version to use.
+in their Available Versions list. Those versions are reserved to exercise
+version negotiation (see the Versions section of {{QUIC}}), and will never be
+selected when choosing a version to use.
 
 
 # Version Downgrade Prevention {#downgrade}
@@ -391,8 +391,8 @@ If parsing the Version Information failed (for example, if it is too short or if
 its length is not divisible by four), then the endpoint MUST close the
 connection; if the connection was using QUIC version 1, that connection closure
 MUST use a transport error of type TRANSPORT_PARAMETER_ERROR. If an endpoint
-receives a Chosen Version equal to zero, or any Other Version equal to zero, it
-MUST treat it as a parsing failure.
+receives a Chosen Version equal to zero, or any Available Version equal to zero,
+it MUST treat it as a parsing failure.
 
 Every QUIC version that supports version negotiation MUST define a method for
 closing the connection with a version negotiation error. For QUIC version 1,
@@ -405,17 +405,18 @@ the Version Information was missing, the client MUST close the connection with a
 version negotiation error.
 
 If the client received and acted on a Version Negotiation packet, the client
-MUST validate the server's Other Versions field. The Other Versions field is
-validated by confirming that the client would have attempted the same version
-with knowledge of the versions the server supports. That is, the client would
-have selected the same version if it received a Version Negotiation packet that
-listed the versions in the server's Other Versions field, plus the negotiated
-version. If the client would have selected a different version, the client MUST
-close the connection with a version negotiation error. In particular, if the
-client reacted to a Version Negotiation packet and the server's Other Versions
-field is empty, the client MUST close the connection with a version negotiation
-error. These connection closures prevent an attacker from being able to use
-forged Version Negotiation packets to force a version downgrade.
+MUST validate the server's Available Versions field. The Available Versions
+field is validated by confirming that the client would have attempted the same
+version with knowledge of the versions the server supports. That is, the client
+would have selected the same version if it received a Version Negotiation packet
+that listed the versions in the server's Available Versions field, plus the
+negotiated version. If the client would have selected a different version, the
+client MUST close the connection with a version negotiation error. In
+particular, if the client reacted to a Version Negotiation packet and the
+server's Available Versions field is empty, the client MUST close the connection
+with a version negotiation error. These connection closures prevent an attacker
+from being able to use forged Version Negotiation packets to force a version
+downgrade.
 
 As an example, let's assume a client supports hypothetical QUIC versions 10, 12,
 and 14 with a preference for higher versions. The client initiates a connection
@@ -424,21 +425,22 @@ attempt with version 12. Let's explore two independent example scenarios:
 * In the first scenario, the server supports versions 10, 13, and 14 but only 13
   and 14 are Fully-Deployed. The server sends a Version Negotiation packet with
   versions 10, 13, and 14. This triggers an incompatible version negotiation and
-  the client initiates a new connection with version 14. Then the server's Other
-  Versions field contains 13 and 14. In that scenario, the client would have
-  also picked 14 if it had received a Version Negotiation packet with versions
-  13 and 14, therefore the handshake succeeds using negotiated version 14.
+  the client initiates a new connection with version 14. Then the server's
+  Available Versions field contains 13 and 14. In that scenario, the client
+  would have also picked 14 if it had received a Version Negotiation packet with
+  versions 13 and 14, therefore the handshake succeeds using negotiated version
+  14.
 
 * In the second scenario, the server supports versions 10, 13, and 14 and they
   are all Fully-Deployed. However, the attacker forges a Version Negotiation
   packet with versions 10 and 13. This triggers an incompatible version
   negotiation and the client initiates a new connection with version 10. Then
-  the server's Other Versions field contains 10, 13 and 14. In that scenario,
-  the client would have picked 14 instead of 10 if it had received a Version
-  Negotiation packet with versions 10, 13 and 14, therefore the client aborts
-  the handshake with a version negotiation error.
+  the server's Available Versions field contains 10, 13 and 14. In that
+  scenario, the client would have picked 14 instead of 10 if it had received a
+  Version Negotiation packet with versions 10, 13 and 14, therefore the client
+  aborts the handshake with a version negotiation error.
 
-This validation of Other Versions is not sufficient to prevent downgrade.
+This validation of Available Versions is not sufficient to prevent downgrade.
 Downgrade prevention also depends on the client ignoring Version Negotiation
 packets that contain the original version; see {{incompat-vn}}.
 
@@ -620,7 +622,7 @@ is starting a QUIC version 1 connection in response to a received Version
 Negotiation packet, and the version_information transport parameter is missing
 from the server's transport parameters, then the client SHALL proceed as if the
 server's transport parameters contained a version_information transport
-parameter with a Chosen Version set to 0x00000001 and an Other Version list
+parameter with a Chosen Version set to 0x00000001 and an Available Version list
 containing exactly one version set to 0x00000001. This allows version
 negotiation to work with servers that only support QUIC version 1. Note that
 implementations which wish to use version negotiation to negotiate versions
