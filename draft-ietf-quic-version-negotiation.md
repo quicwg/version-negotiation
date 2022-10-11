@@ -258,7 +258,7 @@ first flight.
 
 Note also that the client can disable compatible version negotiation by only
 including the Chosen Version in the Other Versions field of the Version
-Information transport parameter.
+Information transport parameter; see {{vers-info}}.
 
 If the server does not find a compatible version (including the client's chosen
 version), it will perform incompatible version negotiation instead, see
