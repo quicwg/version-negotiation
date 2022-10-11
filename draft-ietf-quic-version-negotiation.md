@@ -373,6 +373,11 @@ when choosing a version to use.
 
 # Version Downgrade Prevention {#downgrade}
 
+A version downgrade is an attack where a malicious entity manages to make the
+QUIC endpoints negotiate a QUIC version different from the one they would have
+negotiated in the absence of the attack. The mechanism described in this
+document is designed to prevent downgrade attacks.
+
 Clients MUST ignore any received Version Negotiation packets that contain the
 version that they initially attempted. A client that makes a connection attempt
 based on information received from a Version Negotiation packet MUST ignore any
