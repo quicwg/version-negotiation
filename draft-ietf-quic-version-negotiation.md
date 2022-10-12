@@ -392,12 +392,31 @@ its length is not divisible by four), then the endpoint MUST close the
 connection; if the connection was using QUIC version 1, that connection closure
 MUST use a transport error of type TRANSPORT_PARAMETER_ERROR. If an endpoint
 receives a Chosen Version equal to zero, or any Available Version equal to zero,
-it MUST treat it as a parsing failure.
+it MUST treat it as a parsing failure. If a server receives a Version
+Information where the Chosen Version is not included in Available Versions, it
+MUST treat it as a parsing failure.
 
 Every QUIC version that supports version negotiation MUST define a method for
 closing the connection with a version negotiation error. For QUIC version 1,
 version negotiation errors are signaled using a transport error of type
 VERSION_NEGOTIATION_ERROR; see {{iana-error}}.
+
+When a server receives a client's first flight, the server will first establish
+which QUIC version is in use for this connection in order to properly parse the
+first flight. For example, QUIC version 1 is in use when the Version field of
+the Long Headers that are part of the client's first flight is set to
+0x00000001. When the server then parses the client's Version Information, the
+server MUST validate that the client's Chosen Version matches the version in use
+for the connection. If the two differ, the server MUST close the connection with
+a version negotiation error. For example: if a server receives the client's
+Version Information over QUIC version 1 (as indicated by the Version field of
+the Long Header packets that carried the transport parameters) and the client's
+Chosen Version is not set to 0x00000001, the server will close the connection
+with a version negotiation error.
+
+If a client receives a Version Information where the server's Chosen Version was
+not sent by the client as part of its Available Versions, the client MUST close
+the connection with a version negotiation error.
 
 If the Version Information was missing, the endpoints MAY complete the
 handshake. However, if a client has reacted to a Version Negotiation packet and
