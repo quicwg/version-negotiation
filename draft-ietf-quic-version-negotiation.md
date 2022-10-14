@@ -716,5 +716,6 @@ codepoint in the 0-63 range to replace the provisional codepoint described above
 # Acknowledgments {#acknowledgments}
 {:numbered="false"}
 
-The authors would like to thank Nick Banks, Mike Bishop, Ryan Hamilton, Roberto
-Peon, Anthony Rossi, and Martin Thomson for their input and contributions.
+The authors would like to thank Nick Banks, Mike Bishop, Martin Duke, Ryan
+Hamilton, Roberto Peon, Anthony Rossi, and Martin Thomson for their input and
+contributions.
