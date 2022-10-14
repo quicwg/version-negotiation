@@ -408,7 +408,7 @@ the Long Headers that are part of the client's first flight is set to
 0x00000001. When the server then parses the client's Version Information, the
 server MUST validate that the client's Chosen Version matches the version in use
 for the connection. If the two differ, the server MUST close the connection with
-a version negotiation error. For example: if a server receives the client's
+a version negotiation error. For example, if a server receives the client's
 Version Information over QUIC version 1 (as indicated by the Version field of
 the Long Header packets that carried the transport parameters) and the client's
 Chosen Version is not set to 0x00000001, the server will close the connection
