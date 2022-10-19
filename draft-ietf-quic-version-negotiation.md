@@ -387,7 +387,7 @@ based on information received from a Version Negotiation packet MUST ignore any
 Version Negotiation packets it receives in response to that connection attempt.
 
 Both endpoints MUST parse their peer's Version Information during the handshake.
-If parsing the Version Information failed (for example, if it is too short or if
+If that leads to a parsing failure (for example, if it is too short or if
 its length is not divisible by four), then the endpoint MUST close the
 connection; if the connection was using QUIC version 1, that connection closure
 MUST use a transport error of type TRANSPORT_PARAMETER_ERROR. If an endpoint
