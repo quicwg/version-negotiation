@@ -405,7 +405,7 @@ When a server receives a client's first flight, the server will first establish
 which QUIC version is in use for this connection in order to properly parse the
 first flight. For example, the server determines that QUIC version 1 is in use
 by observing that the Version field of the first Long Header packet it receives
-is set to 0x00000001. When the server then parses the client's Version
+is set to 0x00000001. When the server then processes the client's Version
 Information, the server MUST validate that the client's Chosen Version matches
 the version in use for the connection. If the two differ, the server MUST close
 the connection with a version negotiation error. For example, if a server
