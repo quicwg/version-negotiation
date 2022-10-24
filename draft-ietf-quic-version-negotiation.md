@@ -362,7 +362,8 @@ instead.
 
 Server-Sent Available Versions:
 : When sent by a server, the Available Versions field lists all the
-Fully-Deployed Versions of this server deployment, see {{server-fleet}}. Note
+Fully-Deployed Versions of this server deployment, see {{server-fleet}}. The
+ordering of the versions in this field does not carry any semantics. Note
 that the version in the Chosen Version field is not necessarily included in this
 list, because the server operator could be in the process of removing support
 for this version. For the same reason, the Available Versions field MAY be empty.
