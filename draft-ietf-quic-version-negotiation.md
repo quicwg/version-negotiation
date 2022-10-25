@@ -75,7 +75,7 @@ using Version Negotiation packets, which adds an extra round trip to connection
 establishment if needed.
 
 It is beneficial to avoid additional round trips whenever possible, especially
-given that most incremental versions are broadly similar to the the previous
+given that most incremental versions are broadly similar to the previous
 version. This specification also defines a simple version negotiation mechanism
 which leverages similarities between versions and can negotiate between
 "compatible" versions without additional round trips.
