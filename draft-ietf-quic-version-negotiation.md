@@ -620,7 +620,7 @@ session tickets in one connection that can be used in a later connection; see
 {{Section 2.2 of !TLS=RFC8446}}. New versions that also use TLS 1.3 SHOULD
 mandate that their session tickets are tightly scoped to one version of QUIC;
 i.e., require that clients not use them across multiple version and that servers
-validate this client requirement.
+validate this client requirement. This helps mitigate cross-protocol attacks.
 
 
 ## Interaction with 0-RTT
