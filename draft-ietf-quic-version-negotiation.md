@@ -116,7 +116,7 @@ The document uses the following terms:
 This document specifies two means of performing version negotiation: one
 "incompatible" which requires a round trip and is applicable to all versions,
 and one "compatible" that allows saving the round trip but only applies when the
-versions are compatible.
+versions are compatible (see {{compat}}).
 
 The client initiates a QUIC connection by choosing an original version and
 sending a first flight of QUIC packets with a long header to the server
@@ -175,7 +175,7 @@ Version Negotiation packets and servers MUST ignore all received Version
 Negotiation packets.
 
 
-## Compatible Versions
+## Compatible Versions {#compat}
 
 If A and B are two distinct versions of QUIC, A is said to be "compatible" with
 B if it is possible to take a first flight of packets from version A and convert
