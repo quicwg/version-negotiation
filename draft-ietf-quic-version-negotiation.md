@@ -383,9 +383,9 @@ negotiated in the absence of the attack. The mechanism described in this
 document is designed to prevent downgrade attacks.
 
 Clients MUST ignore any received Version Negotiation packets that contain the
-version that they initially attempted. A client that makes a connection attempt
-based on information received from a Version Negotiation packet MUST ignore any
-Version Negotiation packets it receives in response to that connection attempt.
+original version. A client that makes a connection attempt based on information
+received from a Version Negotiation packet MUST ignore any Version Negotiation
+packets it receives in response to that connection attempt.
 
 Both endpoints MUST parse their peer's Version Information during the handshake.
 If that leads to a parsing failure (for example, if it is too short or if
