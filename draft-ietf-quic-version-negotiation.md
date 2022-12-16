@@ -667,33 +667,30 @@ That analysis is out of scope for this document.
 
 ## QUIC Transport Parameter
 
-This document registers a new value in the "QUIC Transport Parameters" registry
-maintained at <[](https://www.iana.org/assignments/quic)>.
+IANA has registered the following value in the "QUIC Transport Parameters"
+registry maintained at <[](https://www.iana.org/assignments/quic)>.
 
 Value:
-: 0xFF73DB
+: 0x11
 
 Parameter Name:
 : version_information
 
 Status:
-: provisional
+: permanent
 
 Specification:
 : This document
 {: spacing="compact"}
 
-When this document is approved, it will request permanent allocation of a
-codepoint in the 0-63 range to replace the provisional codepoint described above.
-
 
 ## QUIC Transport Error Code {#iana-error}
 
-This document registers a new value in the "QUIC Transport Error Codes" registry
-maintained at <[](https://www.iana.org/assignments/quic)>.
+IANA has registered the following value in the "QUIC Transport Error Codes"
+registry maintained at <[](https://www.iana.org/assignments/quic)>.
 
 Value:
-: 0x53F8
+: 0x11
 
 Code:
 : VERSION_NEGOTIATION_ERROR
@@ -702,14 +699,11 @@ Description:
 : Error negotiating version
 
 Status:
-: provisional
+: permanent
 
 Specification:
 : This document
 {: spacing="compact"}
-
-When this document is approved, it will request permanent allocation of a
-codepoint in the 0-63 range to replace the provisional codepoint described above.
 
 
 --- back
