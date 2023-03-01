@@ -7,8 +7,8 @@ submissiontype: IETF
 category: std
 area: Transport
 wg: QUIC
-number:
-date:
+number: 9368
+date: 2023-02
 consensus: true
 updates: 8999
 venue:
