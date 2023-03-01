@@ -114,7 +114,7 @@ The document uses the following terms:
 # Version Negotiation Mechanism
 
 This document specifies two means of performing version negotiation:
-"incompatible" which requires a round trip and is applicable to all versions,
+"incompatible", which requires a round trip and is applicable to all versions,
 and "compatible", which allows saving the round trip but only applies when the
 versions are compatible (see {{compat}}).
 
@@ -122,7 +122,7 @@ The client initiates a QUIC connection by choosing an original version and
 sending a first flight of QUIC packets with a long header to the server
 {{QUIC-INVARIANTS}}. The client's first flight includes Version Information (see
 {{vers-info}}), which will be used to optionally enable compatible version
-negotiation (see {{compat-vn}}), and to prevent version downgrade attacks (see
+negotiation (see {{compat-vn}}) and to prevent version downgrade attacks (see
 {{downgrade}}).
 
 Upon receiving this first flight, the server verifies whether it knows how to
@@ -551,7 +551,7 @@ distinguish such a downgrade attack from legitimate exchanges with both updated
 and non-updated server instances.
 
 
-# Application Layer Protocol Considerations
+# Application-Layer Protocol Considerations
 
 When a client creates a QUIC connection, its goal is to use an application layer
 protocol. Therefore, when considering which versions are compatible, clients
@@ -613,7 +613,7 @@ handshake even though the Retry itself was sent using the client's chosen
 version.
 
 
-## Interaction with TLS resumption
+## Interaction with TLS Resumption
 
 QUIC version 1 uses TLS 1.3, which supports session resumption by sending
 session tickets in one connection that can be used in a later connection; see
