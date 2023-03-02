@@ -97,12 +97,12 @@ The document uses the following terms:
 * In the context of a given QUIC connection, the "client's Chosen Version" is
   the QUIC version of the connection's first flight.
 
-* The "original version" is the QUIC version of the very first packet the client
+* The "Original Version" is the QUIC version of the very first packet the client
   sends to the server. If version negotiation spans multiple connections (see
-  {{connections}}), the original version is equal to the client's Chosen Version
+  {{connections}}), the Original Version is equal to the client's Chosen Version
   of the first QUIC connection.
 
-* The "negotiated version" is the QUIC version in use on the connection once the
+* The "Negotiated Version" is the QUIC version in use on the connection once the
   version negotiation process completes.
 
 * The "Maximum Segment Lifetime" (MSL) represents the time a QUIC packet can
@@ -118,7 +118,7 @@ This document specifies two means of performing version negotiation:
 and "compatible", which allows saving the round trip but only applies when the
 versions are compatible (see {{compat}}).
 
-The client initiates a QUIC connection by choosing an original version and
+The client initiates a QUIC connection by choosing an Original Version and
 sending a first flight of QUIC packets with a long header to the server
 {{QUIC-INVARIANTS}}. The client's first flight includes Version Information (see
 {{vers-info}}), which will be used to optionally enable compatible version
@@ -126,13 +126,14 @@ negotiation (see {{compat-vn}}) and to prevent version downgrade attacks (see
 {{downgrade}}).
 
 Upon receiving this first flight, the server verifies whether it knows how to
-parse first flights from the original version. If it does not, then it starts
+parse first flights from the Original Version. If it does not, then it starts
 incompatible version negotiation (see {{incompat-vn}}), which causes the client
 to initiate a new connection with a different version. For instance, if the
-client initiates a connection with version A and the server starts incompatible
-version negotiation and the client then initiates a new connection with version
+client initiates a connection with version A that the server can't parse,
+the server starts incompatible version negotiation; then, when the client
+initiates a new connection with version
 B, we say that the first connection's client Chosen Version is A, the second
-connection's client Chosen Version is B, and the original version for the entire
+connection's client Chosen Version is B, and the Original Version for the entire
 sequence is A.
 
 If the server can parse the first flight, it can either establish the connection
@@ -162,10 +163,10 @@ Upon receiving the Version Negotiation packet, the client SHALL search for a
 version it supports in the list provided by the server. If it doesn't find one,
 it SHALL abort the connection attempt. Otherwise, it SHALL select a mutually
 supported version and send a new first flight with that version - this version
-is now the negotiated version.
+is now the Negotiated Version.
 
 The new first flight will allow the endpoints to establish a connection using
-the negotiated version. The handshake of the negotiated version will exchange
+the Negotiated Version. The handshake of the Negotiated Version will exchange
 version information (see {{vers-info}}) required to ensure that version
 negotiation was genuine, i.e. that no attacker injected packets in order to
 influence the version negotiation process, see {{downgrade}}.
@@ -218,19 +219,19 @@ endpoint might be aware of the compatibility document while the other may not.
 
 ## Compatible Version Negotiation {#compat-vn}
 
-When the server can parse the client's first flight using the client's chosen
-version, it can extract the client's Version Information structure (see
+When the server can parse the client's first flight using the client's Chosen
+Version, it can extract the client's Version Information structure (see
 {{vers-info}}). This contains the list of versions that the client knows its
 first flight is compatible with.
 
 In order to perform compatible version negotiation, the server MUST select one
-of these versions that (1) it supports and (2) it knows the client's chosen
-version to be compatible with. This selected version is now the negotiated
-version. After selecting it, the server attempts to convert the client's first
+of these versions that (1) it supports and (2) it knows the client's Chosen
+Version to be compatible with. This selected version is now the Negotiated
+Version. After selecting it, the server attempts to convert the client's first
 flight into that version, and replies to the client as if it had received the
 converted first flight.
 
-If those formats are identical, as in cases where the negotiated version is the
+If those formats are identical, as in cases where the Negotiated Version is the
 same as the client's Chosen Version, then this will be the identity transform.
 If the first flight is correctly formatted, then this conversion process cannot
 fail by definition of the first flight being compatible; if the server is unable
@@ -238,23 +239,23 @@ to convert the first flight, it MUST abort the handshake.
 
 If a document specifies that a QUIC version is compatible with another, that
 document MUST specify the mechanism by which clients are made aware of the
-negotiated version. An example of such a mechanism is to have the client
-determine the server's negotiated version by examining the QUIC long header
+Negotiated Version. An example of such a mechanism is to have the client
+determine the server's Negotiated Version by examining the QUIC long header
 Version field. Note that, in this example mechanism, it is possible for the
 server to initially send packets with the client's Chosen Version before
-switching to the negotiated version (this can happen when the client's Version
+switching to the Negotiated Version (this can happen when the client's Version
 Information structure spans multiple packets; in that case the server might
 acknowledge the first packet in the client's Chosen Version and later switch to
-a different negotiated version). Mutually compatible versions SHOULD use the
+a different Negotiated Version). Mutually compatible versions SHOULD use the
 same mechanism.
 
-Note that, after the first flight is converted to the negotiated version, the
-handshake completes in the negotiated version. If the negotiated version has
+Note that, after the first flight is converted to the Negotiated Version, the
+handshake completes in the Negotiated Version. If the Negotiated Version has
 requirements that apply during the handshake, those requirements apply to the
 entire handshake, including the converted first flight. In particular, if the
-negotiated version mandates that endpoints perform validations on handshake
+Negotiated Version mandates that endpoints perform validations on handshake
 packets, endpoints MUST also perform such validations on the converted first
-flight. For instance, if the negotiated version requires that the 5-tuple remain
+flight. For instance, if the Negotiated Version requires that the 5-tuple remain
 stable for the entire handshake (as QUIC version 1 does), then both endpoints
 need to validate the 5-tuple of all handshake packets, including the converted
 first flight.
@@ -263,8 +264,8 @@ Note also that the client can disable compatible version negotiation by only
 including the Chosen Version in the Available Versions field of the Version
 Information; see {{vers-info}}.
 
-If the server does not find a compatible version (including the client's chosen
-version), it will perform incompatible version negotiation instead, see
+If the server does not find a compatible version (including the client's Chosen
+Version), it will perform incompatible version negotiation instead, see
 {{incompat-vn}}.
 
 Note that it is possible to have incompatible version negotiation followed by
@@ -292,7 +293,7 @@ QUIC connections are shared state between a client and a server
 {{QUIC-INVARIANTS}}. The compatible version negotiation mechanism defined in
 this document (see {{compat-vn}}) is performed as part of a single QUIC
 connection; that is, the packets with the client's Chosen Version are part of
-the same connection as the packets with the negotiated version.
+the same connection as the packets with the Negotiated Version.
 
 In comparison, the incompatible version negotiation mechanism, which leverages
 QUIC Version Negotiation packets (see {{incompat-vn}}) conceptually operates
@@ -307,13 +308,13 @@ to internally use two distinct connection objects.
 
 ## Client Choice of Original Version
 
-When the client picks its original version, it will try to avoid incompatible
+When the client picks its Original Version, it will try to avoid incompatible
 version negotiation to save a round trip. Therefore, the client SHOULD pick an
-original version to maximize the combined probability that both:
+Original Version to maximize the combined probability that both:
 
-* The server knows how to parse first flights from the original version.
+* The server knows how to parse first flights from the Original Version.
 
-* The original version is compatible with the client's preferred version.
+* The Original Version is compatible with the client's preferred version.
 
 Without additional information, this could mean selecting the oldest version
 that the client supports, while advertising newer compatible versions in the
@@ -383,7 +384,7 @@ negotiated in the absence of the attack. The mechanism described in this
 document is designed to prevent downgrade attacks.
 
 Clients MUST ignore any received Version Negotiation packets that contain the
-original version. A client that makes a connection attempt based on information
+Original Version. A client that makes a connection attempt based on information
 received from a Version Negotiation packet MUST ignore any Version Negotiation
 packets it receives in response to that connection attempt.
 
@@ -430,7 +431,7 @@ field is validated by confirming that the client would have attempted the same
 version with knowledge of the versions the server supports. That is, the client
 would have selected the same version if it received a Version Negotiation packet
 that listed the versions in the server's Available Versions field, plus the
-negotiated version. If the client would have selected a different version, the
+Negotiated Version. If the client would have selected a different version, the
 client MUST close the connection with a version negotiation error. In
 particular, if the client reacted to a Version Negotiation packet and the
 server's Available Versions field is empty, the client MUST close the connection
@@ -449,7 +450,7 @@ attempt with version 12. Let's explore two independent example scenarios:
   Then the server's Available Versions field contains 13 and 14. In that
   scenario, the client would have also picked 14 if it had received a Version
   Negotiation packet with versions 13 and 14, therefore the handshake succeeds
-  using negotiated version 14.
+  using Negotiated Version 14.
 
 * In the second scenario, the server supports versions 10, 13, and 14 and they
   are all Fully-Deployed. However, the attacker forges a Version Negotiation
@@ -462,16 +463,16 @@ attempt with version 12. Let's explore two independent example scenarios:
 
 This validation of Available Versions is not sufficient to prevent downgrade.
 Downgrade prevention also depends on the client ignoring Version Negotiation
-packets that contain the original version; see {{incompat-vn}}.
+packets that contain the Original Version; see {{incompat-vn}}.
 
 After the process of version negotiation in this document completes, the version
 in use for the connection is the version that the server sent in the Chosen
 Version field of its Version Information. That remains true even if other
 versions were used in the Version field of long headers at any point in the
 lifetime of the connection. In particular, since during compatible version
-negotiation the client is made aware of the negotiated version by the QUIC long
+negotiation the client is made aware of the Negotiated Version by the QUIC long
 header version (see {{compat-vn}}), clients MUST validate that the server's
-Chosen Version is equal to the negotiated version; if they do not match, the
+Chosen Version is equal to the Negotiated Version; if they do not match, the
 client MUST close the connection with a version negotiation error. This prevents
 an attacker's ability to influence version negotiation by forging the Version
 long header field.
@@ -578,7 +579,7 @@ following requirements are met:
 When incompatible version negotiation is in use, the second connection which is
 created in response to the received version negotiation packet MUST restart its
 application layer protocol negotiation process without taking into account the
-original version.
+Original Version.
 
 
 # Considerations for Future Versions
@@ -605,12 +606,12 @@ If a future document wishes to define compatibility between two versions that
 support retry, that document MUST specify how version negotiation (both
 compatible and incompatible) interacts with retry during a handshake that
 requires both. For example, that could be accomplished by having the server
-first send a Retry packet in the original version thereby validating the
+first send a Retry packet in the Original Version thereby validating the
 client's IP address before attempting compatible version negotiation. If both
 versions support authenticating Retry packets, the compatibility definition
-needs to define how to authenticate the Retry in the negotiated version
-handshake even though the Retry itself was sent using the client's chosen
-version.
+needs to define how to authenticate the Retry in the Negotiated Version
+handshake even though the Retry itself was sent using the client's Chosen
+Version.
 
 
 ## Interaction with TLS Resumption
