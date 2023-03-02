@@ -456,7 +456,7 @@ attempt with version 12. Let's explore two independent example scenarios:
   are all Fully Deployed. However, the attacker forges a Version Negotiation
   packet with versions 10 and 13. This triggers an incompatible version
   negotiation, and the client initiates a new connection with version 10. Then,
-  the server's Available Versions field contains 10, 13 and 14. In that
+  the server's Available Versions field contains 10, 13, and 14. In that
   scenario, the client would have picked 14 instead of 10 if it had received a
   Version Negotiation packet with versions 10, 13, and 14; therefore, the client
   aborts the handshake with a version negotiation error.
@@ -469,9 +469,10 @@ After the process of version negotiation described in this document completes, t
 in use for the connection is the version that the server sent in the Chosen
 Version field of its Version Information. That remains true even if other
 versions were used in the Version field of long headers at any point in the
-lifetime of the connection. In particular, since during compatible version
-negotiation the client is made aware of the Negotiated Version by the QUIC long
-header version (see {{compat-vn}}), clients MUST validate that the server's
+lifetime of the connection. In particular, since
+the client is made aware of the Negotiated Version by the QUIC long
+header version during compatible version negotiation (see {{compat-vn}}),
+clients MUST validate that the server's
 Chosen Version is equal to the Negotiated Version; if they do not match, the
 client MUST close the connection with a version negotiation error. This prevents
 an attacker's ability to influence version negotiation by forging the Version
@@ -505,8 +506,8 @@ except during short transitions while versions are added or removed (see below).
 If a deployment contains multiple server instances, software updates may not
 happen at exactly the same time on all server instances. Because of this, a
 client might receive a Version Negotiation packet from a server instance that
-has already been updated and the client's resulting connection attempt might
-reach a different server instance which hasn't been updated yet.
+has already been updated, and the client's resulting connection attempt might
+reach a different server instance that hasn't been updated yet.
 
 However, even when there is only a single server instance, it is still possible
 to receive a stale Version Negotiation packet if the server performs its
@@ -515,7 +516,7 @@ software update while the Version Negotiation packet is in flight.
 This could cause the version downgrade prevention mechanism described in
 {{downgrade}} to falsely detect a downgrade attack. To avoid that, server
 operators SHOULD perform a three-step process when they wish to add or remove
-support for a version:
+support for a version, as described below.
 
 When adding support for a new version:
 
@@ -554,17 +555,17 @@ and non-updated server instances.
 
 # Application-Layer Protocol Considerations
 
-When a client creates a QUIC connection, its goal is to use an application layer
+When a client creates a QUIC connection, its goal is to use an application-layer
 protocol. Therefore, when considering which versions are compatible, clients
-will only consider versions that support one of the intended application layer
-protocols. If the client's first flight advertises multiple Application Layer
+will only consider versions that support one of the intended application-layer
+protocols. If the client's first flight advertises multiple Application-Layer
 Protocol Negotiation (ALPN) {{!ALPN=RFC7301}} tokens and multiple compatible
-versions, it is possible for some application layer protocols to not be able to
+versions, it is possible for some application-layer protocols to not be able to
 run over some of the offered compatible versions. It is the server's
 responsibility to only select an ALPN token that can run over the compatible
 QUIC version that it selects.
 
-A given ALPN token MUST NOT be used with a new QUIC version different from the
+A given ALPN token MUST NOT be used with a new QUIC version that is different from the
 version for which the ALPN token was originally defined, unless all the
 following requirements are met:
 
@@ -576,9 +577,9 @@ following requirements are met:
 * The version of QUIC for which the ALPN token was originally defined is
   compatible with the new QUIC version.
 
-When incompatible version negotiation is in use, the second connection which is
-created in response to the received version negotiation packet MUST restart its
-application layer protocol negotiation process without taking into account the
+When incompatible version negotiation is in use, the second connection that is
+created in response to the received Version Negotiation packet MUST restart its
+application-layer protocol negotiation process without taking into account the
 Original Version.
 
 
@@ -588,7 +589,7 @@ In order to facilitate the deployment of future versions of QUIC, designers of
 future versions SHOULD attempt to design their new version such that commonly
 deployed versions are compatible with it.
 
-QUIC version 1 defines multiple features which are not documented in the QUIC
+QUIC version 1 defines multiple features that are not documented in the QUIC
 invariants. Since, at the time of writing, QUIC version 1 is widely deployed,
 this section discusses considerations for future versions to help with
 compatibility with QUIC version 1.
@@ -598,15 +599,15 @@ compatibility with QUIC version 1.
 
 QUIC version 1 features Retry packets, which the server can send to validate the
 client's IP address before parsing the client's first flight. A server that
-sends a Retry packet can do so before parsing the client's first flight. A
-server that sends a Retry packet therefore might not have processed the client's
+sends a Retry packet can do so before parsing the client's first flight.
+Therefore, a server that sends a Retry packet might not have processed the client's
 Version Information before doing so.
 
 If a future document wishes to define compatibility between two versions that
-support retry, that document MUST specify how version negotiation (both
-compatible and incompatible) interacts with retry during a handshake that
+support Retry, that document MUST specify how version negotiation (both
+compatible and incompatible) interacts with Retry during a handshake that
 requires both. For example, that could be accomplished by having the server
-first send a Retry packet in the Original Version thereby validating the
+first send a Retry packet in the Original Version, thereby validating the
 client's IP address before attempting compatible version negotiation. If both
 versions support authenticating Retry packets, the compatibility definition
 needs to define how to authenticate the Retry in the Negotiated Version
@@ -617,9 +618,9 @@ Version.
 ## Interaction with TLS Resumption
 
 QUIC version 1 uses TLS 1.3, which supports session resumption by sending
-session tickets in one connection that can be used in a later connection; see
-{{Section 2.2 of !TLS=RFC8446}}. New versions that also use TLS 1.3 SHOULD
-mandate that their session tickets are tightly scoped to one version of QUIC;
+session tickets in one connection that can be used in a later connection (see
+{{Section 2.2 of !TLS=RFC8446}}). New versions that also use TLS 1.3 SHOULD
+mandate that their session tickets are tightly scoped to one version of QUIC,
 i.e., require that clients not use them across multiple version and that servers
 validate this client requirement. This helps mitigate cross-protocol attacks.
 
@@ -627,7 +628,7 @@ validate this client requirement. This helps mitigate cross-protocol attacks.
 ## Interaction with 0-RTT
 
 QUIC version 1 allows sending data from the client to the server during the
-handshake, by using 0-RTT packets. If a future document wishes to define
+handshake by using 0-RTT packets. If a future document wishes to define
 compatibility between two versions that support 0-RTT, that document MUST
 address the scenario where there are 0-RTT packets in the client's first flight.
 For example, this could be accomplished by defining which transformations are
@@ -637,8 +638,8 @@ negotiation causes 0-RTT data to be rejected by the server.
 
 # Special Handling for QUIC Version 1
 
-Because QUIC version 1 was the only IETF Standards Track version of QUIC
-published before this document, it is handled specially as follows: if a client
+Because QUIC version 1 was the only QUIC version that was published on the
+IETF Standards Track before this document, it is handled specially as follows: if a client
 is starting a QUIC version 1 connection in response to a received Version
 Negotiation packet, and the version_information transport parameter is missing
 from the server's transport parameters, then the client SHALL proceed as if the
@@ -655,7 +656,7 @@ mechanism defined in this document.
 
 The security of this version negotiation mechanism relies on the authenticity of
 the Version Information exchanged during the handshake. In QUIC version 1,
-transport parameters are authenticated ensuring the security of this mechanism.
+transport parameters are authenticated, ensuring the security of this mechanism.
 Negotiation between compatible versions will have the security of the weakest
 common version.
 
@@ -681,7 +682,7 @@ Status:
 : permanent
 
 Specification:
-: This document
+: RFC 9369
 {: spacing="compact"}
 
 
@@ -703,7 +704,7 @@ Status:
 : permanent
 
 Specification:
-: This document
+: RFC 9369
 {: spacing="compact"}
 
 
