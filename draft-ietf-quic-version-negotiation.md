@@ -190,19 +190,19 @@ retransmitted later.
 Version compatibility is not symmetric, i.e., it is possible for version A to be
 compatible with version B and for version B not to be compatible with version A. This could
 happen, for example, if version B is a strict superset of version A, i.e., if version A
-includes the concept of streams and STREAM frames, and version B includes the
+includes the concept of streams and STREAM frames and version B includes the
 concept of streams and the hypothetical concept of tubes along with STREAM and
-TUBE frames, then A would be compatible with B but B would not be compatible
+TUBE frames, then A would be compatible with B, but B would not be compatible
 with A.
 
 Note that version compatibility does not mean that every single possible
 instance of a first flight will succeed in conversion to the other version. A
 first flight using version A is said to be "compatible" with version B if two
 conditions are met: (1) version A is compatible with version B and
-(2) the conversion of this first flight to version B is well-defined.
-For example, if version B is equal to A in all aspects except it introduced a
-new frame in its first flight that version A cannot parse or even ignore, then B
-could still be compatible with A as conversions would succeed for connections
+(2) the conversion of this first flight to version B is well defined.
+For example, if version B is equal to version A in all aspects except it introduced a
+new frame in its first flight that version A cannot parse or even ignore, then version B
+could still be compatible with version A, as conversions would succeed for connections
 where that frame is not used. In this example, first flights using version B
 that carry this new frame would not be compatible with version A.
 
@@ -228,7 +228,7 @@ In order to perform compatible version negotiation, the server MUST select one
 of these versions that it (1) supports and (2) knows the client's Chosen
 Version is compatible with. This selected version is now the Negotiated
 Version. After selecting it, the server attempts to convert the client's first
-flight into that version, and replies to the client as if it had received the
+flight into that version and replies to the client as if it had received the
 converted first flight.
 
 If those formats are identical, as in cases where the Negotiated Version is the
@@ -253,11 +253,11 @@ Note that, after the first flight is converted to the Negotiated Version, the
 handshake completes in the Negotiated Version. If the Negotiated Version has
 requirements that apply during the handshake, those requirements apply to the
 entire handshake, including the converted first flight. In particular, if the
-Negotiated Version mandates that endpoints perform validations on handshake
+Negotiated Version mandates that endpoints perform validations on Handshake
 packets, endpoints MUST also perform such validations on the converted first
 flight. For instance, if the Negotiated Version requires that the 5-tuple remain
 stable for the entire handshake (as QUIC version 1 does), then both endpoints
-need to validate the 5-tuple of all handshake packets, including the converted
+need to validate the 5-tuple of all Handshake packets, including the converted
 first flight.
 
 Note also that the client can disable compatible version negotiation by only
@@ -330,7 +330,7 @@ Information in both directions during the handshake, such that this data is
 authenticated.
 
 In QUIC version 1, the Version Information is transmitted using a new
-"version_information" transport parameter (see {{Section 7.4 of QUIC}}). The
+version_information transport parameter (see {{Section 7.4 of QUIC}}). The
 contents of Version Information are shown below (using the notation from
 {{Section 1.3 of QUIC}}):
 
@@ -347,10 +347,10 @@ The content of each field is described below:
 Chosen Version:
 : This is the version that the sender has chosen to use for this connection. In most
 cases, this field will be equal to the value of the Version field in the long
-header that carries this data; however future versions or extensions can choose
+header that carries this data; however, future versions or extensions can choose
 to set different values in the long header Version field.
 
-The contents of the Available Versions field depends on whether it is sent by
+The content of the Available Versions field depends on whether it is sent by
 the client or by the server.
 
 Client-Sent Available Versions:
@@ -358,12 +358,12 @@ Client-Sent Available Versions:
 that this first flight is compatible with, ordered by descending preference.
 Note that the version in the Chosen Version field MUST be included in this list
 to allow the client to communicate the Chosen Version's preference. Note that
-this preference is only advisory, servers MAY choose to use their own preference
+this preference is only advisory; servers MAY choose to use their own preference
 instead.
 
 Server-Sent Available Versions:
 : When sent by a server, the Available Versions field lists all the
-Fully-Deployed Versions of this server deployment, see {{server-fleet}}. The
+Fully-Deployed Versions of this server deployment (see {{server-fleet}}). The
 ordering of the versions in this field does not carry any semantics. Note
 that the version in the Chosen Version field is not necessarily included in this
 list, because the server operator could be in the process of removing support
@@ -372,7 +372,7 @@ for this version. For the same reason, the Available Versions field MAY be empty
 
 Clients and servers MAY both include versions following the pattern 0x?a?a?a?a
 in their Available Versions list. Those versions are reserved to exercise
-version negotiation (see the Versions section of {{QUIC}}), and will never be
+version negotiation (see {{Section 15 of QUIC}}), and will never be
 selected when choosing a version to use.
 
 
@@ -394,14 +394,14 @@ its length is not divisible by four), then the endpoint MUST close the
 connection; if the connection was using QUIC version 1, that connection closure
 MUST use a transport error of type TRANSPORT_PARAMETER_ERROR. If an endpoint
 receives a Chosen Version equal to zero, or any Available Version equal to zero,
-it MUST treat it as a parsing failure. If a server receives a Version
+it MUST treat it as a parsing failure. If a server receives Version
 Information where the Chosen Version is not included in Available Versions, it
 MUST treat it as a parsing failure.
 
 Every QUIC version that supports version negotiation MUST define a method for
 closing the connection with a version negotiation error. For QUIC version 1,
 version negotiation errors are signaled using a transport error of type
-VERSION_NEGOTIATION_ERROR; see {{iana-error}}.
+VERSION_NEGOTIATION_ERROR (see {{iana-error}}).
 
 When a server receives a client's first flight, the server will first establish
 which QUIC version is in use for this connection in order to properly parse the
@@ -416,7 +416,7 @@ the Version field of the Long Header packets that carried the transport
 parameters) and the client's Chosen Version is not set to 0x00000001, the server
 will close the connection with a version negotiation error.
 
-If a client receives a Version Information where the server's Chosen Version was
+If a client receives Version Information where the server's Chosen Version was
 not sent by the client as part of its Available Versions, the client MUST close
 the connection with a version negotiation error.
 
@@ -443,29 +443,29 @@ As an example, let's assume a client supports hypothetical QUIC versions 10, 12,
 and 14 with a preference for higher versions. The client initiates a connection
 attempt with version 12. Let's explore two independent example scenarios:
 
-* In the first scenario, the server supports versions 10, 13, and 14 but only 13
+* In the first scenario, the server supports versions 10, 13, and 14, but only 13
   and 14 are Fully-Deployed (see {{server-fleet}}). The server sends a Version
   Negotiation packet with versions 10, 13, and 14. This triggers an incompatible
-  version negotiation and the client initiates a new connection with version 14.
-  Then the server's Available Versions field contains 13 and 14. In that
+  version negotiation, and the client initiates a new connection with version 14.
+  Then, the server's Available Versions field contains 13 and 14. In that
   scenario, the client would have also picked 14 if it had received a Version
-  Negotiation packet with versions 13 and 14, therefore the handshake succeeds
+  Negotiation packet with versions 13 and 14; therefore, the handshake succeeds
   using Negotiated Version 14.
 
-* In the second scenario, the server supports versions 10, 13, and 14 and they
+* In the second scenario, the server supports versions 10, 13, and 14, and they
   are all Fully-Deployed. However, the attacker forges a Version Negotiation
   packet with versions 10 and 13. This triggers an incompatible version
-  negotiation and the client initiates a new connection with version 10. Then
+  negotiation, and the client initiates a new connection with version 10. Then,
   the server's Available Versions field contains 10, 13 and 14. In that
   scenario, the client would have picked 14 instead of 10 if it had received a
-  Version Negotiation packet with versions 10, 13 and 14, therefore the client
+  Version Negotiation packet with versions 10, 13, and 14; therefore, the client
   aborts the handshake with a version negotiation error.
 
 This validation of Available Versions is not sufficient to prevent downgrade.
 Downgrade prevention also depends on the client ignoring Version Negotiation
-packets that contain the Original Version; see {{incompat-vn}}.
+packets that contain the Original Version (see {{incompat-vn}}).
 
-After the process of version negotiation in this document completes, the version
+After the process of version negotiation described in this document completes, the version
 in use for the connection is the version that the server sent in the Chosen
 Version field of its Version Information. That remains true even if other
 versions were used in the Version field of long headers at any point in the
@@ -481,8 +481,8 @@ long header field.
 # Server Deployments of QUIC {#server-fleet}
 
 While this document mainly discusses a single QUIC server, it is common for
-deployments of QUIC servers to include a fleet of multiple server instances. We
-therefore define the following terms:
+deployments of QUIC servers to include a fleet of multiple server instances.
+Therefore, we define the following terms:
 
 Acceptable Versions:
 : This is the set of versions supported by a given server instance. More
