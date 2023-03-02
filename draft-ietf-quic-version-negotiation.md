@@ -363,7 +363,7 @@ instead.
 
 Server-Sent Available Versions:
 : When sent by a server, the Available Versions field lists all the
-Fully-Deployed Versions of this server deployment (see {{server-fleet}}). The
+Fully Deployed Versions of this server deployment (see {{server-fleet}}). The
 ordering of the versions in this field does not carry any semantics. Note
 that the version in the Chosen Version field is not necessarily included in this
 list, because the server operator could be in the process of removing support
@@ -444,7 +444,7 @@ and 14 with a preference for higher versions. The client initiates a connection
 attempt with version 12. Let's explore two independent example scenarios:
 
 * In the first scenario, the server supports versions 10, 13, and 14, but only 13
-  and 14 are Fully-Deployed (see {{server-fleet}}). The server sends a Version
+  and 14 are Fully Deployed (see {{server-fleet}}). The server sends a Version
   Negotiation packet with versions 10, 13, and 14. This triggers an incompatible
   version negotiation, and the client initiates a new connection with version 14.
   Then, the server's Available Versions field contains 13 and 14. In that
@@ -453,7 +453,7 @@ attempt with version 12. Let's explore two independent example scenarios:
   using Negotiated Version 14.
 
 * In the second scenario, the server supports versions 10, 13, and 14, and they
-  are all Fully-Deployed. However, the attacker forges a Version Negotiation
+  are all Fully Deployed. However, the attacker forges a Version Negotiation
   packet with versions 10 and 13. This triggers an incompatible version
   negotiation, and the client initiates a new connection with version 10. Then,
   the server's Available Versions field contains 10, 13 and 14. In that
@@ -495,7 +495,7 @@ Version Negotiation packet if it receives a first flight from an unknown
 version. This set will most often be equal to the Acceptable Versions set,
 except during short transitions while versions are added or removed (see below).
 
-Fully-Deployed Versions:
+Fully Deployed Versions:
 : This is the set of QUIC versions that is supported and negotiated by every
 single QUIC server instance in this deployment. If a deployment only contains a
 single server instance, then this set is equal to the Offered Versions set,
@@ -521,7 +521,7 @@ When adding support for a new version:
 
 * The first step is to progressively add support for the new version to all
   server instances. This step updates the Acceptable Versions but not the
-  Offered Versions nor the Fully-Deployed Versions. Once all server instances
+  Offered Versions nor the Fully Deployed Versions. Once all server instances
   have been updated, operators wait for at least one MSL to allow any in-flight
   Version Negotiation packets to arrive.
 
@@ -530,11 +530,11 @@ When adding support for a new version:
   another MSL.
 
 * Finally, the third step is to progressively add the new version to
-  Fully-Deployed Versions on all server instances.
+  Fully Deployed Versions on all server instances.
 
 When removing support for a version:
 
-* The first step is to progressively remove the version from Fully-Deployed
+* The first step is to progressively remove the version from Fully Deployed
   Versions on all server instances. Once it has been removed on all server
   instances, operators wait for at least one MSL to allow any in-flight Version
   Negotiation packets to arrive.
@@ -547,7 +547,7 @@ When removing support for a version:
   from all server instances. That step updates the Acceptable Versions.
 
 Note that, during the update window, connections are vulnerable to downgrade
-attacks for partially-deployed versions. This is because a client cannot
+attacks for Acceptable Versions that are not Fully Deployed. This is because a client cannot
 distinguish such a downgrade attack from legitimate exchanges with both updated
 and non-updated server instances.
 
