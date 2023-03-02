@@ -475,8 +475,8 @@ header version during compatible version negotiation (see {{compat-vn}}),
 clients MUST validate that the server's
 Chosen Version is equal to the Negotiated Version; if they do not match, the
 client MUST close the connection with a version negotiation error. This prevents
-an attacker's ability to influence version negotiation by forging the Version
-long header field.
+an attacker's ability to influence version negotiation by forging the
+long header Version field.
 
 
 # Server Deployments of QUIC {#server-fleet}
@@ -641,13 +641,13 @@ negotiation causes 0-RTT data to be rejected by the server.
 Because QUIC version 1 was the only QUIC version that was published on the
 IETF Standards Track before this document, it is handled specially as follows: if a client
 is starting a QUIC version 1 connection in response to a received Version
-Negotiation packet, and the version_information transport parameter is missing
+Negotiation packet and the version_information transport parameter is missing
 from the server's transport parameters, then the client SHALL proceed as if the
 server's transport parameters contained a version_information transport
 parameter with a Chosen Version set to 0x00000001 and an Available Version list
 containing exactly one version set to 0x00000001. This allows version
 negotiation to work with servers that only support QUIC version 1. Note that
-implementations which wish to use version negotiation to negotiate versions
+implementations that wish to use version negotiation to negotiate versions
 other than QUIC version 1 will need to implement the version negotiation
 mechanism defined in this document.
 
@@ -682,7 +682,7 @@ Status:
 : permanent
 
 Specification:
-: RFC 9369
+: RFC 9368
 {: spacing="compact"}
 
 
@@ -704,7 +704,7 @@ Status:
 : permanent
 
 Specification:
-: RFC 9369
+: RFC 9368
 {: spacing="compact"}
 
 
