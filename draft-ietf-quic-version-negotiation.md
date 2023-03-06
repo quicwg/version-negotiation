@@ -257,7 +257,7 @@ Negotiated Version mandates that endpoints perform validations on Handshake
 packets, endpoints MUST also perform such validations on the converted first
 flight. For instance, if the Negotiated Version requires that the 5-tuple remain
 stable for the entire handshake (as QUIC version 1 does), then both endpoints
-need to validate the 5-tuple of all Handshake packets, including the converted
+need to validate the 5-tuple of all packets received during the handshake, including the converted
 first flight.
 
 Note also that the client can disable compatible version negotiation by only
