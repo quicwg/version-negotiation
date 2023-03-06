@@ -8,7 +8,7 @@ category: std
 area: Transport
 wg: QUIC
 number: 9368
-date: 2023-02
+date: 2023-03
 consensus: true
 updates: 8999
 venue:
@@ -372,7 +372,7 @@ for this version. For the same reason, the Available Versions field MAY be empty
 
 Clients and servers MAY both include versions following the pattern 0x?a?a?a?a
 in their Available Versions list. Those versions are reserved to exercise
-version negotiation (see {{Section 15 of QUIC}}), and will never be
+version negotiation (see {{Section 15 of QUIC}}) and will never be
 selected when choosing a version to use.
 
 
