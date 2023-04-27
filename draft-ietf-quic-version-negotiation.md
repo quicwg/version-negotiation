@@ -126,7 +126,8 @@ negotiation (see {{compat-vn}}) and to prevent version downgrade attacks (see
 {{downgrade}}).
 
 Upon receiving this first flight, the server verifies whether it knows how to
-parse first flights from the Original Version. If it does not, then it starts
+parse first flights from the Chosen Version (which is also the Original
+Version in this case). If it does not, then it starts
 incompatible version negotiation (see {{incompat-vn}}), which causes the client
 to initiate a new connection with a different version. For instance, if the
 client initiates a connection with version A that the server can't parse,
