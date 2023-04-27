@@ -309,7 +309,7 @@ to internally use two distinct connection objects.
 
 ## Client Choice of Original Version
 
-When the client picks its Original Version, it will try to avoid incompatible
+When the client picks its Original Version, it SHOULD try to avoid incompatible
 version negotiation to save a round trip. Therefore, the client SHOULD pick an
 Original Version to maximize the combined probability that both:
 
