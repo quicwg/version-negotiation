@@ -155,8 +155,8 @@ of Offered Versions (see {{server-fleet}}) in a Supported Version field. The
 server MAY add reserved versions (as defined in {{Section 6.3 of QUIC}}) in
 Supported Version fields.
 
-Clients will ignore a Version Negotiation packet if it contains the Original
-Version attempted by the client (see {{downgrade}}). The client also ignores a
+Clients MUST ignore a Version Negotiation packet if it contains the Original
+Version attempted by the client (see {{downgrade}}). The client MUST also ignore a
 Version Negotiation packet that contains incorrect connection ID fields (see
 {{Section 6 of QUIC-INVARIANTS}}).
 
