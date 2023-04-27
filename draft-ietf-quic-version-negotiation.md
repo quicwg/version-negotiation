@@ -422,14 +422,17 @@ the transport parameters) and the client's Chosen Version is not set
 to 0x00000001, the server MUST close the connection with a version
 negotiation error.
 
-If a client receives Version Information where the server's Chosen Version was
-not sent by the client as part of its Available Versions, the client MUST close
-the connection with a version negotiation error.
+Servers MAY complete the handshake even if the Version Information
+is missing. Clients MUST NOT complete the handshake if they
+are reacting to a Version Negotiation packet and the Version Information
+is missing, but MAY do so otherwise.
 
-If the Version Information was missing, the endpoints MAY complete the
-handshake. However, if a client has reacted to a Version Negotiation packet and
-the Version Information was missing, the client MUST close the connection with a
-version negotiation error.
+If a client receives Version Information where the server's Chosen
+Version was not sent by the client as part of its Available Versions,
+the client MUST close the connection with a version negotiation
+error. If a client has reacted to a Version Negotiation packet and the
+Version Information was missing, the client MUST close the connection
+with a version negotiation error. 
 
 If the client received and acted on a Version Negotiation packet, the client
 MUST validate the server's Available Versions field. The Available Versions
