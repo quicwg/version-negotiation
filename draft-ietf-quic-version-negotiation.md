@@ -404,18 +404,23 @@ closing the connection with a version negotiation error. For QUIC version 1,
 version negotiation errors are signaled using a transport error of type
 VERSION_NEGOTIATION_ERROR (see {{iana-error}}).
 
-When a server receives a client's first flight, the server will first establish
-which QUIC version is in use for this connection in order to properly parse the
-first flight. For example, the server determines that QUIC version 1 is in use
-by observing that the Version field of the first Long Header packet it receives
-is set to 0x00000001. When the server then processes the client's Version
-Information, the server MUST validate that the client's Chosen Version matches
-the version in use for the connection. If the two differ, the server MUST close
-the connection with a version negotiation error. For example, if a server
-receives the client's Version Information over QUIC version 1 (as indicated by
-the Version field of the Long Header packets that carried the transport
-parameters) and the client's Chosen Version is not set to 0x00000001, the server
-will close the connection with a version negotiation error.
+When a server receives a client's first flight, the server will first
+establish which QUIC version is in use for this connection in order to
+properly parse the first flight. This may involve examining packets
+outside of the handshake, such as in the the packet header.  When the
+server then processes the client's Version Information, the server
+MUST validate that the client's Chosen Version matches the version in
+use for the connection. If the two differ, the server MUST close the
+connection with a version negotiation error.
+
+In the specific case of QUIC version 1, the client determines that it
+is in use by observing that the Version field of the first Long Header
+packet it receives is set to 0x00000001. Subsequently, if the client
+receives the client's Version Information over QUIC version 1 (as
+indicated by the Version field of the Long Header packets that carried
+the transport parameters) and the client's Chosen Version is not set
+to 0x00000001, the server MUST close the connection with a version
+negotiation error.
 
 If a client receives Version Information where the server's Chosen Version was
 not sent by the client as part of its Available Versions, the client MUST close
