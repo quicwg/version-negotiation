@@ -407,10 +407,10 @@ VERSION_NEGOTIATION_ERROR (see {{iana-error}}).
 When a server receives a client's first flight, the server will first establish
 which QUIC version is in use for this connection in order to properly parse the
 first flight. This may involve examining packets outside of the handshake, such
-as in the the packet header. When the server then processes the client's
-Version Information, the server MUST validate that the client's Chosen Version
-matches the version in use for the connection. If the two differ, the server
-MUST close the connection with a version negotiation error.
+as in the the packet header. When the server then processes the client's Version
+Information, the server MUST validate that the client's Chosen Version matches
+the version in use for the connection. If the two differ, the server MUST close
+the connection with a version negotiation error.
 
 In the specific case of QUIC version 1, the client determines that it is in use
 by observing that the Version field of the first Long Header packet it receives
