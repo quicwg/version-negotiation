@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2023-04-30T00:50:49.993826+00:00",
+  "timestamp": "2023-05-09T00:44:32.210882+00:00",
   "repo": "quicwg/version-negotiation",
   "labels": [
     {
@@ -8776,7 +8776,7 @@
       "labels": [],
       "body": "",
       "createdAt": "2023-04-27T22:42:52Z",
-      "updatedAt": "2023-04-28T21:40:16Z",
+      "updatedAt": "2023-05-07T23:49:03Z",
       "baseRepository": "quicwg/version-negotiation",
       "baseRefName": "auth48",
       "baseRefOid": "6bcdca62888da1a0f250e3f7752bc3d3f390466b",
