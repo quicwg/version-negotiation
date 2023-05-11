@@ -155,10 +155,10 @@ of Offered Versions (see {{server-fleet}}) in a Supported Version field. The
 server MAY add reserved versions (as defined in {{Section 6.3 of QUIC}}) in
 Supported Version fields.
 
-Clients MUST ignore a Version Negotiation packet if it contains the Original
-Version attempted by the client (see {{downgrade}}). The client MUST also ignore a
-Version Negotiation packet that contains incorrect connection ID fields (see
-{{Section 6 of QUIC-INVARIANTS}}).
+Clients will ignore a Version Negotiation packet if it contains the Original
+Version attempted by the client, as required by {{downgrade}}. The client also ignores a
+Version Negotiation packet that contains incorrect connection ID fields, as required by
+{{Section 6 of QUIC-INVARIANTS}}.
 
 Upon receiving the Version Negotiation packet, the client SHALL search for a
 version it supports in the list provided by the server. If it doesn't find one,
@@ -412,9 +412,9 @@ Information, the server MUST validate that the client's Chosen Version matches
 the version in use for the connection. If the two differ, the server MUST close
 the connection with a version negotiation error.
 
-In the specific case of QUIC version 1, the client determines that it is in use
+In the specific case of QUIC version 1, the server determines that version 1 is in use
 by observing that the Version field of the first Long Header packet it receives
-is set to 0x00000001. Subsequently, if the client receives the client's Version
+is set to 0x00000001. Subsequently, if the server receives the client's Version
 Information over QUIC version 1 (as indicated by the Version field of the Long
 Header packets that carried the transport parameters) and the client's Chosen
 Version is not set to 0x00000001, the server MUST close the connection with a
@@ -428,7 +428,7 @@ otherwise.
 If a client receives Version Information where the server's Chosen Version was
 not sent by the client as part of its Available Versions, the client MUST close
 the connection with a version negotiation error. If a client has reacted to a
-Version Negotiation packet and the Version Information was missing, the client
+Version Negotiation packet and the server's Version Information was missing, the client
 MUST close the connection with a version negotiation error.
 
 If the client received and acted on a Version Negotiation packet, the client
