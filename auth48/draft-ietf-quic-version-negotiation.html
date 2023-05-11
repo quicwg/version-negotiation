@@ -1,0 +1,2088 @@
+<!DOCTYPE html>
+<html lang="en" class="RFC">
+<head>
+<meta charset="utf-8">
+<meta content="Common,Latin" name="scripts">
+<meta content="initial-scale=1.0" name="viewport">
+<title>RFC 9368: Compatible Version Negotiation for QUIC</title>
+<meta content="David Schinazi" name="author">
+<meta content="Eric Rescorla" name="author">
+<meta content="
+       QUIC does not provide a complete version negotiation mechanism but instead only
+provides a way for the server to indicate that the version the client chose is
+unacceptable. This document describes a version negotiation mechanism that
+allows a client and server to select a mutually supported version. Optionally,
+if the client's chosen version and the negotiated version share a compatible
+first flight format, the negotiation can take place without incurring an extra
+round trip. This document updates RFC 8999. 
+    " name="description">
+<meta content="xml2rfc 3.17.1" name="generator">
+<meta content="quic" name="keyword">
+<meta content="version" name="keyword">
+<meta content="negotiation" name="keyword">
+<meta content="compatible" name="keyword">
+<meta content="incompatible" name="keyword">
+<meta content="not quite tls" name="keyword">
+<meta content="tls-ng" name="keyword">
+<meta content="9368" name="rfc.number">
+<!-- Generator version information:
+  xml2rfc 3.17.1
+    Python 3.10.11
+    appdirs 1.4.4
+    ConfigArgParse 1.5.3
+    google-i18n-address 2.5.2
+    intervaltree 3.1.0
+    Jinja2 3.1.2
+    lxml 4.9.2
+    pycountry 22.3.5
+    PyYAML 6.0
+    requests 2.28.1
+    setuptools 65.6.0
+    six 1.16.0
+    wcwidth 0.2.6
+-->
+<link href="draft-ietf-quic-version-negotiation.xml" rel="alternate" type="application/rfc+xml">
+<link href="#copyright" rel="license">
+<style type="text/css">@font-face {
+  font-family: 'Lora';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Italic'), local('Lora-Italic'), url('https://martinthomson.github.io/rfc-css/fonts/lora-italic-cyrillic-ext.woff2') format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Italic'), local('Lora-Italic'), url('https://martinthomson.github.io/rfc-css/fonts/lora-italic-cyrillic-ext.woff2') format('woff2');
+  unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Italic'), local('Lora-Italic'), url('https://martinthomson.github.io/rfc-css/fonts/lora-italic-vietnamese.woff2') format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+1EA0-1EF9, U+20AB;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Italic'), local('Lora-Italic'), url('https://martinthomson.github.io/rfc-css/fonts/lora-italic-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+@font-face {
+  font-family: 'Lora';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Italic'), local('Lora-Italic'), url('https://martinthomson.github.io/rfc-css/fonts/lora-italic-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Regular'), local('Lora-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/lora-regular-cyrillic-ext.woff2') format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Regular'), local('Lora-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/lora-regular-cyrillic.woff2') format('woff2');
+  unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Regular'), local('Lora-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/lora-regular-vietnamese.woff2') format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+1EA0-1EF9, U+20AB;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Regular'), local('Lora-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/lora-regular-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Regular'), local('Lora-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/lora-regular-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('Lora Bold'), local('Lora-Bold'), url('https://martinthomson.github.io/rfc-css/fonts/lora-bold-cyrillic-ext.woff2') format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('Lora Bold'), local('Lora-Bold'), url('https://martinthomson.github.io/rfc-css/fonts/lora-bold-cyrillic.woff2') format('woff2');
+  unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('Lora Bold'), local('Lora-Bold'), url('https://martinthomson.github.io/rfc-css/fonts/lora-bold-vietnamese.woff2') format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+1EA0-1EF9, U+20AB;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('Lora Bold'), local('Lora-Bold'), url('https://martinthomson.github.io/rfc-css/fonts/lora-bold-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('Lora Bold'), local('Lora-Bold'), url('https://martinthomson.github.io/rfc-css/fonts/lora-bold-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: local('Lora SemiBold'), local('Lora-SemiBold'), url('https://martinthomson.github.io/rfc-css/fonts/lora-semibold-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Cabin Condensed';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: local('Cabin Condensed SemiBold'), local('CabinCondensed-SemiBold'), url('https://martinthomson.github.io/rfc-css/fonts/cabincondensed-semibold-vietnamese.woff2') format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+1EA0-1EF9, U+20AB;
+}
+@font-face {
+  font-family: 'Cabin Condensed';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: local('Cabin Condensed SemiBold'), local('CabinCondensed-SemiBold'), url('https://martinthomson.github.io/rfc-css/fonts/cabincondensed-semibold-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Cabin Condensed';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: local('Cabin Condensed SemiBold'), local('CabinCondensed-SemiBold'), url('https://martinthomson.github.io/rfc-css/fonts/cabincondensed-semibold-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Oxygen Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Oxygen Mono'), local('OxygenMono-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/oxygenmono-regular-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Oxygen Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Oxygen Mono'), local('OxygenMono-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/oxygenmono-regular-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+:root {
+  color-scheme: light dark;
+  --background-color: #fff;
+  --text-color: #222;
+  --title-color: #191919;
+  --link-color: #2a6496;
+  --highlight-color: #f9f9f9;
+  --line-color: #eee;
+  --pilcrow-weak: #ddd;
+  --pilcrow-strong: #bbb;
+  --small-font-size: 14.5px;
+  --font-mono: 'Oxygen Mono', monospace;
+  scrollbar-color: #bbb #eee;
+}
+body {
+  max-width: 600px;
+  margin: 75px auto;
+  padding: 0 5px;
+  color: var(--text-color);
+  background-color: var(--background-color);
+  font: 16px/22px "Lora", serif;
+  scroll-behavior: smooth;
+}
+
+.ears {
+  display: none;
+}
+
+/* headings */
+h1, h2, h3, h4, h5, h6 {
+  font-family: "Cabin Condensed", sans-serif;
+  font-weight: 600;
+  margin: 0.8em 0 0.3em;
+  font-size-adjust: 0.5;
+  color: var(--title-color);
+}
+h1#title {
+  font-size: 32px;
+  line-height: 40px;
+  clear: both;
+}
+h1#title, h1#rfcnum {
+  margin: 1.5em 0 0.2em;
+}
+h1#rfcnum + h1#title {
+  margin: 0.2em 0;
+}
+
+h1, h2, h3 {
+  font-size: 22px;
+  line-height: 27px;
+}
+h4, h5, h6 {
+  font-size: 20px;
+  line-height: 24px;
+}
+
+/* general structure */
+.author {
+  padding-bottom: 0.3em;
+}
+#abstract+p {
+  font-size: 18px;
+  line-height: 24px;
+}
+#abstract+p code, #abstract+p samp, #abstract+p tt {
+  font-size: 16px;
+  line-height: 0;
+}
+
+p {
+  padding: 0;
+  margin: 0.5em 0;
+  text-align: left;
+}
+div {
+  margin: 0;
+}
+.alignRight.art-text {
+  background-color: var(--highlight-color);
+  border: 1px solid var(--line-color);
+  border-radius: 3px;
+  padding: 0.5em 1em 0;
+  margin-bottom: 0.5em;
+}
+.alignRight.art-text pre {
+  padding: 0;
+  width: auto;
+}
+.alignRight {
+  margin: 1em 0;
+}
+.alignRight > *:first-child {
+  border: none;
+  margin: 0;
+  float: right;
+  clear: both;
+}
+.alignRight > *:nth-child(2) {
+  clear: both;
+  display: block;
+  border: none;
+}
+svg {
+  display: block;
+}
+/* font-family isn't space-separated, but =~ will have to do */
+svg[font-family~="monospace" i], svg [font-family~="monospace" i] {
+  font-family: var(--font-mono);
+}
+.alignCenter.art-text {
+  background-color: var(--highlight-color);
+  border: 1px solid var(--line-color);
+  border-radius: 3px;
+  padding: 0.5em 1em 0;
+  margin-bottom: 0.5em;
+}
+.alignCenter.art-text pre {
+  padding: 0;
+  width: auto;
+}
+.alignCenter {
+  margin: 1em 0;
+}
+.alignCenter > *:first-child {
+  border: none;
+  /* this isn't optimal, but it's an existence proof.  PrinceXML doesn't
+     support flexbox yet.
+  */
+  display: table;
+  margin: 0 auto;
+}
+
+/* lists */
+ol, ul {
+  padding: 0;
+  margin: 0 0 0.5em 2em;
+}
+:is(ol, ul) :is(ol, ul) {
+  margin-left: 1em;
+}
+li {
+  margin: 0 0 0.25em 0;
+}
+.ulCompact li {
+  margin: 0;
+}
+ul.empty, .ulEmpty {
+  list-style-type: none;
+}
+ul.empty li, .ulEmpty li {
+  margin-top: 0.5em;
+}
+:is(ul, ol).compact, .ulCompact, .olCompact {
+  line-height: 1;
+  margin: 0 0 0 2em;
+}
+
+/* definition lists */
+dl {
+  clear: left;
+  --indent: 3ch;
+  /* --indent: attr(indent ch); not supported in any browser, but we can dream */
+}
+dl.olPercent {
+  --indent: 5ch;
+}
+dl > dt {
+  float: left;
+  margin-right: 2ch;
+  min-width: 8ch;
+}
+dl.dlNewline > dt {
+  float: none;
+}
+dl > dd {
+  margin-bottom: .8em;
+  margin-left: var(--indent) !important; /* stupid element overrides */
+  min-height: 2ex;
+}
+dl.olPercent > dt {
+  min-width: calc(var(--indent) - 2ch);
+}
+:is(dl.compact, .dlCompact) > dd {
+  margin-bottom: 0;
+}
+:is(dl.compact, .dlCompact) > dd > :is(:first-child, .break:first-child + *) {
+  margin-top: 0;
+}
+:is(dl.compact, .dlCompact) > dd > :is(:last-child) {
+  margin-bottom: 0;
+}
+dl > dd > dl {
+  margin-top: 0.5em;
+  margin-bottom: 0;
+}
+:is(dd, span).break {
+  display: none;
+}
+
+/* links */
+a, a[href].selfRef:hover {
+  text-decoration: none;
+}
+a[href] {
+  color: var(--link-color);
+}
+a[href].selfRef, .iref + a[href].internal {
+  color: var(--text-color);
+}
+a[href]:hover {
+  text-decoration: underline;
+}
+a[href].selfRef:hover {
+  background-color: var(--highlight-color);
+}
+a.xref:is(.cite, .auto), :is(#status-of-memo, #copyright) a {
+  white-space: nowrap;
+}
+
+/* Figures */
+tt, code, pre {
+  background-color: var(--highlight-color);
+  font: 14px/22px var(--font-mono);
+}
+tt, code {
+  /* changing the font for inline elements leads to different ascender
+     and descender heights; as we want to retain baseline alignment,
+     remove leading to avoid altering the final height of lines
+     note: this fails if these blocks take an entire line,
+     a different solution would be great */
+  line-height: 0;
+}
+:is(h1, h2, h3, h4, h5, h6) :is(tt, code) {
+  font-size: 84%;
+}
+pre {
+  border: 1px solid var(--line-color);
+  font-size: 13.5px;
+  line-height: 16px;
+  letter-spacing: -0.2px;
+  margin: 5px;
+  padding: 5px;
+}
+img {
+  max-width: 100%;
+}
+figure {
+  margin: 0.5em 0;
+  padding: 0;
+}
+figure blockquote {
+  margin: 0.8em 0.4em 0.4em;
+}
+figcaption, caption {
+  font-style: italic;
+  margin: 0.5em 1.5em;
+  text-align: left;
+}
+@media screen {
+  /* Auto-collapse boilerplate. */
+  :is(#status-of-memo, #copyright) p {
+    margin: -2px 0;
+    max-height: 0;
+    transition: max-height 2s ease, margin 0.5s ease 0.5s;
+    overflow: hidden;
+  }
+  :is(#status-of-memo, #copyright):hover p,
+  :is(#status-of-memo, #copyright) h2:target ~ p {
+    margin: 0.5em 0;
+    max-height: 500px;
+    overflow: auto;
+  }
+  pre, svg {
+    display: inline-block;
+    overflow-x: auto;
+  }
+  pre {
+    max-width: 100%;
+    width: calc(100% - 22px - 1em);
+  }
+  svg {
+    max-width: calc(100% - 22px - 1em);
+  }
+  figure pre {
+    display: block;
+    width: calc(100% - 25px);
+  }
+  :is(pre, svg) + .pilcrow {
+    display: inline-block;
+    vertical-align: text-bottom;
+    padding-bottom: 8px;
+  }
+}
+
+/* aside, blockquote */
+aside, blockquote {
+  margin-left: 0;
+  padding: 0 2em;
+  font-style: italic;
+}
+blockquote {
+  margin: 1em 0;
+}
+cite {
+  display: block;
+  text-align: right;
+  font-style: italic;
+}
+
+/* tables */
+table {
+  max-width: 100%;
+  margin: 0 0 1em;
+  border-collapse: collapse;
+}
+table.right {
+  margin-left: auto;
+}
+table.center {
+  margin-left: auto;
+  margin-right: auto;
+}
+table.left {
+  margin-right: auto;
+}
+thead, tbody {
+  border: 1px solid var(--line-color);
+}
+th, td {
+  text-align: left;
+  vertical-align: top;
+  padding: 5px 10px;
+}
+th {
+  background-color: var(--line-color);
+}
+:is(tr:nth-child(2n), thead+tbody > tr:nth-child(2n+1)) > td {
+  background-color: var(--background-color);
+}
+:is(tr:nth-child(2n+1), thead+tbody > tr:nth-child(2n)) > td {
+  background-color: var(--highlight-color);
+}
+table caption {
+  margin: 0;
+  padding: 3px 0 3px 1em;
+}
+table p {
+  margin: 0;
+}
+
+/* pilcrow */
+a.pilcrow {
+  margin-left: 3px;
+  opacity: 0.2;
+  user-select: none;
+}
+a.pilcrow[href] { color: var(--pilcrow-weak); }
+a.pilcrow[href]:hover { text-decoration: none; }
+@media not print {
+  :hover > a.pilcrow {
+    opacity: 1;
+  }
+  a.pilcrow[href]:hover {
+    color: var(--pilcrow-strong);
+    background-color: transparent;
+  }
+}
+@media print {
+  a.pilcrow {
+    display: none;
+  }
+}
+
+/* misc */
+hr {
+  border: 0;
+  border-top: 1px solid var(--line-color);
+}
+.bcp14 {
+  font-variant: small-caps;
+  font-weight: 600;
+  font-size: var(--small-font-size);
+}
+.role {
+  font-variant: all-small-caps;
+}
+sub, sup {
+  line-height: 1;
+  font-size: 80%;
+}
+
+/* info block */
+#identifiers {
+  margin: 0;
+  font-size: var(--small-font-size);
+  line-height: 18px;
+  --identifier-width: 15ch;
+}
+#identifiers dt {
+  width: var(--identifier-width);
+  min-width: var(--identifier-width);
+  clear: left;
+  float: left;
+  text-align: right;
+}
+#identifiers dd {
+  margin: 0;
+  margin-left: calc(1em + var(--identifier-width)) !important;
+  min-width: 5em;
+}
+#identifiers .authors .author {
+  display: inline-block;
+  margin-right: 1.5em;
+}
+#identifiers .authors .org {
+  font-style: italic;
+}
+
+/* The prepared/rendered info at the very bottom of the page */
+.docInfo {
+  color: #999;
+  font-size: 0.9em;
+  font-style: italic;
+  margin-top: 2em;
+}
+.docInfo .prepared {
+  float: left;
+}
+.docInfo .prepared {
+  float: right;
+}
+
+/* table of contents */
+#toc {
+  padding: 0.75em 0 2em 0;
+  margin-bottom: 1em;
+}
+#toc nav ul {
+  margin: 0 0.5em 0 0;
+  padding: 0;
+  list-style: none;
+}
+#toc nav li {
+  line-height: 1.3em;
+  margin: 0.75em 0;
+  padding-left: 1.2em;
+  text-indent: -1.2em;
+}
+#toc a.xref {
+  white-space: normal;
+}
+/* references */
+.references dt {
+  text-align: right;
+  font-weight: bold;
+  min-width: 10ch;
+  margin-right: 1.5ch;
+}
+.references dt:target::before {
+  content: "⇒";
+  width: 15px;
+  margin: 0 10px 0 -25px;
+}
+.references dd {
+  margin-left: 12ch !important;
+  overflow: auto;
+}
+
+.refInstance {
+  margin-bottom: 1.25em;
+}
+
+.references .ascii {
+  margin-bottom: 0.25em;
+}
+
+/* index */
+#rfc\.index\.index + ul {
+  margin-left: 0;
+}
+
+/* authors */
+address.vcard {
+  font-style: normal;
+  margin: 1em 0;
+}
+address.vcard .nameRole {
+  font-weight: 700;
+  margin-left: 0;
+}
+address.vcard .label {
+  margin: 0.5em 0;
+}
+address.vcard .type {
+  display: none;
+}
+.alternative-contact {
+  margin: 1.5em 0 1em;
+}
+hr.addr {
+  border-top: 1px dashed;
+  margin: 0;
+  color: #ddd;
+  max-width: calc(100% - 16px);
+}
+@media (min-width: 500px) {
+  #authors-addresses > section {
+    column-count: 2;
+    column-gap: 20px;
+  }
+  #authors-addresses > section > h2 {
+    column-span: all;
+  }
+  /* hack for break-inside: avoid-column */
+  #authors-addresses address {
+    display: inline-block;
+    break-inside: avoid-column;
+  }
+}
+
+.rfcEditorRemove p:first-of-type {
+  font-style: italic;
+}
+.cref {
+  background-color: rgba(249, 232, 105, 0.3);
+  padding: 2px 4px;
+}
+.crefSource {
+  font-style: italic;
+}
+/* alternative layout for smaller screens */
+@media screen and (max-width: 929px) {
+  #toc {
+    position: fixed;
+    z-index: 2;
+    top: 0;
+    right: 0;
+    padding: 0;
+    margin: 0;
+    border-bottom: 1px solid #ccc;
+    opacity: 0.6;
+  }
+  #toc.active {
+      opacity: 1;
+  }
+  #toc h2 {
+    margin: 0;
+    padding: 2px 0 2px 6px;
+    padding-right: 1em;
+    font-size: 18px;
+    line-height: 24px;
+    min-width: 190px;
+    text-align: right;
+    background-color: #444;
+    color: white;
+    cursor: pointer;
+  }
+  #toc h2::before { /* css hamburger */
+    float: right;
+    position: relative;
+    width: 1em;
+    height: 1px;
+    left: -164px;
+    margin: 8px 0 0 0;
+    background: white none repeat scroll 0 0;
+    box-shadow: 0 4px 0 0 white, 0 8px 0 0 white;
+    content: "";
+  }
+  #toc nav {
+    display: none;
+    background-color: var(--background-color);
+    padding: 0.5em 1em 1em;
+    overflow: auto;
+    overscroll-behavior: contain;
+    height: calc(100vh - 48px);
+    border-left: 1px solid #ddd;
+  }
+  #toc.active nav {
+    display: block;
+  }
+  /* Make the collapsed ToC header render white on gray also when it's a link */
+  #toc h2 a,
+  #toc h2 a:link,
+  #toc h2 a:focus,
+  #toc h2 a:hover,
+  #toc a.toplink,
+  #toc a.toplink:hover {
+    color: white;
+    background-color: #444;
+    text-decoration: none;
+  }
+  #toc a.toplink {
+    margin-top: 2px;
+  }
+}
+
+/* alternative layout for wide screens */
+@media screen and (min-width: 930px) {
+  body {
+    padding-right: 360px;
+    padding-right: calc(min(180px + 20%, 500px));
+  }
+  #toc {
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    right: calc(50vw - 480px);
+    width: 312px;
+    margin: 0;
+    padding: 0;
+    z-index: 1;
+  }
+  #toc h2 {
+    margin: 0;
+    padding: 0.25em 1em 1em 0;
+  }
+  #toc nav {
+    display: block;
+    height: calc(90vh - 84px);
+    bottom: 0;
+    padding: 0.5em 0 2em;
+    overflow: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+  }
+  #toc nav > ul  {
+    margin-bottom: 2em;
+  }
+  #toc ul {
+    margin: 0 0 0 4px;
+    font-size: var(--small-font-size);
+  }
+  #toc ul :is(p, li) {
+    margin: 2px 0;
+    line-height: 22px;
+  }
+  img { /* future proofing */
+    max-width: 100%;
+    height: auto;
+  }
+}
+
+/* pagination */
+@media print {
+  body {
+    width: 100%;
+  }
+  p {
+    orphans: 3;
+    widows: 3;
+  }
+  #n-copyright-notice {
+    border-bottom: none;
+  }
+  #toc, #n-introduction {
+    page-break-before: always;
+  }
+  #toc {
+    border-top: none;
+    padding-top: 0;
+  }
+  figure, pre {
+    page-break-inside: avoid;
+  }
+  figure {
+    overflow: scroll;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    page-break-after: avoid;
+  }
+  h2+*, h3+*, h4+*, h5+*, h6+* {
+    page-break-before: avoid;
+  }
+  pre {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    font-size: 10pt;
+  }
+  table {
+    border: 1px solid #ddd;
+  }
+  td {
+    border-top: 1px solid #ddd;
+  }
+}
+
+@page :first {
+  padding-top: 0;
+  @top-left {
+    content: normal;
+    border: none;
+  }
+  @top-center {
+    content: normal;
+    border: none;
+  }
+  @top-right {
+    content: normal;
+    border: none;
+  }
+}
+
+@page {
+  size: A4;
+  margin-bottom: 45mm;
+  padding-top: 20px;
+}
+
+/* Changes introduced to fix issues found during implementation */
+
+/* Separate body from document info even without intervening H1 */
+section {
+  clear: both;
+}
+
+/* Top align author divs, to avoid names without organization dropping level with org names */
+.author {
+  vertical-align: top;
+}
+
+/* Style section numbers with more space between number and title */
+.section-number {
+  padding-right: 0.5em;
+}
+
+/* Add styling for a link in the ToC that points to the top of the document */
+a.toplink {
+  float: right;
+  margin: 8px 0.5em 0;
+}
+
+/* Provide styling for table cell text alignment */
+table .text-left {
+  text-align: left;
+}
+table .text-center {
+  text-align: center;
+}
+table .text-right {
+  text-align: right;
+}
+
+/* Make the alternative author contact information look less like just another
+   author, and group it closer with the primary author contact information */
+.alternative-contact {
+  margin: 0.5em 0 0.25em 0;
+}
+address .non-ascii {
+  margin: 0 0 0 2em;
+}
+
+/* With it being possible to set tables with alignment
+  left, center, and right, { width: 100%; } does not make sense */
+table {
+  width: auto;
+}
+
+/* Avoid reference text that sits in a block with very wide left margin,
+   because of a long floating dt label.*/
+.references dd {
+  overflow: visible;
+}
+
+/* Control caption placement */
+caption {
+  caption-side: bottom;
+}
+
+/* Limit the width of the author address vcard, so names in right-to-left
+   script don't end up on the other side of the page. */
+
+address.vcard {
+  max-width: 20em;
+  margin-right: auto;
+}
+
+/* For address alignment dependent on LTR or RTL scripts */
+address div.left {
+  text-align: left;
+}
+address div.right {
+  text-align: right;
+}
+
+/* Give the table caption label the same styling as the figcaption */
+
+@media print {
+  .toplink {
+    display: none;
+  }
+
+  /* avoid overwriting the top border line with the ToC header */
+  #toc {
+    padding-top: 1px;
+  }
+
+  /* Avoid page breaks inside dl and author address entries */
+  dd {
+    page-break-before: avoid;
+  }
+  .vcard {
+    page-break-inside: avoid;
+  }
+
+}
+
+/* Dark mode. */
+@media (prefers-color-scheme: dark) {
+:root {
+  --background-color: #121212;
+  --text-color: #f0f0f0;
+  --title-color: #fff;
+  --link-color: #4da4f0;
+  --highlight-color: #282828;
+  --line-color: #444;
+  --pilcrow-weak: #444;
+  --pilcrow-strong: #666;
+  scrollbar-color: #777 #333;
+}
+}
+
+/* SVG Trick: a prefix match works because only black and white are allowed */
+svg :is([stroke="black"], [stroke^="#000"]) {
+  stroke: var(--text-color);
+}
+svg :is([stroke="white"], [stroke^="#fff"]) {
+  stroke: var(--background-color);
+}
+svg :is([fill="black"], [fill^="#000"], :not([fill])) {
+  fill: var(--text-color);
+}
+svg :is([fill="white"], [fill^="#fff"]) {
+  fill: var(--background-color);
+}
+</style>
+
+<link href="https://dx.doi.org/10.17487/rfc9368" rel="alternate">
+  <link href="urn:issn:2070-1721" rel="alternate">
+  <link href="https://datatracker.ietf.org/doc/draft-ietf-quic-version-negotiation-latest" rel="prev">
+  </head>
+<body class="xml2rfc">
+<table class="ears">
+<thead><tr>
+<td class="left">RFC 9368</td>
+<td class="center">QUIC Compatible VN</td>
+<td class="right">March 2023</td>
+</tr></thead>
+<tfoot><tr>
+<td class="left">Schinazi &amp; Rescorla</td>
+<td class="center">Standards Track</td>
+<td class="right">[Page]</td>
+</tr></tfoot>
+</table>
+<div id="external-metadata" class="document-information"></div>
+<div id="internal-metadata" class="document-information">
+<dl id="identifiers">
+<dt class="label-stream">Stream:</dt>
+<dd class="stream">Internet Engineering Task Force (IETF)</dd>
+<dt class="label-rfc">RFC:</dt>
+<dd class="rfc"><a href="https://www.rfc-editor.org/rfc/rfc9368" class="eref">9368</a></dd>
+<dt class="label-updates">Updates:</dt>
+<dd class="updates">
+<a href="https://www.rfc-editor.org/rfc/rfc8999" class="eref">8999</a> </dd>
+<dt class="label-category">Category:</dt>
+<dd class="category">Standards Track</dd>
+<dt class="label-published">Published:</dt>
+<dd class="published">
+<time datetime="2023-03" class="published">March 2023</time>
+    </dd>
+<dt class="label-issn">ISSN:</dt>
+<dd class="issn">2070-1721</dd>
+<dt class="label-authors">Authors:</dt>
+<dd class="authors">
+<div class="author">
+      <div class="author-name">D. Schinazi</div>
+<div class="org">Google LLC</div>
+</div>
+<div class="author">
+      <div class="author-name">E. Rescorla</div>
+<div class="org">Mozilla</div>
+</div>
+</dd>
+</dl>
+</div>
+<h1 id="rfcnum">RFC 9368</h1>
+<h1 id="title">Compatible Version Negotiation for QUIC</h1>
+<section id="section-abstract">
+      <h2 id="abstract"><a href="#abstract" class="selfRef">Abstract</a></h2>
+<p id="section-abstract-1">QUIC does not provide a complete version negotiation mechanism but instead only
+provides a way for the server to indicate that the version the client chose is
+unacceptable. This document describes a version negotiation mechanism that
+allows a client and server to select a mutually supported version. Optionally,
+if the client's chosen version and the negotiated version share a compatible
+first flight format, the negotiation can take place without incurring an extra
+round trip. This document updates RFC 8999.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
+</section>
+<div id="status-of-memo">
+<section id="section-boilerplate.1">
+        <h2 id="name-status-of-this-memo">
+<a href="#name-status-of-this-memo" class="section-name selfRef">Status of This Memo</a>
+        </h2>
+<p id="section-boilerplate.1-1">
+            This is an Internet Standards Track document.<a href="#section-boilerplate.1-1" class="pilcrow">¶</a></p>
+<p id="section-boilerplate.1-2">
+            This document is a product of the Internet Engineering Task Force
+            (IETF).  It represents the consensus of the IETF community.  It has
+            received public review and has been approved for publication by
+            the Internet Engineering Steering Group (IESG).  Further
+            information on Internet Standards is available in Section 2 of 
+            RFC 7841.<a href="#section-boilerplate.1-2" class="pilcrow">¶</a></p>
+<p id="section-boilerplate.1-3">
+            Information about the current status of this document, any
+            errata, and how to provide feedback on it may be obtained at
+            <span><a href="https://www.rfc-editor.org/info/rfc9368">https://www.rfc-editor.org/info/rfc9368</a></span>.<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="copyright">
+<section id="section-boilerplate.2">
+        <h2 id="name-copyright-notice">
+<a href="#name-copyright-notice" class="section-name selfRef">Copyright Notice</a>
+        </h2>
+<p id="section-boilerplate.2-1">
+            Copyright (c) 2023 IETF Trust and the persons identified as the
+            document authors. All rights reserved.<a href="#section-boilerplate.2-1" class="pilcrow">¶</a></p>
+<p id="section-boilerplate.2-2">
+            This document is subject to BCP 78 and the IETF Trust's Legal
+            Provisions Relating to IETF Documents
+            (<span><a href="https://trustee.ietf.org/license-info">https://trustee.ietf.org/license-info</a></span>) in effect on the date of
+            publication of this document. Please review these documents
+            carefully, as they describe your rights and restrictions with
+            respect to this document. Code Components extracted from this
+            document must include Revised BSD License text as described in
+            Section 4.e of the Trust Legal Provisions and are provided without
+            warranty as described in the Revised BSD License.<a href="#section-boilerplate.2-2" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="toc">
+<section id="section-toc.1">
+        <a href="#" onclick="scroll(0,0)" class="toplink">▲</a><h2 id="name-table-of-contents">
+<a href="#name-table-of-contents" class="section-name selfRef">Table of Contents</a>
+        </h2>
+<nav class="toc"><ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.1">
+            <p id="section-toc.1-1.1.1" class="keepWithNext"><a href="#section-1" class="auto internal xref">1</a>.  <a href="#name-introduction" class="internal xref">Introduction</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.1.2.1">
+                <p id="section-toc.1-1.1.2.1.1" class="keepWithNext"><a href="#section-1.1" class="auto internal xref">1.1</a>.  <a href="#name-conventions" class="internal xref">Conventions</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.1.2.2">
+                <p id="section-toc.1-1.1.2.2.1" class="keepWithNext"><a href="#section-1.2" class="auto internal xref">1.2</a>.  <a href="#name-definitions" class="internal xref">Definitions</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2">
+            <p id="section-toc.1-1.2.1"><a href="#section-2" class="auto internal xref">2</a>.  <a href="#name-version-negotiation-mechani" class="internal xref">Version Negotiation Mechanism</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.1">
+                <p id="section-toc.1-1.2.2.1.1"><a href="#section-2.1" class="auto internal xref">2.1</a>.  <a href="#name-incompatible-version-negoti" class="internal xref">Incompatible Version Negotiation</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.2">
+                <p id="section-toc.1-1.2.2.2.1"><a href="#section-2.2" class="auto internal xref">2.2</a>.  <a href="#name-compatible-versions" class="internal xref">Compatible Versions</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.3">
+                <p id="section-toc.1-1.2.2.3.1"><a href="#section-2.3" class="auto internal xref">2.3</a>.  <a href="#name-compatible-version-negotiat" class="internal xref">Compatible Version Negotiation</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.4">
+                <p id="section-toc.1-1.2.2.4.1"><a href="#section-2.4" class="auto internal xref">2.4</a>.  <a href="#name-connections-and-version-neg" class="internal xref">Connections and Version Negotiation</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.5">
+                <p id="section-toc.1-1.2.2.5.1"><a href="#section-2.5" class="auto internal xref">2.5</a>.  <a href="#name-client-choice-of-original-v" class="internal xref">Client Choice of Original Version</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3">
+            <p id="section-toc.1-1.3.1"><a href="#section-3" class="auto internal xref">3</a>.  <a href="#name-version-information" class="internal xref">Version Information</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4">
+            <p id="section-toc.1-1.4.1"><a href="#section-4" class="auto internal xref">4</a>.  <a href="#name-version-downgrade-preventio" class="internal xref">Version Downgrade Prevention</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5">
+            <p id="section-toc.1-1.5.1"><a href="#section-5" class="auto internal xref">5</a>.  <a href="#name-server-deployments-of-quic" class="internal xref">Server Deployments of QUIC</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6">
+            <p id="section-toc.1-1.6.1"><a href="#section-6" class="auto internal xref">6</a>.  <a href="#name-application-layer-protocol-" class="internal xref">Application-Layer Protocol Considerations</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7">
+            <p id="section-toc.1-1.7.1"><a href="#section-7" class="auto internal xref">7</a>.  <a href="#name-considerations-for-future-v" class="internal xref">Considerations for Future Versions</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7.2.1">
+                <p id="section-toc.1-1.7.2.1.1"><a href="#section-7.1" class="auto internal xref">7.1</a>.  <a href="#name-interaction-with-retry" class="internal xref">Interaction with Retry</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7.2.2">
+                <p id="section-toc.1-1.7.2.2.1"><a href="#section-7.2" class="auto internal xref">7.2</a>.  <a href="#name-interaction-with-tls-resump" class="internal xref">Interaction with TLS Resumption</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7.2.3">
+                <p id="section-toc.1-1.7.2.3.1"><a href="#section-7.3" class="auto internal xref">7.3</a>.  <a href="#name-interaction-with-0-rtt" class="internal xref">Interaction with 0-RTT</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.8">
+            <p id="section-toc.1-1.8.1"><a href="#section-8" class="auto internal xref">8</a>.  <a href="#name-special-handling-for-quic-v" class="internal xref">Special Handling for QUIC Version 1</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9">
+            <p id="section-toc.1-1.9.1"><a href="#section-9" class="auto internal xref">9</a>.  <a href="#name-security-considerations" class="internal xref">Security Considerations</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.10">
+            <p id="section-toc.1-1.10.1"><a href="#section-10" class="auto internal xref">10</a>. <a href="#name-iana-considerations" class="internal xref">IANA Considerations</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.10.2.1">
+                <p id="section-toc.1-1.10.2.1.1"><a href="#section-10.1" class="auto internal xref">10.1</a>.  <a href="#name-quic-transport-parameter" class="internal xref">QUIC Transport Parameter</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.10.2.2">
+                <p id="section-toc.1-1.10.2.2.1"><a href="#section-10.2" class="auto internal xref">10.2</a>.  <a href="#name-quic-transport-error-code" class="internal xref">QUIC Transport Error Code</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.11">
+            <p id="section-toc.1-1.11.1"><a href="#section-11" class="auto internal xref">11</a>. <a href="#name-references" class="internal xref">References</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.11.2.1">
+                <p id="section-toc.1-1.11.2.1.1"><a href="#section-11.1" class="auto internal xref">11.1</a>.  <a href="#name-normative-references" class="internal xref">Normative References</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.11.2.2">
+                <p id="section-toc.1-1.11.2.2.1"><a href="#section-11.2" class="auto internal xref">11.2</a>.  <a href="#name-informative-references" class="internal xref">Informative References</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.12">
+            <p id="section-toc.1-1.12.1"><a href="#appendix-A" class="auto internal xref"></a><a href="#name-acknowledgments" class="internal xref">Acknowledgments</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.13">
+            <p id="section-toc.1-1.13.1"><a href="#appendix-B" class="auto internal xref"></a><a href="#name-authors-addresses" class="internal xref">Authors' Addresses</a></p>
+</li>
+        </ul>
+</nav>
+</section>
+</div>
+<div id="introduction">
+<section id="section-1">
+      <h2 id="name-introduction">
+<a href="#section-1" class="section-number selfRef">1. </a><a href="#name-introduction" class="section-name selfRef">Introduction</a>
+      </h2>
+<p id="section-1-1">The version-invariant properties of QUIC <span>[<a href="#QUIC-INVARIANTS" class="cite xref">QUIC-INVARIANTS</a>]</span> define a
+Version Negotiation packet but do not specify how an endpoint reacts when it
+receives one. QUIC version 1 <span>[<a href="#QUIC" class="cite xref">QUIC</a>]</span> allows the server to use a
+Version Negotiation packet to indicate that the version the client chose is
+unacceptable, but it doesn't allow the client to safely make use of that
+information to create a new connection with a mutually supported version.
+This document updates <span>[<a href="#QUIC-INVARIANTS" class="cite xref">QUIC-INVARIANTS</a>]</span> by defining version
+negotiation mechanisms that leverage the Version Negotiation packet.<a href="#section-1-1" class="pilcrow">¶</a></p>
+<p id="section-1-2">With proper safety mechanisms in place, the Version Negotiation packet can be
+part of a mechanism to allow two QUIC implementations to negotiate between two
+totally disjoint versions of QUIC. This document specifies version negotiation
+using Version Negotiation packets, which adds an extra round trip to connection
+establishment if needed.<a href="#section-1-2" class="pilcrow">¶</a></p>
+<p id="section-1-3">It is beneficial to avoid additional round trips whenever possible, especially
+given that most incremental versions are broadly similar to the previous
+version. This specification also defines a simple version negotiation mechanism
+that leverages similarities between versions and can negotiate between
+"compatible" versions without additional round trips.<a href="#section-1-3" class="pilcrow">¶</a></p>
+<div id="conventions">
+<section id="section-1.1">
+        <h3 id="name-conventions">
+<a href="#section-1.1" class="section-number selfRef">1.1. </a><a href="#name-conventions" class="section-name selfRef">Conventions</a>
+        </h3>
+<p id="section-1.1-1">The key words "<span class="bcp14">MUST</span>", "<span class="bcp14">MUST NOT</span>", "<span class="bcp14">REQUIRED</span>", "<span class="bcp14">SHALL</span>", "<span class="bcp14">SHALL NOT</span>", "<span class="bcp14">SHOULD</span>", "<span class="bcp14">SHOULD NOT</span>", "<span class="bcp14">RECOMMENDED</span>", "<span class="bcp14">NOT RECOMMENDED</span>",
+"<span class="bcp14">MAY</span>", and "<span class="bcp14">OPTIONAL</span>" in this document are to be interpreted as
+described in BCP 14 <span>[<a href="#RFC2119" class="cite xref">RFC2119</a>]</span> <span>[<a href="#RFC8174" class="cite xref">RFC8174</a>]</span> when, and only when, they
+appear in all capitals, as shown here.<a href="#section-1.1-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="definitions">
+<section id="section-1.2">
+        <h3 id="name-definitions">
+<a href="#section-1.2" class="section-number selfRef">1.2. </a><a href="#name-definitions" class="section-name selfRef">Definitions</a>
+        </h3>
+<p id="section-1.2-1">The document uses the following terms:<a href="#section-1.2-1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-1.2-2.1">In the context of a given QUIC connection, the "first flight" of packets
+refers to the set of packets the client creates and sends to initiate the
+connection before it has heard back from the server.<a href="#section-1.2-2.1" class="pilcrow">¶</a>
+</li>
+          <li class="normal" id="section-1.2-2.2">In the context of a given QUIC connection, the "client's Chosen Version" is
+the QUIC version of the connection's first flight.<a href="#section-1.2-2.2" class="pilcrow">¶</a>
+</li>
+          <li class="normal" id="section-1.2-2.3">The "Original Version" is the QUIC version of the very first packet the client
+sends to the server. If version negotiation spans multiple connections (see
+<a href="#connections" class="auto internal xref">Section 2.4</a>), the Original Version is equal to the client's Chosen Version
+of the first QUIC connection.<a href="#section-1.2-2.3" class="pilcrow">¶</a>
+</li>
+          <li class="normal" id="section-1.2-2.4">The "Negotiated Version" is the QUIC version in use on the connection once the
+version negotiation process completes.<a href="#section-1.2-2.4" class="pilcrow">¶</a>
+</li>
+          <li class="normal" id="section-1.2-2.5">The "Maximum Segment Lifetime" (MSL) represents the time a QUIC packet can
+exist in the network. Implementations can make this configurable, and a
+<span class="bcp14">RECOMMENDED</span> value is one minute. Note that the term "segment" here originated
+in <span><a href="https://rfc-editor.org/rfc/rfc9293#section-3.4.1" class="relref">Section 3.4.1</a> of [<a href="#TCP" class="cite xref">TCP</a>]</span>.<a href="#section-1.2-2.5" class="pilcrow">¶</a>
+</li>
+        </ul>
+</section>
+</div>
+</section>
+</div>
+<div id="version-negotiation-mechanism">
+<section id="section-2">
+      <h2 id="name-version-negotiation-mechani">
+<a href="#section-2" class="section-number selfRef">2. </a><a href="#name-version-negotiation-mechani" class="section-name selfRef">Version Negotiation Mechanism</a>
+      </h2>
+<p id="section-2-1">This document specifies two means of performing version negotiation:
+"incompatible", which requires a round trip and is applicable to all versions,
+and "compatible", which allows saving the round trip but only applies when the
+versions are compatible (see <a href="#compat" class="auto internal xref">Section 2.2</a>).<a href="#section-2-1" class="pilcrow">¶</a></p>
+<p id="section-2-2">The client initiates a QUIC connection by choosing an Original Version and
+sending a first flight of QUIC packets with a long header to the server
+<span>[<a href="#QUIC-INVARIANTS" class="cite xref">QUIC-INVARIANTS</a>]</span>. The client's first flight includes Version Information (see
+<a href="#vers-info" class="auto internal xref">Section 3</a>), which will be used to optionally enable compatible version
+negotiation (see <a href="#compat-vn" class="auto internal xref">Section 2.3</a>) and to prevent version downgrade attacks (see
+<a href="#downgrade" class="auto internal xref">Section 4</a>).<a href="#section-2-2" class="pilcrow">¶</a></p>
+<p id="section-2-3">Upon receiving this first flight, the server verifies whether it knows how to
+parse first flights from the Chosen Version (which is also the Original
+Version in this case). If it does not, then it starts
+incompatible version negotiation (see <a href="#incompat-vn" class="auto internal xref">Section 2.1</a>), which causes the client
+to initiate a new connection with a different version. For instance, if the
+client initiates a connection with version A that the server can't parse,
+the server starts incompatible version negotiation; then, when the client
+initiates a new connection with version
+B, we say that the first connection's client Chosen Version is A, the second
+connection's client Chosen Version is B, and the Original Version for the entire
+sequence is A.<a href="#section-2-3" class="pilcrow">¶</a></p>
+<p id="section-2-4">If the server can parse the first flight, it can establish the connection
+using the client's Chosen Version, or it <span class="bcp14">MAY</span> select any other compatible
+version, as described in <a href="#compat-vn" class="auto internal xref">Section 2.3</a>.<a href="#section-2-4" class="pilcrow">¶</a></p>
+<p id="section-2-5">Note that it is possible for a server to have the ability to parse the first
+flight of a given version without fully supporting it, in the sense that it
+implements enough of the version's specification to parse first flight packets
+but not enough to fully establish a connection using that version.<a href="#section-2-5" class="pilcrow">¶</a></p>
+<div id="incompat-vn">
+<section id="section-2.1">
+        <h3 id="name-incompatible-version-negoti">
+<a href="#section-2.1" class="section-number selfRef">2.1. </a><a href="#name-incompatible-version-negoti" class="section-name selfRef">Incompatible Version Negotiation</a>
+        </h3>
+<p id="section-2.1-1">The server starts incompatible version negotiation by sending a Version
+Negotiation packet. This packet <span class="bcp14">SHALL</span> include each entry from the server's set
+of Offered Versions (see <a href="#server-fleet" class="auto internal xref">Section 5</a>) in a Supported Version field. The
+server <span class="bcp14">MAY</span> add reserved versions (as defined in <span><a href="https://rfc-editor.org/rfc/rfc9000#section-6.3" class="relref">Section 6.3</a> of [<a href="#QUIC" class="cite xref">QUIC</a>]</span>) in
+Supported Version fields.<a href="#section-2.1-1" class="pilcrow">¶</a></p>
+<p id="section-2.1-2">Clients will ignore a Version Negotiation packet if it contains the Original
+Version attempted by the client, as required by <a href="#downgrade" class="auto internal xref">Section 4</a>. The client also ignores a
+Version Negotiation packet that contains incorrect connection ID fields, as required by
+<span><a href="https://rfc-editor.org/rfc/rfc8999#section-6" class="relref">Section 6</a> of [<a href="#QUIC-INVARIANTS" class="cite xref">QUIC-INVARIANTS</a>]</span>.<a href="#section-2.1-2" class="pilcrow">¶</a></p>
+<p id="section-2.1-3">Upon receiving the Version Negotiation packet, the client <span class="bcp14">SHALL</span> search for a
+version it supports in the list provided by the server. If it doesn't find one,
+it <span class="bcp14">SHALL</span> abort the connection attempt. Otherwise, it <span class="bcp14">SHALL</span> select a mutually
+supported version and send a new first flight with that version -- this version
+is now the Negotiated Version.<a href="#section-2.1-3" class="pilcrow">¶</a></p>
+<p id="section-2.1-4">The new first flight will allow the endpoints to establish a connection using
+the Negotiated Version. The handshake of the Negotiated Version will exchange
+Version Information (see <a href="#vers-info" class="auto internal xref">Section 3</a>) that is required to ensure that version
+negotiation was genuine, i.e., that no attacker injected packets in order to
+influence the version negotiation process (see <a href="#downgrade" class="auto internal xref">Section 4</a>).<a href="#section-2.1-4" class="pilcrow">¶</a></p>
+<p id="section-2.1-5">Only servers can start incompatible version negotiation, i.e., clients <span class="bcp14">MUST NOT</span> send
+Version Negotiation packets and servers <span class="bcp14">MUST</span> ignore all received Version
+Negotiation packets.<a href="#section-2.1-5" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="compat">
+<section id="section-2.2">
+        <h3 id="name-compatible-versions">
+<a href="#section-2.2" class="section-number selfRef">2.2. </a><a href="#name-compatible-versions" class="section-name selfRef">Compatible Versions</a>
+        </h3>
+<p id="section-2.2-1">If A and B are two distinct versions of QUIC, A is said to be "compatible" with
+B if it is possible to take a first flight of packets from version A and convert
+it into a first flight of packets from version B. As an example, if versions A
+and B are absolutely equal in their wire image and behavior during the handshake
+but differ after the handshake, then A is compatible with B and B is compatible
+with A. Note that the conversion of the first flight can be lossy, i.e., some data,
+such as QUIC version 1 0-RTT packets, could be ignored during conversion and
+retransmitted later.<a href="#section-2.2-1" class="pilcrow">¶</a></p>
+<p id="section-2.2-2">Version compatibility is not symmetric, i.e., it is possible for version A to be
+compatible with version B and for version B not to be compatible with version A. This could
+happen, for example, if version B is a strict superset of version A, i.e., if version A
+includes the concept of streams and STREAM frames and version B includes the
+concept of streams and the hypothetical concept of tubes along with STREAM and
+TUBE frames, then A would be compatible with B, but B would not be compatible
+with A.<a href="#section-2.2-2" class="pilcrow">¶</a></p>
+<p id="section-2.2-3">Note that version compatibility does not mean that every single possible
+instance of a first flight will succeed in conversion to the other version. A
+first flight using version A is said to be "compatible" with version B if two
+conditions are met: (1) version A is compatible with version B and
+(2) the conversion of this first flight to version B is well defined.
+For example, if version B is equal to version A in all aspects except it introduced a
+new frame in its first flight that version A cannot parse or even ignore, then version B
+could still be compatible with version A, as conversions would succeed for connections
+where that frame is not used. In this example, first flights using version B
+that carry this new frame would not be compatible with version A.<a href="#section-2.2-3" class="pilcrow">¶</a></p>
+<p id="section-2.2-4">When a new version of QUIC is defined, it is assumed to not be compatible with
+any other version unless otherwise specified. Similarly, no other version is
+compatible with the new version unless otherwise specified. Implementations <span class="bcp14">MUST NOT</span> assume compatibility between versions unless explicitly specified.<a href="#section-2.2-4" class="pilcrow">¶</a></p>
+<p id="section-2.2-5">Note that both endpoints might disagree on whether two versions are compatible
+or not. For example, two versions could have been defined concurrently and then
+specified as compatible in a third document much later -- in that scenario, one
+endpoint might be aware of the compatibility document, while the other may not.<a href="#section-2.2-5" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="compat-vn">
+<section id="section-2.3">
+        <h3 id="name-compatible-version-negotiat">
+<a href="#section-2.3" class="section-number selfRef">2.3. </a><a href="#name-compatible-version-negotiat" class="section-name selfRef">Compatible Version Negotiation</a>
+        </h3>
+<p id="section-2.3-1">When the server can parse the client's first flight using the client's Chosen
+Version, it can extract the client's Version Information structure (see
+<a href="#vers-info" class="auto internal xref">Section 3</a>). This contains the list of versions that the client knows its
+first flight is compatible with.<a href="#section-2.3-1" class="pilcrow">¶</a></p>
+<p id="section-2.3-2">In order to perform compatible version negotiation, the server <span class="bcp14">MUST</span> select one
+of these versions that it (1) supports and (2) knows the client's Chosen
+Version is compatible with. This selected version is now the Negotiated
+Version. After selecting it, the server attempts to convert the client's first
+flight into that version and replies to the client as if it had received the
+converted first flight.<a href="#section-2.3-2" class="pilcrow">¶</a></p>
+<p id="section-2.3-3">If those formats are identical, as in cases where the Negotiated Version is the
+same as the client's Chosen Version, then this will be the identity transformation.
+If the first flight is correctly formatted, then this conversion process cannot
+fail by definition of the first flight being compatible; if the server is unable
+to convert the first flight, it <span class="bcp14">MUST</span> abort the handshake.<a href="#section-2.3-3" class="pilcrow">¶</a></p>
+<p id="section-2.3-4">If a document specifies that a QUIC version is compatible with another, that
+document <span class="bcp14">MUST</span> specify the mechanism by which clients are made aware of the
+Negotiated Version. An example of such a mechanism is to have the client
+determine the server's Negotiated Version by examining the QUIC long header
+Version field. Note that, in this example mechanism, it is possible for the
+server to initially send packets with the client's Chosen Version before
+switching to the Negotiated Version (this can happen when the client's Version
+Information structure spans multiple packets; in that case, the server might
+acknowledge the first packet in the client's Chosen Version and later switch to
+a different Negotiated Version). Mutually compatible versions <span class="bcp14">SHOULD</span> use the
+same mechanism.<a href="#section-2.3-4" class="pilcrow">¶</a></p>
+<p id="section-2.3-5">Note that, after the first flight is converted to the Negotiated Version, the
+handshake completes in the Negotiated Version. If the Negotiated Version has
+requirements that apply during the handshake, those requirements apply to the
+entire handshake, including the converted first flight. In particular, if the
+Negotiated Version mandates that endpoints perform validations on Handshake
+packets, endpoints <span class="bcp14">MUST</span> also perform such validations on the converted first
+flight. For instance, if the Negotiated Version requires that the 5-tuple remain
+stable for the entire handshake (as QUIC version 1 does), then both endpoints
+need to validate the 5-tuple of all packets received during the handshake, including the converted
+first flight.<a href="#section-2.3-5" class="pilcrow">¶</a></p>
+<p id="section-2.3-6">Note also that the client can disable compatible version negotiation by only
+including the Chosen Version in the Available Versions field of the Version
+Information (see <a href="#vers-info" class="auto internal xref">Section 3</a>).<a href="#section-2.3-6" class="pilcrow">¶</a></p>
+<p id="section-2.3-7">If the server does not find a compatible version (including the client's Chosen
+Version), it will perform incompatible version negotiation instead (see
+<a href="#incompat-vn" class="auto internal xref">Section 2.1</a>).<a href="#section-2.3-7" class="pilcrow">¶</a></p>
+<p id="section-2.3-8">Note that it is possible to have incompatible version negotiation followed by
+compatible version negotiation. For instance, if version A is compatible with version B
+and version C is compatible with version D, the following scenario could occur:<a href="#section-2.3-8" class="pilcrow">¶</a></p>
+<span id="name-combined-negotiation-exampl"></span><div id="fig-dual-example">
+<figure id="figure-1">
+          <div class="alignLeft art-text artwork" id="section-2.3-9.1">
+<pre>
+Client                                          Server
+
+Chosen = A, Available Versions = (A, B) -------------&gt;
+&lt;------------------------ Version Negotiation = (D, C)
+
+Chosen = C, Available Versions = (C, D) -------------&gt;
+&lt;------------- Chosen = D, Available Versions = (D, C)
+</pre>
+</div>
+<figcaption><a href="#figure-1" class="selfRef">Figure 1</a>:
+<a href="#name-combined-negotiation-exampl" class="selfRef">Combined Negotiation Example</a>
+          </figcaption></figure>
+</div>
+<p id="section-2.3-10">In this example, the client selected C from the server's Version Negotiation
+packet, but the server preferred D and then selected it from the client's offer.<a href="#section-2.3-10" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="connections">
+<section id="section-2.4">
+        <h3 id="name-connections-and-version-neg">
+<a href="#section-2.4" class="section-number selfRef">2.4. </a><a href="#name-connections-and-version-neg" class="section-name selfRef">Connections and Version Negotiation</a>
+        </h3>
+<p id="section-2.4-1">QUIC connections are shared state between a client and a server
+<span>[<a href="#QUIC-INVARIANTS" class="cite xref">QUIC-INVARIANTS</a>]</span>. The compatible version negotiation mechanism defined in
+this document (see <a href="#compat-vn" class="auto internal xref">Section 2.3</a>) is performed as part of a single QUIC
+connection; that is, the packets with the client's Chosen Version are part of
+the same connection as the packets with the Negotiated Version.<a href="#section-2.4-1" class="pilcrow">¶</a></p>
+<p id="section-2.4-2">In comparison, the incompatible version negotiation mechanism, which leverages
+QUIC Version Negotiation packets (see <a href="#incompat-vn" class="auto internal xref">Section 2.1</a>), conceptually operates
+across two QUIC connections, i.e., the connection attempt prior to receiving the
+Version Negotiation packet is distinct from the connection with the incompatible
+version that follows.<a href="#section-2.4-2" class="pilcrow">¶</a></p>
+<p id="section-2.4-3">Note that this separation across two connections is conceptual, i.e., it applies to
+normative requirements on QUIC connections, but it does not require implementations
+to internally use two distinct connection objects.<a href="#section-2.4-3" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="client-choice-of-original-version">
+<section id="section-2.5">
+        <h3 id="name-client-choice-of-original-v">
+<a href="#section-2.5" class="section-number selfRef">2.5. </a><a href="#name-client-choice-of-original-v" class="section-name selfRef">Client Choice of Original Version</a>
+        </h3>
+<p id="section-2.5-1">When the client picks its Original Version, it <span class="bcp14">SHOULD</span> try to avoid incompatible
+version negotiation to save a round trip. Therefore, the client <span class="bcp14">SHOULD</span> pick an
+Original Version to maximize the combined probability that both:<a href="#section-2.5-1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-2.5-2.1">the server knows how to parse first flights from the Original Version and<a href="#section-2.5-2.1" class="pilcrow">¶</a>
+</li>
+          <li class="normal" id="section-2.5-2.2">the Original Version is compatible with the client's preferred version.<a href="#section-2.5-2.2" class="pilcrow">¶</a>
+</li>
+        </ul>
+<p id="section-2.5-3">Without additional information, this could mean selecting the oldest version
+that the client supports while advertising newer compatible versions in the
+client's first flight.<a href="#section-2.5-3" class="pilcrow">¶</a></p>
+</section>
+</div>
+</section>
+</div>
+<div id="vers-info">
+<section id="section-3">
+      <h2 id="name-version-information">
+<a href="#section-3" class="section-number selfRef">3. </a><a href="#name-version-information" class="section-name selfRef">Version Information</a>
+      </h2>
+<p id="section-3-1">During the handshake, endpoints will exchange Version Information, which
+consists of a Chosen Version and a list of Available Versions. Any version of
+QUIC that supports this mechanism <span class="bcp14">MUST</span> provide a mechanism to exchange Version
+Information in both directions during the handshake, such that this data is
+authenticated.<a href="#section-3-1" class="pilcrow">¶</a></p>
+<p id="section-3-2">In QUIC version 1, the Version Information is transmitted using a new
+version_information transport parameter (see <span><a href="https://rfc-editor.org/rfc/rfc9000#section-7.4" class="relref">Section 7.4</a> of [<a href="#QUIC" class="cite xref">QUIC</a>]</span>). The
+contents of Version Information are shown below (using the notation from
+<span><a href="https://rfc-editor.org/rfc/rfc9000#section-1.3" class="relref">Section 1.3</a> of [<a href="#QUIC" class="cite xref">QUIC</a>]</span>):<a href="#section-3-2" class="pilcrow">¶</a></p>
+<span id="name-version-information-format"></span><div id="fig-vi-format">
+<figure id="figure-2">
+        <div class="alignLeft art-text artwork" id="section-3-3.1">
+<pre>
+Version Information {
+  Chosen Version (32),
+  Available Versions (32) ...,
+}
+</pre>
+</div>
+<figcaption><a href="#figure-2" class="selfRef">Figure 2</a>:
+<a href="#name-version-information-format" class="selfRef">Version Information Format</a>
+        </figcaption></figure>
+</div>
+<p id="section-3-4">The content of each field is described below:<a href="#section-3-4" class="pilcrow">¶</a></p>
+<span class="break"></span><dl class="dlParallel" id="section-3-5">
+        <dt id="section-3-5.1">Chosen Version:</dt>
+        <dd style="margin-left: 1.5em" id="section-3-5.2">
+          <p id="section-3-5.2.1">This is the version that the sender has chosen to use for this connection. In most
+cases, this field will be equal to the value of the Version field in the long
+header that carries this data; however, future versions or extensions can choose
+to set different values in the long header Version field.<a href="#section-3-5.2.1" class="pilcrow">¶</a></p>
+</dd>
+      <dd class="break"></dd>
+</dl>
+<p id="section-3-6">The content of the Available Versions field depends on whether it is sent by
+the client or by the server.<a href="#section-3-6" class="pilcrow">¶</a></p>
+<span class="break"></span><dl class="dlCompact dlParallel" id="section-3-7">
+        <dt id="section-3-7.1">Client-Sent Available Versions:</dt>
+        <dd style="margin-left: 1.5em" id="section-3-7.2">
+          <p id="section-3-7.2.1">When sent by a client, the Available Versions field lists all the versions
+that this first flight is compatible with, ordered by descending preference.
+Note that the version in the Chosen Version field <span class="bcp14">MUST</span> be included in this list
+to allow the client to communicate the Chosen Version's preference. Note that
+this preference is only advisory; servers <span class="bcp14">MAY</span> choose to use their own preference
+instead.<a href="#section-3-7.2.1" class="pilcrow">¶</a></p>
+</dd>
+        <dd class="break"></dd>
+<dt id="section-3-7.3">Server-Sent Available Versions:</dt>
+        <dd style="margin-left: 1.5em" id="section-3-7.4">
+          <p id="section-3-7.4.1">When sent by a server, the Available Versions field lists all the
+Fully Deployed Versions of this server deployment (see <a href="#server-fleet" class="auto internal xref">Section 5</a>). The
+ordering of the versions in this field does not carry any semantics. Note
+that the version in the Chosen Version field is not necessarily included in this
+list, because the server operator could be in the process of removing support
+for this version. For the same reason, the Available Versions field <span class="bcp14">MAY</span> be empty.<a href="#section-3-7.4.1" class="pilcrow">¶</a></p>
+</dd>
+      <dd class="break"></dd>
+</dl>
+<p id="section-3-8">Clients and servers <span class="bcp14">MAY</span> both include versions following the pattern 0x?a?a?a?a
+in their Available Versions list. Those versions are reserved to exercise
+version negotiation (see <span><a href="https://rfc-editor.org/rfc/rfc9000#section-15" class="relref">Section 15</a> of [<a href="#QUIC" class="cite xref">QUIC</a>]</span>) and will never be
+selected when choosing a version to use.<a href="#section-3-8" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="downgrade">
+<section id="section-4">
+      <h2 id="name-version-downgrade-preventio">
+<a href="#section-4" class="section-number selfRef">4. </a><a href="#name-version-downgrade-preventio" class="section-name selfRef">Version Downgrade Prevention</a>
+      </h2>
+<p id="section-4-1">A version downgrade is an attack where a malicious entity manages to make the
+QUIC endpoints negotiate a QUIC version different from the one they would have
+negotiated in the absence of the attack. The mechanism described in this
+document is designed to prevent downgrade attacks.<a href="#section-4-1" class="pilcrow">¶</a></p>
+<p id="section-4-2">Clients <span class="bcp14">MUST</span> ignore any received Version Negotiation packets that contain the
+Original Version. A client that makes a connection attempt based on information
+received from a Version Negotiation packet <span class="bcp14">MUST</span> ignore any Version Negotiation
+packets it receives in response to that connection attempt.<a href="#section-4-2" class="pilcrow">¶</a></p>
+<p id="section-4-3">Both endpoints <span class="bcp14">MUST</span> parse their peer's Version Information during the handshake.
+If that leads to a parsing failure (for example, if it is too short or if
+its length is not divisible by four), then the endpoint <span class="bcp14">MUST</span> close the
+connection; if the connection was using QUIC version 1, that connection closure
+<span class="bcp14">MUST</span> use a transport error of type TRANSPORT_PARAMETER_ERROR. If an endpoint
+receives a Chosen Version equal to zero, or any Available Version equal to zero,
+it <span class="bcp14">MUST</span> treat it as a parsing failure. If a server receives Version
+Information where the Chosen Version is not included in Available Versions, it
+<span class="bcp14">MUST</span> treat it as a parsing failure.<a href="#section-4-3" class="pilcrow">¶</a></p>
+<p id="section-4-4">Every QUIC version that supports version negotiation <span class="bcp14">MUST</span> define a method for
+closing the connection with a version negotiation error. For QUIC version 1,
+version negotiation errors are signaled using a transport error of type
+VERSION_NEGOTIATION_ERROR (see <a href="#iana-error" class="auto internal xref">Section 10.2</a>).<a href="#section-4-4" class="pilcrow">¶</a></p>
+<p id="section-4-5">When a server receives a client's first flight, the server will first
+establish which QUIC version is in use for this connection in order to
+properly parse the first flight. This may involve examining data
+that is not part of the handshake transcript, such as parts of the
+packet header. When the server then processes the client's Version
+Information, the server <span class="bcp14">MUST</span> validate that the client's Chosen Version
+matches the version in use for the connection. If the two differ, the
+server <span class="bcp14">MUST</span> close the connection with a version negotiation error.<a href="#section-4-5" class="pilcrow">¶</a></p>
+<p id="section-4-6">In the specific case of QUIC version 1, the server determines that version 1 is in use
+by observing that the Version field of the first Long Header packet it receives
+is set to 0x00000001. Subsequently, if the server receives the client's Version
+Information over QUIC version 1 (as indicated by the Version field of the Long
+Header packets that carried the transport parameters) and the client's Chosen
+Version is not set to 0x00000001, the server <span class="bcp14">MUST</span> close the connection with a
+version negotiation error.<a href="#section-4-6" class="pilcrow">¶</a></p>
+<p id="section-4-7">Servers <span class="bcp14">MAY</span> complete the handshake even if the Version Information is missing.
+Clients <span class="bcp14">MUST NOT</span> complete the handshake if they are reacting to a Version
+Negotiation packet and the Version Information is missing, but <span class="bcp14">MAY</span> do so
+otherwise.<a href="#section-4-7" class="pilcrow">¶</a></p>
+<p id="section-4-8">If a client receives Version Information where the server's Chosen Version was
+not sent by the client as part of its Available Versions, the client <span class="bcp14">MUST</span> close
+the connection with a version negotiation error. If a client has reacted to a
+Version Negotiation packet and the server's Version Information was missing, the client
+<span class="bcp14">MUST</span> close the connection with a version negotiation error.<a href="#section-4-8" class="pilcrow">¶</a></p>
+<p id="section-4-9">If the client received and acted on a Version Negotiation packet, the client
+<span class="bcp14">MUST</span> validate the server's Available Versions field. The Available Versions
+field is validated by confirming that the client would have attempted the same
+version with knowledge of the versions the server supports. That is, the client
+would have selected the same version if it received a Version Negotiation packet
+that listed the versions in the server's Available Versions field, plus the
+Negotiated Version. If the client would have selected a different version, the
+client <span class="bcp14">MUST</span> close the connection with a version negotiation error. In
+particular, if the client reacted to a Version Negotiation packet and the
+server's Available Versions field is empty, the client <span class="bcp14">MUST</span> close the connection
+with a version negotiation error. These connection closures prevent an attacker
+from being able to use forged Version Negotiation packets to force a version
+downgrade.<a href="#section-4-9" class="pilcrow">¶</a></p>
+<p id="section-4-10">As an example, let's assume a client supports hypothetical QUIC versions 10, 12,
+and 14 with a preference for higher versions. The client initiates a connection
+attempt with version 12. Let's explore two independent example scenarios:<a href="#section-4-10" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-4-11.1">In the first scenario, the server supports versions 10, 13, and 14, but only 13
+and 14 are Fully Deployed (see <a href="#server-fleet" class="auto internal xref">Section 5</a>). The server sends a Version
+Negotiation packet with versions 10, 13, and 14. This triggers an incompatible
+version negotiation, and the client initiates a new connection with version 14.
+Then, the server's Available Versions field contains 13 and 14. In that
+scenario, the client would have also picked 14 if it had received a Version
+Negotiation packet with versions 13 and 14; therefore, the handshake succeeds
+using Negotiated Version 14.<a href="#section-4-11.1" class="pilcrow">¶</a>
+</li>
+        <li class="normal" id="section-4-11.2">In the second scenario, the server supports versions 10, 13, and 14, and they
+are all Fully Deployed. However, the attacker forges a Version Negotiation
+packet with versions 10 and 13. This triggers an incompatible version
+negotiation, and the client initiates a new connection with version 10. Then,
+the server's Available Versions field contains 10, 13, and 14. In that
+scenario, the client would have picked 14 instead of 10 if it had received a
+Version Negotiation packet with versions 10, 13, and 14; therefore, the client
+aborts the handshake with a version negotiation error.<a href="#section-4-11.2" class="pilcrow">¶</a>
+</li>
+      </ul>
+<p id="section-4-12">This validation of Available Versions is not sufficient to prevent downgrade.
+Downgrade prevention also depends on the client ignoring Version Negotiation
+packets that contain the Original Version (see <a href="#incompat-vn" class="auto internal xref">Section 2.1</a>).<a href="#section-4-12" class="pilcrow">¶</a></p>
+<p id="section-4-13">After the process of version negotiation described in this document completes, the version
+in use for the connection is the version that the server sent in the Chosen
+Version field of its Version Information. That remains true even if other
+versions were used in the Version field of long headers at any point in the
+lifetime of the connection. In particular, since
+the client can be made aware of the Negotiated Version by the QUIC long
+header version during compatible version negotiation (see <a href="#compat-vn" class="auto internal xref">Section 2.3</a>),
+clients <span class="bcp14">MUST</span> validate that the server's
+Chosen Version is equal to the Negotiated Version; if they do not match, the
+client <span class="bcp14">MUST</span> close the connection with a version negotiation error. This prevents
+an attacker's ability to influence version negotiation by forging the
+long header Version field.<a href="#section-4-13" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="server-fleet">
+<section id="section-5">
+      <h2 id="name-server-deployments-of-quic">
+<a href="#section-5" class="section-number selfRef">5. </a><a href="#name-server-deployments-of-quic" class="section-name selfRef">Server Deployments of QUIC</a>
+      </h2>
+<p id="section-5-1">While this document mainly discusses a single QUIC server, it is common for
+deployments of QUIC servers to include a fleet of multiple server instances.
+Therefore, we define the following terms:<a href="#section-5-1" class="pilcrow">¶</a></p>
+<span class="break"></span><dl class="dlCompact dlParallel" id="section-5-2">
+        <dt id="section-5-2.1">Acceptable Versions:</dt>
+        <dd style="margin-left: 1.5em" id="section-5-2.2">
+          <p id="section-5-2.2.1">This is the set of versions supported by a given server instance. More
+specifically, these are the versions that a given server instance will use if a
+client sends a first flight using them.<a href="#section-5-2.2.1" class="pilcrow">¶</a></p>
+</dd>
+        <dd class="break"></dd>
+<dt id="section-5-2.3">Offered Versions:</dt>
+        <dd style="margin-left: 1.5em" id="section-5-2.4">
+          <p id="section-5-2.4.1">This is the set of versions that a given server instance will send in a
+Version Negotiation packet if it receives a first flight from an unknown
+version. This set will most often be equal to the Acceptable Versions set,
+except during short transitions while versions are added or removed (see below).<a href="#section-5-2.4.1" class="pilcrow">¶</a></p>
+</dd>
+        <dd class="break"></dd>
+<dt id="section-5-2.5">Fully Deployed Versions:</dt>
+        <dd style="margin-left: 1.5em" id="section-5-2.6">
+          <p id="section-5-2.6.1">This is the set of QUIC versions that is supported and negotiated by every
+single QUIC server instance in this deployment. If a deployment only contains a
+single server instance, then this set is equal to the Offered Versions set,
+except during short transitions while versions are added or removed (see below).<a href="#section-5-2.6.1" class="pilcrow">¶</a></p>
+</dd>
+      <dd class="break"></dd>
+</dl>
+<p id="section-5-3">If a deployment contains multiple server instances, software updates may not
+happen at exactly the same time on all server instances. Because of this, a
+client might receive a Version Negotiation packet from a server instance that
+has already been updated, and the client's resulting connection attempt might
+reach a different server instance that hasn't been updated yet.<a href="#section-5-3" class="pilcrow">¶</a></p>
+<p id="section-5-4">However, even when there is only a single server instance, it is still possible
+to receive a stale Version Negotiation packet if the server performs its
+software update while the Version Negotiation packet is in flight.<a href="#section-5-4" class="pilcrow">¶</a></p>
+<p id="section-5-5">This could cause the version downgrade prevention mechanism described in
+<a href="#downgrade" class="auto internal xref">Section 4</a> to falsely detect a downgrade attack. To avoid that, server
+operators <span class="bcp14">SHOULD</span> perform a three-step process when they wish to add or remove
+support for a version, as described below.<a href="#section-5-5" class="pilcrow">¶</a></p>
+<p id="section-5-6">When adding support for a new version:<a href="#section-5-6" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-5-7.1">The first step is to progressively add support for the new version to all
+server instances. This step updates the Acceptable Versions but not the
+Offered Versions nor the Fully Deployed Versions. Once all server instances
+have been updated, operators wait for at least one MSL to allow any in-flight
+Version Negotiation packets to arrive.<a href="#section-5-7.1" class="pilcrow">¶</a>
+</li>
+        <li class="normal" id="section-5-7.2">Then, the second step is to progressively add the new version to Offered
+Versions on all server instances. Once complete, operators wait for at least
+another MSL.<a href="#section-5-7.2" class="pilcrow">¶</a>
+</li>
+        <li class="normal" id="section-5-7.3">Finally, the third step is to progressively add the new version to
+Fully Deployed Versions on all server instances.<a href="#section-5-7.3" class="pilcrow">¶</a>
+</li>
+      </ul>
+<p id="section-5-8">When removing support for a version:<a href="#section-5-8" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-5-9.1">The first step is to progressively remove the version from Fully Deployed
+Versions on all server instances. Once it has been removed on all server
+instances, operators wait for at least one MSL to allow any in-flight Version
+Negotiation packets to arrive.<a href="#section-5-9.1" class="pilcrow">¶</a>
+</li>
+        <li class="normal" id="section-5-9.2">Then, the second step is to progressively remove the version from Offered
+Versions on all server instances. Once complete, operators wait for at least
+another MSL.<a href="#section-5-9.2" class="pilcrow">¶</a>
+</li>
+        <li class="normal" id="section-5-9.3">Finally, the third step is to progressively remove support for the version
+from all server instances. That step updates the Acceptable Versions.<a href="#section-5-9.3" class="pilcrow">¶</a>
+</li>
+      </ul>
+<p id="section-5-10">Note that, during the update window, connections are vulnerable to downgrade
+attacks for Acceptable Versions that are not Fully Deployed. This is because a client cannot
+distinguish such a downgrade attack from legitimate exchanges with both updated
+and non-updated server instances.<a href="#section-5-10" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="application-layer-protocol-considerations">
+<section id="section-6">
+      <h2 id="name-application-layer-protocol-">
+<a href="#section-6" class="section-number selfRef">6. </a><a href="#name-application-layer-protocol-" class="section-name selfRef">Application-Layer Protocol Considerations</a>
+      </h2>
+<p id="section-6-1">When a client creates a QUIC connection, its goal is to use an application-layer
+protocol. Therefore, when considering which versions are compatible, clients
+will only consider versions that support one of the intended application-layer
+protocols. If the client's first flight advertises multiple Application-Layer
+Protocol Negotiation (ALPN) <span>[<a href="#ALPN" class="cite xref">ALPN</a>]</span> tokens and multiple compatible
+versions, it is possible for some application-layer protocols to not be able to
+run over some of the offered compatible versions. It is the server's
+responsibility to only select an ALPN token that can run over the compatible
+QUIC version that it selects.<a href="#section-6-1" class="pilcrow">¶</a></p>
+<p id="section-6-2">A given ALPN token <span class="bcp14">MUST NOT</span> be used with a new QUIC version that is different from the
+version for which the ALPN token was originally defined, unless all the
+following requirements are met:<a href="#section-6-2" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-6-3.1">The new QUIC version supports the transport features required by the
+application protocol.<a href="#section-6-3.1" class="pilcrow">¶</a>
+</li>
+        <li class="normal" id="section-6-3.2">The new QUIC version supports ALPN.<a href="#section-6-3.2" class="pilcrow">¶</a>
+</li>
+        <li class="normal" id="section-6-3.3">The version of QUIC for which the ALPN token was originally defined is
+compatible with the new QUIC version.<a href="#section-6-3.3" class="pilcrow">¶</a>
+</li>
+      </ul>
+<p id="section-6-4">When incompatible version negotiation is in use, the second connection that is
+created in response to the received Version Negotiation packet <span class="bcp14">MUST</span> restart its
+application-layer protocol negotiation process without taking into account the
+Original Version.<a href="#section-6-4" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="considerations-for-future-versions">
+<section id="section-7">
+      <h2 id="name-considerations-for-future-v">
+<a href="#section-7" class="section-number selfRef">7. </a><a href="#name-considerations-for-future-v" class="section-name selfRef">Considerations for Future Versions</a>
+      </h2>
+<p id="section-7-1">In order to facilitate the deployment of future versions of QUIC, designers of
+future versions <span class="bcp14">SHOULD</span> attempt to design their new version such that commonly
+deployed versions are compatible with it.<a href="#section-7-1" class="pilcrow">¶</a></p>
+<p id="section-7-2">QUIC version 1 defines multiple features that are not documented in the QUIC
+invariants. Since, at the time of writing, QUIC version 1 is widely deployed,
+this section discusses considerations for future versions to help with
+compatibility with QUIC version 1.<a href="#section-7-2" class="pilcrow">¶</a></p>
+<div id="interaction-with-retry">
+<section id="section-7.1">
+        <h3 id="name-interaction-with-retry">
+<a href="#section-7.1" class="section-number selfRef">7.1. </a><a href="#name-interaction-with-retry" class="section-name selfRef">Interaction with Retry</a>
+        </h3>
+<p id="section-7.1-1">QUIC version 1 features Retry packets, which the server can send to validate the
+client's IP address before parsing the client's first flight. A server that
+sends a Retry packet can do so before parsing the client's first flight.
+Therefore, a server that sends a Retry packet might not have processed the client's
+Version Information before doing so.<a href="#section-7.1-1" class="pilcrow">¶</a></p>
+<p id="section-7.1-2">If a future document wishes to define compatibility between two versions that
+support Retry, that document <span class="bcp14">MUST</span> specify how version negotiation (both
+compatible and incompatible) interacts with Retry during a handshake that
+requires both. For example, that could be accomplished by having the server
+first send a Retry packet in the Original Version, thereby validating the
+client's IP address before attempting compatible version negotiation. If both
+versions support authenticating Retry packets, the compatibility definition
+needs to define how to authenticate the Retry in the Negotiated Version
+handshake even though the Retry itself was sent using the client's Chosen
+Version.<a href="#section-7.1-2" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="interaction-with-tls-resumption">
+<section id="section-7.2">
+        <h3 id="name-interaction-with-tls-resump">
+<a href="#section-7.2" class="section-number selfRef">7.2. </a><a href="#name-interaction-with-tls-resump" class="section-name selfRef">Interaction with TLS Resumption</a>
+        </h3>
+<p id="section-7.2-1">QUIC version 1 uses TLS 1.3, which supports session resumption by sending
+session tickets in one connection that can be used in a later connection (see
+<span><a href="https://rfc-editor.org/rfc/rfc8446#section-2.2" class="relref">Section 2.2</a> of [<a href="#TLS" class="cite xref">TLS</a>]</span>). New versions that also use TLS 1.3 <span class="bcp14">SHOULD</span>
+mandate that their session tickets are tightly scoped to one version of QUIC,
+i.e., require that clients not use them across multiple version and that servers
+validate this client requirement. This helps mitigate cross-protocol attacks.<a href="#section-7.2-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="interaction-with-0-rtt">
+<section id="section-7.3">
+        <h3 id="name-interaction-with-0-rtt">
+<a href="#section-7.3" class="section-number selfRef">7.3. </a><a href="#name-interaction-with-0-rtt" class="section-name selfRef">Interaction with 0-RTT</a>
+        </h3>
+<p id="section-7.3-1">QUIC version 1 allows sending data from the client to the server during the
+handshake by using 0-RTT packets. If a future document wishes to define
+compatibility between two versions that support 0-RTT, that document <span class="bcp14">MUST</span>
+address the scenario where there are 0-RTT packets in the client's first flight.
+For example, this could be accomplished by defining which transformations are
+applied to 0-RTT packets. That document could specify that compatible version
+negotiation causes 0-RTT data to be rejected by the server.<a href="#section-7.3-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+</section>
+</div>
+<div id="special-handling-for-quic-version-1">
+<section id="section-8">
+      <h2 id="name-special-handling-for-quic-v">
+<a href="#section-8" class="section-number selfRef">8. </a><a href="#name-special-handling-for-quic-v" class="section-name selfRef">Special Handling for QUIC Version 1</a>
+      </h2>
+<p id="section-8-1">Because QUIC version 1 was the only QUIC version that was published on the
+IETF Standards Track before this document, it is handled specially as follows: if a client
+is starting a QUIC version 1 connection in response to a received Version
+Negotiation packet and the version_information transport parameter is missing
+from the server's transport parameters, then the client <span class="bcp14">SHALL</span> proceed as if the
+server's transport parameters contained a version_information transport
+parameter with a Chosen Version set to 0x00000001 and an Available Version list
+containing exactly one version set to 0x00000001. This allows version
+negotiation to work with servers that only support QUIC version 1. Note that
+implementations that wish to use version negotiation to negotiate versions
+other than QUIC version 1 <span class="bcp14">MUST</span> implement the version negotiation
+mechanism defined in this document.<a href="#section-8-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="security-considerations">
+<section id="section-9">
+      <h2 id="name-security-considerations">
+<a href="#section-9" class="section-number selfRef">9. </a><a href="#name-security-considerations" class="section-name selfRef">Security Considerations</a>
+      </h2>
+<p id="section-9-1">The security of this version negotiation mechanism relies on the authenticity of
+the Version Information exchanged during the handshake. In QUIC version 1,
+transport parameters are authenticated, ensuring the security of this mechanism.
+Negotiation between compatible versions will have the security of the weakest
+common version.<a href="#section-9-1" class="pilcrow">¶</a></p>
+<p id="section-9-2">The requirement that versions not be assumed compatible mitigates the
+possibility of cross-protocol attacks, but more analysis is still needed here.
+That analysis is out of scope for this document.<a href="#section-9-2" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="iana-considerations">
+<section id="section-10">
+      <h2 id="name-iana-considerations">
+<a href="#section-10" class="section-number selfRef">10. </a><a href="#name-iana-considerations" class="section-name selfRef">IANA Considerations</a>
+      </h2>
+<div id="quic-transport-parameter">
+<section id="section-10.1">
+        <h3 id="name-quic-transport-parameter">
+<a href="#section-10.1" class="section-number selfRef">10.1. </a><a href="#name-quic-transport-parameter" class="section-name selfRef">QUIC Transport Parameter</a>
+        </h3>
+<p id="section-10.1-1">IANA has registered the following value in the "QUIC Transport Parameters"
+registry maintained at &lt;<span><a href="https://www.iana.org/assignments/quic">https://www.iana.org/assignments/quic</a></span>&gt;.<a href="#section-10.1-1" class="pilcrow">¶</a></p>
+<span class="break"></span><dl class="dlCompact dlParallel" id="section-10.1-2">
+          <dt id="section-10.1-2.1">Value:</dt>
+          <dd style="margin-left: 1.5em" id="section-10.1-2.2">
+            <p id="section-10.1-2.2.1">0x11<a href="#section-10.1-2.2.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-10.1-2.3">Parameter Name:</dt>
+          <dd style="margin-left: 1.5em" id="section-10.1-2.4">
+            <p id="section-10.1-2.4.1">version_information<a href="#section-10.1-2.4.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-10.1-2.5">Status:</dt>
+          <dd style="margin-left: 1.5em" id="section-10.1-2.6">
+            <p id="section-10.1-2.6.1">permanent<a href="#section-10.1-2.6.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-10.1-2.7">Specification:</dt>
+          <dd style="margin-left: 1.5em" id="section-10.1-2.8">
+            <p id="section-10.1-2.8.1">RFC 9368<a href="#section-10.1-2.8.1" class="pilcrow">¶</a></p>
+</dd>
+        <dd class="break"></dd>
+</dl>
+</section>
+</div>
+<div id="iana-error">
+<section id="section-10.2">
+        <h3 id="name-quic-transport-error-code">
+<a href="#section-10.2" class="section-number selfRef">10.2. </a><a href="#name-quic-transport-error-code" class="section-name selfRef">QUIC Transport Error Code</a>
+        </h3>
+<p id="section-10.2-1">IANA has registered the following value in the "QUIC Transport Error Codes"
+registry maintained at &lt;<span><a href="https://www.iana.org/assignments/quic">https://www.iana.org/assignments/quic</a></span>&gt;.<a href="#section-10.2-1" class="pilcrow">¶</a></p>
+<span class="break"></span><dl class="dlCompact dlParallel" id="section-10.2-2">
+          <dt id="section-10.2-2.1">Value:</dt>
+          <dd style="margin-left: 1.5em" id="section-10.2-2.2">
+            <p id="section-10.2-2.2.1">0x11<a href="#section-10.2-2.2.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-10.2-2.3">Code:</dt>
+          <dd style="margin-left: 1.5em" id="section-10.2-2.4">
+            <p id="section-10.2-2.4.1">VERSION_NEGOTIATION_ERROR<a href="#section-10.2-2.4.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-10.2-2.5">Description:</dt>
+          <dd style="margin-left: 1.5em" id="section-10.2-2.6">
+            <p id="section-10.2-2.6.1">Error negotiating version<a href="#section-10.2-2.6.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-10.2-2.7">Status:</dt>
+          <dd style="margin-left: 1.5em" id="section-10.2-2.8">
+            <p id="section-10.2-2.8.1">permanent<a href="#section-10.2-2.8.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-10.2-2.9">Specification:</dt>
+          <dd style="margin-left: 1.5em" id="section-10.2-2.10">
+            <p id="section-10.2-2.10.1">RFC 9368<a href="#section-10.2-2.10.1" class="pilcrow">¶</a></p>
+</dd>
+        <dd class="break"></dd>
+</dl>
+</section>
+</div>
+</section>
+</div>
+<section id="section-11">
+      <h2 id="name-references">
+<a href="#section-11" class="section-number selfRef">11. </a><a href="#name-references" class="section-name selfRef">References</a>
+      </h2>
+<section id="section-11.1">
+        <h3 id="name-normative-references">
+<a href="#section-11.1" class="section-number selfRef">11.1. </a><a href="#name-normative-references" class="section-name selfRef">Normative References</a>
+        </h3>
+<dl class="references">
+<dt id="ALPN">[ALPN]</dt>
+        <dd>
+<span class="refAuthor">Friedl, S.</span>, <span class="refAuthor">Popov, A.</span>, <span class="refAuthor">Langley, A.</span>, and <span class="refAuthor">E. Stephan</span>, <span class="refTitle">"Transport Layer Security (TLS) Application-Layer Protocol Negotiation Extension"</span>, <span class="seriesInfo">RFC 7301</span>, <span class="seriesInfo">DOI 10.17487/RFC7301</span>, <time datetime="2014-07" class="refDate">July 2014</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc7301">https://www.rfc-editor.org/rfc/rfc7301</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="QUIC">[QUIC]</dt>
+        <dd>
+<span class="refAuthor">Iyengar, J., Ed.</span> and <span class="refAuthor">M. Thomson, Ed.</span>, <span class="refTitle">"QUIC: A UDP-Based Multiplexed and Secure Transport"</span>, <span class="seriesInfo">RFC 9000</span>, <span class="seriesInfo">DOI 10.17487/RFC9000</span>, <time datetime="2021-05" class="refDate">May 2021</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9000">https://www.rfc-editor.org/rfc/rfc9000</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="QUIC-INVARIANTS">[QUIC-INVARIANTS]</dt>
+        <dd>
+<span class="refAuthor">Thomson, M.</span>, <span class="refTitle">"Version-Independent Properties of QUIC"</span>, <span class="seriesInfo">RFC 8999</span>, <span class="seriesInfo">DOI 10.17487/RFC8999</span>, <time datetime="2021-05" class="refDate">May 2021</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8999">https://www.rfc-editor.org/rfc/rfc8999</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC2119">[RFC2119]</dt>
+        <dd>
+<span class="refAuthor">Bradner, S.</span>, <span class="refTitle">"Key words for use in RFCs to Indicate Requirement Levels"</span>, <span class="seriesInfo">BCP 14</span>, <span class="seriesInfo">RFC 2119</span>, <span class="seriesInfo">DOI 10.17487/RFC2119</span>, <time datetime="1997-03" class="refDate">March 1997</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc2119">https://www.rfc-editor.org/rfc/rfc2119</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC8174">[RFC8174]</dt>
+        <dd>
+<span class="refAuthor">Leiba, B.</span>, <span class="refTitle">"Ambiguity of Uppercase vs Lowercase in RFC 2119 Key Words"</span>, <span class="seriesInfo">BCP 14</span>, <span class="seriesInfo">RFC 8174</span>, <span class="seriesInfo">DOI 10.17487/RFC8174</span>, <time datetime="2017-05" class="refDate">May 2017</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8174">https://www.rfc-editor.org/rfc/rfc8174</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="TLS">[TLS]</dt>
+      <dd>
+<span class="refAuthor">Rescorla, E.</span>, <span class="refTitle">"The Transport Layer Security (TLS) Protocol Version 1.3"</span>, <span class="seriesInfo">RFC 8446</span>, <span class="seriesInfo">DOI 10.17487/RFC8446</span>, <time datetime="2018-08" class="refDate">August 2018</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8446">https://www.rfc-editor.org/rfc/rfc8446</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+</dl>
+</section>
+<section id="section-11.2">
+        <h3 id="name-informative-references">
+<a href="#section-11.2" class="section-number selfRef">11.2. </a><a href="#name-informative-references" class="section-name selfRef">Informative References</a>
+        </h3>
+<dl class="references">
+<dt id="TCP">[TCP]</dt>
+      <dd>
+<span class="refAuthor">Eddy, W., Ed.</span>, <span class="refTitle">"Transmission Control Protocol (TCP)"</span>, <span class="seriesInfo">STD 7</span>, <span class="seriesInfo">RFC 9293</span>, <span class="seriesInfo">DOI 10.17487/RFC9293</span>, <time datetime="2022-08" class="refDate">August 2022</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9293">https://www.rfc-editor.org/rfc/rfc9293</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+</dl>
+</section>
+</section>
+<div id="acknowledgments">
+<section id="appendix-A">
+      <h2 id="name-acknowledgments">
+<a href="#name-acknowledgments" class="section-name selfRef">Acknowledgments</a>
+      </h2>
+<p id="appendix-A-1">The authors would like to thank Nick Banks, Mike Bishop, Martin Duke, Ryan
+Hamilton, Roberto Peon, Anthony Rossi, and Martin Thomson for their input and
+contributions.<a href="#appendix-A-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="authors-addresses">
+<section id="appendix-B">
+      <h2 id="name-authors-addresses">
+<a href="#name-authors-addresses" class="section-name selfRef">Authors' Addresses</a>
+      </h2>
+<address class="vcard">
+        <div dir="auto" class="left"><span class="fn nameRole">David Schinazi</span></div>
+<div dir="auto" class="left"><span class="org">Google LLC</span></div>
+<div dir="auto" class="left"><span class="street-address">1600 Amphitheatre Parkway</span></div>
+<div dir="auto" class="left">
+<span class="locality">Mountain View</span>, <span class="region">CA</span> <span class="postal-code">94043</span>
+</div>
+<div dir="auto" class="left"><span class="country-name">United States of America</span></div>
+<div class="email">
+<span>Email:</span>
+<a href="mailto:dschinazi.ietf@gmail.com" class="email">dschinazi.ietf@gmail.com</a>
+</div>
+</address>
+<address class="vcard">
+        <div dir="auto" class="left"><span class="fn nameRole">Eric Rescorla</span></div>
+<div dir="auto" class="left"><span class="org">Mozilla</span></div>
+<div class="email">
+<span>Email:</span>
+<a href="mailto:ekr@rtfm.com" class="email">ekr@rtfm.com</a>
+</div>
+</address>
+</section>
+</div>
+<script>const toc = document.getElementById("toc");
+toc.querySelector("h2").addEventListener("click", e => {
+  toc.classList.toggle("active");
+});
+toc.querySelector("nav").addEventListener("click", e => {
+  toc.classList.remove("active");
+});
+</script>
+</body>
+</html>
