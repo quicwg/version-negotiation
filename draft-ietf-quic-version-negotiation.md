@@ -476,7 +476,7 @@ in use for the connection is the version that the server sent in the Chosen
 Version field of its Version Information. That remains true even if other
 versions were used in the Version field of long headers at any point in the
 lifetime of the connection. In particular, since
-the client is made aware of the Negotiated Version by the QUIC long
+the client can be made aware of the Negotiated Version by the QUIC long
 header version during compatible version negotiation (see {{compat-vn}}),
 clients MUST validate that the server's
 Chosen Version is equal to the Negotiated Version; if they do not match, the
@@ -654,7 +654,7 @@ parameter with a Chosen Version set to 0x00000001 and an Available Version list
 containing exactly one version set to 0x00000001. This allows version
 negotiation to work with servers that only support QUIC version 1. Note that
 implementations that wish to use version negotiation to negotiate versions
-other than QUIC version 1 will need to implement the version negotiation
+other than QUIC version 1 MUST implement the version negotiation
 mechanism defined in this document.
 
 
