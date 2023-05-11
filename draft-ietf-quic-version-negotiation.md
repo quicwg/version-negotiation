@@ -406,8 +406,8 @@ VERSION_NEGOTIATION_ERROR (see {{iana-error}}).
 
 When a server receives a client's first flight, the server will first
 establish which QUIC version is in use for this connection in order to
-properly parse the first flight. This may involve examining packets
-that are not part of the handshake transcript, such as in the the
+properly parse the first flight. This may involve examining data
+that is not part of the handshake transcript, such as parts of the
 packet header. When the server then processes the client's Version
 Information, the server MUST validate that the client's Chosen Version
 matches the version in use for the connection. If the two differ, the
