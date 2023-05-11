@@ -672,7 +672,8 @@ sub, sup {
 .references dt {
   text-align: right;
   font-weight: bold;
-  min-width: 7em;
+  min-width: 10ch;
+  margin-right: 1.5ch;
 }
 .references dt:target::before {
   content: "⇒";
@@ -680,7 +681,7 @@ sub, sup {
   margin: 0 10px 0 -25px;
 }
 .references dd {
-  margin-left: 8em !important;
+  margin-left: 12ch !important;
   overflow: auto;
 }
 
@@ -1362,10 +1363,10 @@ Negotiation packet. This packet <span class="bcp14">SHALL</span> include each en
 of Offered Versions (see <a href="#server-fleet" class="auto internal xref">Section 5</a>) in a Supported Version field. The
 server <span class="bcp14">MAY</span> add reserved versions (as defined in <span><a href="https://rfc-editor.org/rfc/rfc9000#section-6.3" class="relref">Section 6.3</a> of [<a href="#QUIC" class="cite xref">QUIC</a>]</span>) in
 Supported Version fields.<a href="#section-2.1-1" class="pilcrow">¶</a></p>
-<p id="section-2.1-2">Clients <span class="bcp14">MUST</span> ignore a Version Negotiation packet if it contains the Original
-Version attempted by the client (see <a href="#downgrade" class="auto internal xref">Section 4</a>). The client <span class="bcp14">MUST</span> also ignore a
-Version Negotiation packet that contains incorrect connection ID fields (see
-<span><a href="https://rfc-editor.org/rfc/rfc8999#section-6" class="relref">Section 6</a> of [<a href="#QUIC-INVARIANTS" class="cite xref">QUIC-INVARIANTS</a>]</span>).<a href="#section-2.1-2" class="pilcrow">¶</a></p>
+<p id="section-2.1-2">Clients will ignore a Version Negotiation packet if it contains the Original
+Version attempted by the client, as required by <a href="#downgrade" class="auto internal xref">Section 4</a>. The client also ignores a
+Version Negotiation packet that contains incorrect connection ID fields, as required by
+<span><a href="https://rfc-editor.org/rfc/rfc8999#section-6" class="relref">Section 6</a> of [<a href="#QUIC-INVARIANTS" class="cite xref">QUIC-INVARIANTS</a>]</span>.<a href="#section-2.1-2" class="pilcrow">¶</a></p>
 <p id="section-2.1-3">Upon receiving the Version Negotiation packet, the client <span class="bcp14">SHALL</span> search for a
 version it supports in the list provided by the server. If it doesn't find one,
 it <span class="bcp14">SHALL</span> abort the connection attempt. Otherwise, it <span class="bcp14">SHALL</span> select a mutually
@@ -1634,9 +1635,9 @@ as in the the packet header. When the server then processes the client's Version
 Information, the server <span class="bcp14">MUST</span> validate that the client's Chosen Version matches
 the version in use for the connection. If the two differ, the server <span class="bcp14">MUST</span> close
 the connection with a version negotiation error.<a href="#section-4-5" class="pilcrow">¶</a></p>
-<p id="section-4-6">In the specific case of QUIC version 1, the client determines that it is in use
+<p id="section-4-6">In the specific case of QUIC version 1, the server determines that version 1 is in use
 by observing that the Version field of the first Long Header packet it receives
-is set to 0x00000001. Subsequently, if the client receives the client's Version
+is set to 0x00000001. Subsequently, if the server receives the client's Version
 Information over QUIC version 1 (as indicated by the Version field of the Long
 Header packets that carried the transport parameters) and the client's Chosen
 Version is not set to 0x00000001, the server <span class="bcp14">MUST</span> close the connection with a
@@ -1648,7 +1649,7 @@ otherwise.<a href="#section-4-7" class="pilcrow">¶</a></p>
 <p id="section-4-8">If a client receives Version Information where the server's Chosen Version was
 not sent by the client as part of its Available Versions, the client <span class="bcp14">MUST</span> close
 the connection with a version negotiation error. If a client has reacted to a
-Version Negotiation packet and the Version Information was missing, the client
+Version Negotiation packet and the server's Version Information was missing, the client
 <span class="bcp14">MUST</span> close the connection with a version negotiation error.<a href="#section-4-8" class="pilcrow">¶</a></p>
 <p id="section-4-9">If the client received and acted on a Version Negotiation packet, the client
 <span class="bcp14">MUST</span> validate the server's Available Versions field. The Available Versions
