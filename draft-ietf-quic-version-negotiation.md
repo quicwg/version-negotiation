@@ -126,7 +126,8 @@ negotiation (see {{compat-vn}}) and to prevent version downgrade attacks (see
 {{downgrade}}).
 
 Upon receiving this first flight, the server verifies whether it knows how to
-parse first flights from the Original Version. If it does not, then it starts
+parse first flights from the Chosen Version (which is also the Original
+Version in this case). If it does not, then it starts
 incompatible version negotiation (see {{incompat-vn}}), which causes the client
 to initiate a new connection with a different version. For instance, if the
 client initiates a connection with version A that the server can't parse,
@@ -155,9 +156,9 @@ server MAY add reserved versions (as defined in {{Section 6.3 of QUIC}}) in
 Supported Version fields.
 
 Clients will ignore a Version Negotiation packet if it contains the Original
-Version attempted by the client (see {{downgrade}}). The client also ignores a
-Version Negotiation packet that contains incorrect connection ID fields (see
-{{Section 6 of QUIC-INVARIANTS}}).
+Version attempted by the client, as required by {{downgrade}}. The client also ignores a
+Version Negotiation packet that contains incorrect connection ID fields, as required by
+{{Section 6 of QUIC-INVARIANTS}}.
 
 Upon receiving the Version Negotiation packet, the client SHALL search for a
 version it supports in the list provided by the server. If it doesn't find one,
@@ -308,7 +309,7 @@ to internally use two distinct connection objects.
 
 ## Client Choice of Original Version
 
-When the client picks its Original Version, it will try to avoid incompatible
+When the client picks its Original Version, it SHOULD try to avoid incompatible
 version negotiation to save a round trip. Therefore, the client SHOULD pick an
 Original Version to maximize the combined probability that both:
 
@@ -403,27 +404,33 @@ closing the connection with a version negotiation error. For QUIC version 1,
 version negotiation errors are signaled using a transport error of type
 VERSION_NEGOTIATION_ERROR (see {{iana-error}}).
 
-When a server receives a client's first flight, the server will first establish
-which QUIC version is in use for this connection in order to properly parse the
-first flight. For example, the server determines that QUIC version 1 is in use
+When a server receives a client's first flight, the server will first
+establish which QUIC version is in use for this connection in order to
+properly parse the first flight. This may involve examining data
+that is not part of the handshake transcript, such as parts of the
+packet header. When the server then processes the client's Version
+Information, the server MUST validate that the client's Chosen Version
+matches the version in use for the connection. If the two differ, the
+server MUST close the connection with a version negotiation error.
+
+In the specific case of QUIC version 1, the server determines that version 1 is in use
 by observing that the Version field of the first Long Header packet it receives
-is set to 0x00000001. When the server then processes the client's Version
-Information, the server MUST validate that the client's Chosen Version matches
-the version in use for the connection. If the two differ, the server MUST close
-the connection with a version negotiation error. For example, if a server
-receives the client's Version Information over QUIC version 1 (as indicated by
-the Version field of the Long Header packets that carried the transport
-parameters) and the client's Chosen Version is not set to 0x00000001, the server
-will close the connection with a version negotiation error.
+is set to 0x00000001. Subsequently, if the server receives the client's Version
+Information over QUIC version 1 (as indicated by the Version field of the Long
+Header packets that carried the transport parameters) and the client's Chosen
+Version is not set to 0x00000001, the server MUST close the connection with a
+version negotiation error.
+
+Servers MAY complete the handshake even if the Version Information is missing.
+Clients MUST NOT complete the handshake if they are reacting to a Version
+Negotiation packet and the Version Information is missing, but MAY do so
+otherwise.
 
 If a client receives Version Information where the server's Chosen Version was
 not sent by the client as part of its Available Versions, the client MUST close
-the connection with a version negotiation error.
-
-If the Version Information was missing, the endpoints MAY complete the
-handshake. However, if a client has reacted to a Version Negotiation packet and
-the Version Information was missing, the client MUST close the connection with a
-version negotiation error.
+the connection with a version negotiation error. If a client has reacted to a
+Version Negotiation packet and the server's Version Information was missing, the client
+MUST close the connection with a version negotiation error.
 
 If the client received and acted on a Version Negotiation packet, the client
 MUST validate the server's Available Versions field. The Available Versions
@@ -470,7 +477,7 @@ in use for the connection is the version that the server sent in the Chosen
 Version field of its Version Information. That remains true even if other
 versions were used in the Version field of long headers at any point in the
 lifetime of the connection. In particular, since
-the client is made aware of the Negotiated Version by the QUIC long
+the client can be made aware of the Negotiated Version by the QUIC long
 header version during compatible version negotiation (see {{compat-vn}}),
 clients MUST validate that the server's
 Chosen Version is equal to the Negotiated Version; if they do not match, the
@@ -648,7 +655,7 @@ parameter with a Chosen Version set to 0x00000001 and an Available Version list
 containing exactly one version set to 0x00000001. This allows version
 negotiation to work with servers that only support QUIC version 1. Note that
 implementations that wish to use version negotiation to negotiate versions
-other than QUIC version 1 will need to implement the version negotiation
+other than QUIC version 1 MUST implement the version negotiation
 mechanism defined in this document.
 
 
