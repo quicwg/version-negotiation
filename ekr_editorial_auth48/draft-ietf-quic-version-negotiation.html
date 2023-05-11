@@ -1630,8 +1630,8 @@ version negotiation errors are signaled using a transport error of type
 VERSION_NEGOTIATION_ERROR (see <a href="#iana-error" class="auto internal xref">Section 10.2</a>).<a href="#section-4-4" class="pilcrow">¶</a></p>
 <p id="section-4-5">When a server receives a client's first flight, the server will first
 establish which QUIC version is in use for this connection in order to
-properly parse the first flight. This may involve examining packets
-that are not part of the handshake transcript, such as in the the
+properly parse the first flight. This may involve examining data
+that is not part of the handshake transcript, such as parts of the
 packet header. When the server then processes the client's Version
 Information, the server <span class="bcp14">MUST</span> validate that the client's Chosen Version
 matches the version in use for the connection. If the two differ, the
