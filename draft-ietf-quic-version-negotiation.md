@@ -77,7 +77,7 @@ establishment if needed.
 It is beneficial to avoid additional round trips whenever possible, especially
 given that most incremental versions are broadly similar to the previous
 version. This specification also defines a simple version negotiation mechanism
-that leverages similarities between versions and can negotiate between
+which leverages similarities between versions and can negotiate between
 "compatible" versions without additional round trips.
 
 
@@ -115,7 +115,7 @@ The document uses the following terms:
 
 This document specifies two means of performing version negotiation:
 "incompatible", which requires a round trip and is applicable to all versions,
-and "compatible", which allows saving the round trip but only applies when the
+and "compatible", that allows saving the round trip but only applies when the
 versions are compatible (see {{compat}}).
 
 The client initiates a QUIC connection by choosing an Original Version and
@@ -172,7 +172,7 @@ Version Information (see {{vers-info}}) that is required to ensure that version
 negotiation was genuine, i.e., that no attacker injected packets in order to
 influence the version negotiation process (see {{downgrade}}).
 
-Only servers can start incompatible version negotiation, i.e., clients MUST NOT send
+Only servers can start incompatible version negotiation. Clients MUST NOT send
 Version Negotiation packets and servers MUST ignore all received Version
 Negotiation packets.
 
@@ -184,11 +184,11 @@ B if it is possible to take a first flight of packets from version A and convert
 it into a first flight of packets from version B. As an example, if versions A
 and B are absolutely equal in their wire image and behavior during the handshake
 but differ after the handshake, then A is compatible with B and B is compatible
-with A. Note that the conversion of the first flight can be lossy, i.e., some data,
+with A. Note that the conversion of the first flight can be lossy; some data,
 such as QUIC version 1 0-RTT packets, could be ignored during conversion and
 retransmitted later.
 
-Version compatibility is not symmetric, i.e., it is possible for version A to be
+Version compatibility is not symmetric. It is possible for version A to be
 compatible with version B and for version B not to be compatible with version A. This could
 happen, for example, if version B is a strict superset of version A, i.e., if version A
 includes the concept of streams and STREAM frames and version B includes the
@@ -346,12 +346,12 @@ Version Information {
 The content of each field is described below:
 
 Chosen Version:
-: This is the version that the sender has chosen to use for this connection. In most
+: The version that the sender has chosen to use for this connection. In most
 cases, this field will be equal to the value of the Version field in the long
 header that carries this data; however, future versions or extensions can choose
 to set different values in the long header Version field.
 
-The content of the Available Versions field depends on whether it is sent by
+The contents of the Available Versions field depend on whether it is sent by
 the client or by the server.
 
 Client-Sent Available Versions:
@@ -514,7 +514,7 @@ If a deployment contains multiple server instances, software updates may not
 happen at exactly the same time on all server instances. Because of this, a
 client might receive a Version Negotiation packet from a server instance that
 has already been updated, and the client's resulting connection attempt might
-reach a different server instance that hasn't been updated yet.
+reach a different server instance which hasn't been updated yet.
 
 However, even when there is only a single server instance, it is still possible
 to receive a stale Version Negotiation packet if the server performs its
@@ -596,7 +596,7 @@ In order to facilitate the deployment of future versions of QUIC, designers of
 future versions SHOULD attempt to design their new version such that commonly
 deployed versions are compatible with it.
 
-QUIC version 1 defines multiple features that are not documented in the QUIC
+QUIC version 1 defines multiple features whch are not documented in the QUIC
 invariants. Since, at the time of writing, QUIC version 1 is widely deployed,
 this section discusses considerations for future versions to help with
 compatibility with QUIC version 1.
