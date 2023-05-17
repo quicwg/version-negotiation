@@ -6,7 +6,7 @@ Internet Engineering Task Force (IETF)                       D. Schinazi
 Request for Comments: 9368                                    Google LLC
 Updates: 8999                                                E. Rescorla
 Category: Standards Track                                        Mozilla
-ISSN: 2070-1721                                               March 2023
+ISSN: 2070-1721                                                 May 2023
 
 
                 Compatible Version Negotiation for QUIC
