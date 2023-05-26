@@ -27,7 +27,7 @@ round trip. This document updates RFC 8999.
 <meta content="9368" name="rfc.number">
 <!-- Generator version information:
   xml2rfc 3.17.1
-    Python 3.10.11
+    Python 3.11.3
     appdirs 1.4.4
     ConfigArgParse 1.5.3
     google-i18n-address 2.5.2
@@ -36,8 +36,8 @@ round trip. This document updates RFC 8999.
     lxml 4.9.2
     pycountry 22.3.5
     PyYAML 6.0
-    requests 2.28.1
-    setuptools 65.6.0
+    requests 2.30.0
+    setuptools 67.7.2
     six 1.16.0
     wcwidth 0.2.6
 -->
@@ -1327,7 +1327,7 @@ in <span><a href="https://rfc-editor.org/rfc/rfc9293#section-3.4.1" class="relre
       </h2>
 <p id="section-2-1">This document specifies two means of performing version negotiation:
 1) "incompatible", which requires a round trip and is applicable to all versions,
-and 2) "compatible", that allows saving the round trip but only applies when the
+and 2) "compatible", which allows saving the round trip but only applies when the
 versions are compatible (see <a href="#compat" class="auto internal xref">Section 2.2</a>).<a href="#section-2-1" class="pilcrow">¶</a></p>
 <p id="section-2-2">The client initiates a QUIC connection by choosing an Original Version and
 sending a first flight of QUIC packets with a long header to the server
