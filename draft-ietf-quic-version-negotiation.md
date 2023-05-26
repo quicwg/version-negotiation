@@ -115,7 +115,7 @@ The document uses the following terms:
 
 This document specifies two means of performing version negotiation:
 1) "incompatible", which requires a round trip and is applicable to all versions,
-and 2) "compatible", that allows saving the round trip but only applies when the
+and 2) "compatible", which allows saving the round trip but only applies when the
 versions are compatible (see {{compat}}).
 
 The client initiates a QUIC connection by choosing an Original Version and
