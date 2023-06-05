@@ -1,6 +1,6 @@
 ---
 title: Compatible Version Negotiation for QUIC
-abbrev: QUIC Compatible VN
+abbrev: QUIC-Compatible VN
 docname: draft-ietf-quic-version-negotiation-latest
 v: 3
 submissiontype: IETF
