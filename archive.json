@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2023-05-28T00:50:57.217653+00:00",
+  "timestamp": "2023-06-06T00:53:44.762199+00:00",
   "repo": "quicwg/version-negotiation",
   "labels": [
     {
@@ -8674,24 +8674,26 @@
       "id": "PR_kwDODoD7vc5K-v_E",
       "title": "AUTH48 changes",
       "url": "https://github.com/quicwg/version-negotiation/pull/133",
-      "state": "OPEN",
+      "state": "MERGED",
       "author": "DavidSchinazi",
       "authorAssociation": "CONTRIBUTOR",
       "assignees": [],
       "labels": [],
       "body": "Changes from AUTH48 process.\r\n\r\n[Rendered view of this PR](https://quicwg.github.io/version-negotiation/auth48/draft-ietf-quic-version-negotiation.html)\r\n[Diff with main](https://author-tools.ietf.org/iddiff?url1=https://quicwg.github.io/version-negotiation/draft-ietf-quic-version-negotiation.txt&url2=https://quicwg.github.io/version-negotiation/auth48/draft-ietf-quic-version-negotiation.txt)\r\n[Diff with the RFC Editor's copy](https://author-tools.ietf.org/iddiff?url1=https://quicwg.github.io/version-negotiation/auth48/draft-ietf-quic-version-negotiation.txt&url2=https://www.rfc-editor.org/authors/rfc9368.txt)",
       "createdAt": "2023-03-01T00:08:20Z",
-      "updatedAt": "2023-05-26T17:20:26Z",
+      "updatedAt": "2023-06-05T21:27:01Z",
       "baseRepository": "quicwg/version-negotiation",
       "baseRefName": "main",
       "baseRefOid": "710b89b1194afce80f05eee5859a6d34133150e6",
       "headRepository": "quicwg/version-negotiation",
       "headRefName": "auth48",
-      "headRefOid": "08700e06602812698decb2af7bbaa75338a88566",
-      "closedAt": null,
-      "mergedAt": null,
-      "mergedBy": null,
-      "mergeCommit": null,
+      "headRefOid": "ba5ed6fccede038930b488014c68bd5db8b91c0f",
+      "closedAt": "2023-06-05T21:26:59Z",
+      "mergedAt": "2023-06-05T21:26:59Z",
+      "mergedBy": "DavidSchinazi",
+      "mergeCommit": {
+        "oid": "08913f1b47647d738ef519c0a74d7eb99df178e3"
+      },
       "comments": [],
       "reviews": [
         {
